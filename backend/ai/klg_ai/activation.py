@@ -33,6 +33,7 @@ __all__ = [
     "EngineConfig", "DEFAULT_CONFIG",
     "get_activation", "compute_mastery",
     "mastery_from_events", "activated_from_events",
+    "LearnerProfile", "list_learners",
     "Event", "SOURCE_WEIGHTS", "DEMO_KNOWN", "demo_events", "generate_events",
 ]
 
@@ -98,11 +99,51 @@ def activated_from_events(
     return {n for n, m in mastery.items() if m >= config.known_threshold}
 
 
-# Learner registry: id -> event stream. Extend with real adapters
-# (Duolingo/EdNet for validation, then Subturtle) as they land.
+@dataclass(frozen=True)
+class LearnerProfile:
+    """A selectable learner shown in the viewer (metadata only)."""
+    id: str
+    label: str
+    description: str = ""
+
+
+# Built-in learners for the selector. "demo" is the curated fixture; the others
+# are synthetic personas generated from CEFR bands of the map, so each overlay
+# cleanly shows that learner's known core and the frontier just beyond it.
+LEARNER_PROFILES: list[LearnerProfile] = [
+    LearnerProfile("demo", "Demo — mixed, with gaps",
+                   "Curated learner with deliberate interior gaps (knows 1st & 3rd conditional, not 2nd)."),
+    LearnerProfile("beginner", "Beginner — A1",
+                   "Knows most A1 grammar; everything above is frontier or further."),
+    LearnerProfile("intermediate", "Intermediate — A1–B1",
+                   "Solid on A1–A2 and about half of B1."),
+]
+
+
+def list_learners() -> list[LearnerProfile]:
+    """Metadata for the built-in learners (powers the API's learner selector)."""
+    return list(LEARNER_PROFILES)
+
+
+def _cefr_nodes(*levels: str) -> list[str]:
+    """Map node ids in the given CEFR level(s), sorted for determinism."""
+    wanted = set(levels)
+    return sorted(n for n, d in default_graph().nodes(data=True) if d.get("cefr") in wanted)
+
+
+# Learner registry: id -> event stream. Synthetic personas now; real adapters
+# (Duolingo/EdNet for validation, then Subturtle) plug in here later.
 def _events_for(learner_id: str) -> list[Event] | None:
     if learner_id == "demo":
         return demo_events()
+    if learner_id == "beginner":
+        return generate_events(_cefr_nodes("A1"), learner_id="beginner",
+                               seed=11, reviews_per_node=3, accuracy=1.0, span_days=14.0)
+    if learner_id == "intermediate":
+        b1 = _cefr_nodes("B1")
+        known = _cefr_nodes("A1", "A2") + b1[: len(b1) // 2]
+        return generate_events(known, learner_id="intermediate",
+                               seed=12, reviews_per_node=3, accuracy=1.0, span_days=14.0)
     return None
 
 

@@ -1,14 +1,23 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { api } from "../services/api";
-import type { LearnerStatus, Status } from "../types";
+import type { LearnerProfile, LearnerStatus, Status } from "../types";
 
 export const useLearnerStore = defineStore("learner", () => {
   const learnerId = ref("demo");
+  const learners = ref<LearnerProfile[]>([]); // selectable learners (from the API)
   const data = ref<LearnerStatus | null>(null);
   const activated = ref<Set<string>>(new Set()); // editable known-set for what-if
   const loading = ref(false);
   const error = ref<string | null>(null);
+
+  async function loadLearners() {
+    try {
+      learners.value = await api.getLearners();
+    } catch (e) {
+      error.value = (e as Error).message;
+    }
+  }
 
   function syncActivatedFromData() {
     if (!data.value) return;
@@ -52,5 +61,5 @@ export const useLearnerStore = defineStore("learner", () => {
     return data.value?.statuses[nodeId];
   }
 
-  return { learnerId, data, activated, loading, error, load, refresh, toggle, statusOf };
+  return { learnerId, learners, data, activated, loading, error, loadLearners, load, refresh, toggle, statusOf };
 });

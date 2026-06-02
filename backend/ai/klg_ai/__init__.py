@@ -10,9 +10,11 @@ this package — and running the parts that don't propagate — needs only netwo
 from .activation import (
     DEFAULT_CONFIG,
     EngineConfig,
+    LearnerProfile,
     activated_from_events,
     compute_mastery,
     get_activation,
+    list_learners,
     mastery_from_events,
 )
 from .adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
@@ -35,6 +37,7 @@ __all__ = [
     "EngineConfig", "DEFAULT_CONFIG",
     "mastery_from_events", "activated_from_events",
     "get_activation", "compute_mastery",
+    "LearnerProfile", "list_learners",
     # synthetic evidence
     "DEMO_KNOWN", "demo_events", "generate_events",
 ]
