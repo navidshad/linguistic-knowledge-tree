@@ -96,8 +96,22 @@ feature branches are local-only (not pushed yet).
   Viewer features: matrix / concentric (A1 center → C2 outer) / force layouts;
   CEFR level filter; learner-overlay toggle; interactive node activation
   (right-click / details button → `POST /api/status`).
-- **Phase 2 — NEXT, currently DEFERRED by user.** Replace `get_activation()` in
-  `backend/ai/klg_ai/activation.py` (currently a hardcoded `demo` learner) with a
-  real model: events → activation + GNN propagation + forgetting, plus a data
-  adapter (synthetic → Duolingo). The frontend and API won't need changes — they
-  consume whatever statuses the engine computes.
+- **Phase 2 — IN PROGRESS** (on `feat/phase2-activation`, off `dev`).
+  `get_activation()` is now a real event-driven engine, not a fixture. Pipeline,
+  all pure functions of the inputs:
+  `events → evidence (source-weighted review>dialog>exposure, recency-decayed)
+  → GNN propagation (PyG MessagePassing, lazy-imported) → threshold → known set`.
+  New `klg_ai` modules: `events`, `forgetting`, `evidence`, `propagation`,
+  `adapters/synthetic`. `EngineConfig` carries the `forgetting`/`propagation`
+  on-off switches for the RQ3/RQ4 ablations. Collapses the roadmap's Phase 2
+  (activation) + Phase 4-A (propagation + forgetting) model layers into one
+  branch. Propagation weights are **fixed/untrained** in v1 — the architecture is
+  there so Phase 5 can train it on Duolingo/EdNet (RQ3).
+  - **Contract preserved:** `get_activation` still returns `set[str]`; the demo
+    learner still == `DEMO_KNOWN` (48 known / 3 interior_gap), so API + viewer are
+    unchanged. Inferred-only lift is capped below the known threshold, so pure
+    inference never fabricates "known" (interior gaps don't fill themselves in).
+  - Continuous mastery is exposed via `compute_mastery()` for a future confidence
+    overlay (roadmap Phase 4-B), not yet wired to the API.
+  - Deps added: `torch`, `torch-geometric`. Data source is still fixture-level
+    (demo + seeded synthetic generator); the real Duolingo SLAM adapter is Phase 5.
