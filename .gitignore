@@ -1,0 +1,20 @@
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+*.log
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Local tooling (machine-specific preview config + local settings)
+.claude/

@@ -1,0 +1,80 @@
+<script setup lang="ts">
+import { computed } from "vue";
+import type { MapNode, Status, SyntaxMap } from "../types";
+import { CEFR_COLOR, STATUS_COLOR, STATUS_LABEL } from "../constants";
+
+const props = defineProps<{
+  node: MapNode | null;
+  status: Status | undefined;
+  map: SyntaxMap;
+}>();
+
+const emit = defineEmits<{ (e: "toggle", nodeId: string): void }>();
+
+function labelOf(id: string): string {
+  return props.map.nodes.find((n) => n.id === id)?.label ?? id;
+}
+
+const categoryLabel = computed(() =>
+  props.node ? props.map.categories.find((c) => c.id === props.node!.category)?.label ?? "" : "",
+);
+const prerequisites = computed(() =>
+  props.node ? props.map.edges.filter((e) => e.target === props.node!.id).map((e) => labelOf(e.source)) : [],
+);
+const unlocks = computed(() =>
+  props.node ? props.map.edges.filter((e) => e.source === props.node!.id).map((e) => labelOf(e.target)) : [],
+);
+const isKnown = computed(() => props.status === "known");
+</script>
+
+<template>
+  <aside class="details">
+    <h2>Node details</h2>
+    <p v-if="!node" class="empty">Click a node to inspect it. Right-click toggles known.</p>
+    <template v-else>
+      <p class="title">{{ node.label }}</p>
+      <div class="badges">
+        <span
+          v-if="status"
+          class="badge"
+          :style="{ background: STATUS_COLOR[status], color: status === 'frontier' ? '#1a1a1a' : '#fff' }"
+        >{{ STATUS_LABEL[status] }}</span>
+        <span class="badge" :style="{ background: CEFR_COLOR[node.cefr] }">{{ node.cefr }}</span>
+      </div>
+
+      <button class="toggle-btn" :class="{ on: isKnown }" @click="emit('toggle', node.id)">
+        {{ isKnown ? "Mark as not known" : "Mark as known" }}
+      </button>
+
+      <p class="desc">{{ node.description }}</p>
+      <div class="kv"><span class="k">Category</span><div>{{ categoryLabel }}</div></div>
+      <div class="kv">
+        <span class="k">Prerequisites</span>
+        <ul v-if="prerequisites.length"><li v-for="p in prerequisites" :key="p">{{ p }}</li></ul>
+        <div v-else>—</div>
+      </div>
+      <div class="kv">
+        <span class="k">Unlocks</span>
+        <ul v-if="unlocks.length"><li v-for="u in unlocks" :key="u">{{ u }}</li></ul>
+        <div v-else>—</div>
+      </div>
+    </template>
+  </aside>
+</template>
+
+<style scoped>
+.details { background: var(--panel); border-left: 1px solid var(--line); padding: 14px; overflow-y: auto; font-size: 13px; }
+h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 8px; }
+.empty { color: var(--muted); font-style: italic; line-height: 1.5; }
+.title { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
+.badges { margin-bottom: 10px; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; color: #fff; margin-right: 6px; }
+.toggle-btn { width: 100%; padding: 7px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; margin-bottom: 12px; }
+.toggle-btn:hover { background: #f5f5f5; }
+.toggle-btn.on { border-color: var(--known); color: var(--known); }
+.desc { font-size: 13px; color: #455a64; line-height: 1.45; }
+.kv { margin: 10px 0; }
+.kv .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.kv ul { margin: 4px 0 0; padding-left: 16px; }
+.kv li { margin: 2px 0; }
+</style>
