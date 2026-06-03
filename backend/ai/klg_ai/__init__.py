@@ -11,11 +11,15 @@ from .activation import (
     DEFAULT_CONFIG,
     EngineConfig,
     LearnerProfile,
+    TimelineFrame,
     activated_from_events,
     compute_mastery,
+    event_span,
     get_activation,
     list_learners,
     mastery_from_events,
+    mastery_timeline,
+    threshold_activated,
 )
 from .adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
 from .events import SOURCE_WEIGHTS, Event
@@ -35,8 +39,9 @@ __all__ = [
     # evidence -> activation engine
     "Event", "SOURCE_WEIGHTS", "direct_scores", "recency_weight",
     "EngineConfig", "DEFAULT_CONFIG",
-    "mastery_from_events", "activated_from_events",
-    "get_activation", "compute_mastery",
+    "mastery_from_events", "activated_from_events", "threshold_activated",
+    "get_activation", "compute_mastery", "mastery_timeline",
+    "TimelineFrame", "event_span",
     "LearnerProfile", "list_learners",
     # synthetic evidence
     "DEMO_KNOWN", "demo_events", "generate_events",

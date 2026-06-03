@@ -18,7 +18,7 @@ switches the validation ablations toggle (thesis RQ3, RQ4).
 """
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 
 import networkx as nx
@@ -31,8 +31,9 @@ from .graph import default_graph
 
 __all__ = [
     "EngineConfig", "DEFAULT_CONFIG",
-    "get_activation", "compute_mastery",
-    "mastery_from_events", "activated_from_events",
+    "get_activation", "compute_mastery", "mastery_timeline",
+    "mastery_from_events", "activated_from_events", "threshold_activated",
+    "TimelineFrame", "event_span",
     "LearnerProfile", "list_learners",
     "Event", "SOURCE_WEIGHTS", "DEMO_KNOWN", "demo_events", "generate_events",
 ]
@@ -87,6 +88,19 @@ def mastery_from_events(
     return propagate(g, direct, config)
 
 
+def threshold_activated(
+    mastery: Mapping[str, float], config: EngineConfig = DEFAULT_CONFIG
+) -> set[str]:
+    """The activated ("known") set: nodes whose mastery clears the threshold.
+
+    The single place mastery becomes the discrete known-set, so a caller that
+    already has the continuous scores doesn't re-run propagation just to derive
+    it (e.g. the API computes mastery once, then both reports it and thresholds
+    it; the timeline reuses each frame's mastery).
+    """
+    return {n for n, m in mastery.items() if m >= config.known_threshold}
+
+
 def activated_from_events(
     g: nx.DiGraph,
     events: Iterable[Event],
@@ -95,8 +109,7 @@ def activated_from_events(
     now: float | None = None,
 ) -> set[str]:
     """The set of nodes whose mastery clears ``config.known_threshold``."""
-    mastery = mastery_from_events(g, events, config, now=now)
-    return {n for n, m in mastery.items() if m >= config.known_threshold}
+    return threshold_activated(mastery_from_events(g, events, config, now=now), config)
 
 
 @dataclass(frozen=True)
@@ -179,3 +192,58 @@ def get_activation(
         return None
     g = default_graph() if graph is None else graph
     return activated_from_events(g, events, config, now=now)
+
+
+@dataclass(frozen=True)
+class TimelineFrame:
+    """A learner's knowledge state at one reference time, for the viewer scrubber.
+
+    ``mastery`` covers every node; ``activated`` is the thresholded known-set at
+    that instant (so colors can shift as nodes cross the threshold over time).
+    """
+    t: float
+    mastery: dict[str, float]
+    activated: set[str]
+
+
+def event_span(events: Iterable[Event]) -> tuple[float, float]:
+    """``(first, last)`` timestamp among timed events; ``(0.0, 0.0)`` if none."""
+    times = [e.ts for e in events if e.ts is not None]
+    return (min(times), max(times)) if times else (0.0, 0.0)
+
+
+def mastery_timeline(
+    learner_id: str,
+    *,
+    frames: int = 24,
+    graph: nx.DiGraph | None = None,
+    config: EngineConfig = DEFAULT_CONFIG,
+    horizon_half_lives: float = 2.0,
+) -> list[TimelineFrame] | None:
+    """Mastery sampled across a learner's history, or None if unknown.
+
+    Steps a causal reference time from the first event to the last event plus a
+    forgetting horizon (``horizon_half_lives`` half-lives past the final review,
+    so post-practice *decay* is visible). Because evidence is evaluated
+    point-in-time (see ``evidence.direct_scores``), early frames see only the
+    events that had happened by then — so the scrubber shows mastery grow as
+    evidence accumulates, then fade. With forgetting off the horizon collapses
+    (there is no decay to show) and the grid spans just the evidence window.
+    """
+    events = _events_for(learner_id)
+    if events is None:
+        return None
+    g = default_graph() if graph is None else graph
+
+    t0, t1 = event_span(events)
+    horizon = config.half_life_days * horizon_half_lives if config.forgetting else 0.0
+    t_end = t1 + horizon
+    n = max(2, frames)
+    step = (t_end - t0) / (n - 1) if t_end > t0 else 0.0
+
+    out: list[TimelineFrame] = []
+    for i in range(n):
+        t = t0 + step * i
+        mastery = mastery_from_events(g, events, config, now=t)
+        out.append(TimelineFrame(t=t, mastery=mastery, activated=threshold_activated(mastery, config)))
+    return out

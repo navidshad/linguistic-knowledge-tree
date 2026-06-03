@@ -17,3 +17,13 @@ export const STATUS_COLOR: Record<Status, string> = {
 export const STATUS_LABEL: Record<Status, string> = {
   known: "Known", interior_gap: "Interior gap", frontier: "Frontier", further: "Further",
 };
+
+// Confidence overlay maps mastery [0, 1] -> node opacity [MIN, 1], so even a
+// zero-evidence node stays faintly visible rather than vanishing.
+export const CONFIDENCE_MIN_OPACITY = 0.15;
+
+// What-if mode has no evidence to score, so approximate confidence from the
+// discrete status, letting the opacity overlay degrade gracefully there.
+export const STATUS_MASTERY: Record<Status, number> = {
+  known: 1, interior_gap: 0.4, frontier: 0.2, further: 0.05,
+};

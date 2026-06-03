@@ -34,6 +34,24 @@ export interface LearnerStatus {
   learner_id: string;
   counts: Partial<Record<Status, number>>;
   statuses: Record<string, Status>;
+  // Continuous per-node mastery [0, 1] behind the status (confidence overlay).
+  // null for the what-if endpoint (an activated set with no evidence to score).
+  mastery: Record<string, number> | null;
+}
+
+// A learner's knowledge state at one point in time — the timeline scrubber frame.
+export interface TimelineFrame {
+  t: number;
+  counts: Partial<Record<Status, number>>;
+  statuses: Record<string, Status>;
+  mastery: Record<string, number>;
+}
+
+export interface Timeline {
+  learner_id: string;
+  t_start: number;
+  t_end: number;
+  frames: TimelineFrame[];
 }
 
 export interface LearnerProfile {

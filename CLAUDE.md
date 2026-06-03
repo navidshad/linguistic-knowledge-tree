@@ -96,7 +96,7 @@ feature branches are local-only (not pushed yet).
   Viewer features: matrix / concentric (A1 center → C2 outer) / force layouts;
   CEFR level filter; learner-overlay toggle; interactive node activation
   (right-click / details button → `POST /api/status`).
-- **Phase 2 — IN PROGRESS** (on `feat/phase2-activation`, off `dev`).
+- **Phases 2–4A — DONE** (merged into `dev`).
   `get_activation()` is now a real event-driven engine, not a fixture. Pipeline,
   all pure functions of the inputs:
   `events → evidence (source-weighted review>dialog>exposure, recency-decayed)
@@ -111,7 +111,22 @@ feature branches are local-only (not pushed yet).
     learner still == `DEMO_KNOWN` (48 known / 3 interior_gap), so API + viewer are
     unchanged. Inferred-only lift is capped below the known threshold, so pure
     inference never fabricates "known" (interior gaps don't fill themselves in).
-  - Continuous mastery is exposed via `compute_mastery()` for a future confidence
-    overlay (roadmap Phase 4-B), not yet wired to the API.
+  - Continuous mastery is exposed via `compute_mastery()`; surfaced to the API +
+    viewer in Phase 4-B (below).
   - Deps added: `torch`, `torch-geometric`. Data source is still fixture-level
     (demo + seeded synthetic generator); the real Duolingo SLAM adapter is Phase 5.
+- **Phase 4-B — DONE** (on `feat/phase4b-confidence-viz`, off `dev`): continuous
+  mastery surfaced and made *visible*.
+  - API: `mastery` (per-node [0,1]) added to `GET /api/learner/{id}/status`; new
+    `GET /api/learner/{id}/timeline?frames=N` samples mastery across the learner's
+    history. `evidence.direct_scores` is now **point-in-time / causal** (ignores
+    evidence logged after `now`), so an earlier `now` reconstructs past knowledge —
+    what lets the scrubber show mastery *grow*. New engine helpers:
+    `threshold_activated`, `mastery_timeline`, `event_span`.
+  - Viewer: **confidence overlay** — node opacity ∝ mastery (status = color,
+    confidence = opacity), so GNN-lifted interior gaps *glow* below the known
+    threshold; **timeline scrubber** (slider + play/pause) replays growth →
+    forgetting; mastery shown as a bar in the node panel.
+  - Contract preserved: status counts unchanged (demo still 48/3). `mastery` is
+    nullable — the `POST /api/status` what-if has no evidence, so it's `null` and
+    the viewer approximates opacity from the discrete status there.

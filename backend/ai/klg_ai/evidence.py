@@ -41,7 +41,12 @@ def direct_scores(
     """Aggregate events into a per-node direct mastery score in [0, 1].
 
     ``now`` is the reference time for decay; defaults to the latest event time
-    (so the freshest evidence sees no decay). Nodes with no events are simply
+    (so the freshest evidence sees no decay). Evaluation is **point-in-time /
+    causal**: evidence logged *after* ``now`` (an event whose ``ts`` is greater
+    than ``now``) is ignored, so evaluating an earlier ``now`` reconstructs the
+    learner's knowledge as it was then — this is what lets the timeline scrubber
+    show mastery *grow* as evidence accumulates (events with ``ts is None`` are
+    treated as "current" and always count). Nodes with no events are simply
     absent from the result (i.e. score 0). ``mass0`` sets how much evidence is
     needed to be confident: smaller -> a single review counts for more.
     """
@@ -52,6 +57,8 @@ def direct_scores(
     pos: dict[str, float] = {}   # Σ weighted-recency over *correct* events
     mass: dict[str, float] = {}  # Σ weighted-recency over *all* events
     for e in events:
+        if e.ts is not None and e.ts > now:
+            continue  # causal: this evidence hasn't happened yet at `now`
         age = 0.0 if e.ts is None else now - e.ts
         w = e.weight * recency_weight(age, half_life_days, enabled=forgetting)
         for node in e.node_ids:

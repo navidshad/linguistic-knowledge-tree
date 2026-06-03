@@ -6,10 +6,15 @@ import { CEFR_COLOR, STATUS_COLOR, STATUS_LABEL } from "../constants";
 const props = defineProps<{
   node: MapNode | null;
   status: Status | undefined;
+  mastery: number | undefined;
   map: SyntaxMap;
 }>();
 
 const emit = defineEmits<{ (e: "toggle", nodeId: string): void }>();
+
+const masteryPct = computed(() =>
+  props.mastery === undefined ? null : Math.round(props.mastery * 100),
+);
 
 function labelOf(id: string): string {
   return props.map.nodes.find((n) => n.id === id)?.label ?? id;
@@ -42,6 +47,16 @@ const isKnown = computed(() => props.status === "known");
         <span class="badge" :style="{ background: CEFR_COLOR[node.cefr] }">{{ node.cefr }}</span>
       </div>
 
+      <div v-if="masteryPct !== null" class="mastery">
+        <div class="mhead"><span class="k">Mastery (confidence)</span><b>{{ masteryPct }}%</b></div>
+        <div class="bar">
+          <div
+            class="fill"
+            :style="{ width: masteryPct + '%', background: status ? STATUS_COLOR[status] : '#90a4ae' }"
+          />
+        </div>
+      </div>
+
       <button class="toggle-btn" :class="{ on: isKnown }" @click="emit('toggle', node.id)">
         {{ isKnown ? "Mark as not known" : "Mark as known" }}
       </button>
@@ -69,6 +84,11 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: 
 .title { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
 .badges { margin-bottom: 10px; }
 .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; color: #fff; margin-right: 6px; }
+.mastery { margin-bottom: 12px; }
+.mhead { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.mhead .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.bar { height: 8px; background: #eceff1; border-radius: 5px; overflow: hidden; }
+.fill { height: 100%; border-radius: 5px; transition: width 0.2s ease; }
 .toggle-btn { width: 100%; padding: 7px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; margin-bottom: 12px; }
 .toggle-btn:hover { background: #f5f5f5; }
 .toggle-btn.on { border-color: var(--known); color: var(--known); }
