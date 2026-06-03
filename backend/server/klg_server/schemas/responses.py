@@ -63,3 +63,42 @@ class TimelineOut(BaseModel):
     t_start: float
     t_end: float
     frames: list[TimelineFrameOut]
+
+
+# --- Phase 5: validation metrics (Duolingo SLAM) ---------------------------
+
+class MetricSet(BaseModel):
+    n: int
+    base_rate: float
+    auroc: float
+    F1: float
+    accuracy: float
+    avglogloss: float
+
+
+class ModelResultOut(BaseModel):
+    name: str
+    group: str                        # RQ grouping / baseline tag
+    label: str
+    metrics: MetricSet
+    metrics_cold: MetricSet | None = None   # cold-node slice (RQ3), if any
+    roc: list[dict[str, float]]             # [{fpr, tpr}, ...] for plotting
+
+
+class MetricsDatasetOut(BaseModel):
+    source: str
+    course: str
+    split: str
+    n_learners: int
+    n_eval_instances: int
+    n_cold_instances: int = 0
+    mistake_base_rate: float
+    node_coverage: float
+
+
+class MetricsOut(BaseModel):
+    """Phase 5 validation results — the ablation table + ROC curves for the viewer."""
+    dataset: MetricsDatasetOut
+    rqs: dict[str, list[str]]
+    models: list[ModelResultOut]
+    meta: dict | None = None

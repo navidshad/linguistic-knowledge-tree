@@ -63,7 +63,7 @@ linguistic-knowledge-tree/
 ## Stages & Phases
 
 **Status legend:** ✅ Done · 🟡 Partial · ⬜ Todo.
-(Phases 0–3 and 4-A are on `dev`; Phase 4-B is on `feat/phase4b-confidence-viz`, pending merge into `dev`.)
+(Phases 0–4B are on `dev`; Phase 5 is on `feat/phase5-validation`, pending merge into `dev`.)
 
 ### Stage I — Map & Explore
 
@@ -96,10 +96,10 @@ linguistic-knowledge-tree/
 - B: Confidence encoded as **node opacity ∝ mastery** (status = color, confidence = opacity), so GNN-lifted interior gaps glow below the known threshold; **timeline scrubber** (slider + play/pause) replays growth + forgetting. Mastery surfaced via `mastery` on `GET /api/learner/{id}/status` + `GET /api/learner/{id}/timeline`; evidence scoring is now point-in-time/causal.
 - **Deliverable:** the map infers beyond direct evidence and evolves over time. *(= §3.5, §3.6, §2.6.)*
 
-**Phase 5 — Validation on open data** · ⬜ Todo ← turns the thesis from theoretical to validated
-- A: Duolingo SLAM (primary) + EdNet adapters → run the engine → **held-out / next-step prediction, AUC vs DKT baseline** (pykt). Ablations per RQ: propagation on/off (RQ3), forgetting on/off (RQ4), graph vs sequence (RQ1).
-- B: A small "metrics dashboard" view (curves, ablation table) for the thesis write-up.
-- **Deliverable:** the numbers that answer the research questions.
+**Phase 5 — Validation on open data** · ✅ Done (on `feat/phase5-validation`) ← turns the thesis from theoretical to validated
+- A: **Duolingo SLAM en_es** adapter (real morphosyntactic tag → concept-node mapping, 72.5% token coverage) → engine run → **next-step prediction, AUROC vs. in-repo DKT** + difficulty/ability/chance baselines. Ablations per RQ: propagation on/off (RQ3, incl. a cold-node slice), forgetting on/off (RQ4), graph vs. sequence (RQ1). (DKT chosen as a self-contained sequence baseline instead of pykt; EdNet scale-check deferred.)
+- B: **Validation dashboard** tab in the viewer (RQ cards, ROC curves, ablation table) served from `GET /api/metrics`.
+- **Deliverable:** the numbers that answer the RQs — engine 0.641 ≈ DKT 0.656 > difficulty 0.605 > chance 0.500; propagation/forgetting null on predictive AUROC but propagation gives representational coverage on cold nodes. Full write-up: `docs/phase5-validation.md`.
 
 ### Stage IV — Semantic & Personal
 
@@ -141,4 +141,4 @@ linguistic-knowledge-tree/
 
 ## Immediate next step
 
-**Phase 5** — validation on open data (Duolingo SLAM primary, EdNet scale check): adapters → run the engine → held-out / next-step prediction, **AUC vs DKT baseline** (pykt), with the RQ ablations (propagation on/off RQ3, forgetting on/off RQ4, graph vs sequence RQ1). Housekeeping: merge `feat/phase4b-confidence-viz` → `dev`.
+**Phase 6** — semantic embedding (BERT/K-BERT) for evidence→node mapping: map free learner text (dialog turns, saved phrases) to map nodes via embeddings + knowledge injection, ablation BERT vs K-BERT (RQ2). This generalizes the Phase-5 rule-based tag→node mapper to *unlabeled* text — the prerequisite for Subturtle transcripts. Housekeeping: merge `feat/phase5-validation` → `dev`; optional EdNet scale-check and a learned-propagation extension (train the RQ3 weights) remain open from Phase 5.

@@ -3,6 +3,7 @@
 export type Cefr = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 export type Status = "known" | "interior_gap" | "frontier" | "further";
 export type LayoutName = "matrix" | "concentric" | "force";
+export type Tab = "map" | "metrics";
 
 export interface Category {
   id: string;
@@ -58,4 +59,47 @@ export interface LearnerProfile {
   id: string;
   label: string;
   description: string;
+}
+
+// --- Phase 5: validation metrics (Duolingo SLAM) ---
+
+export interface MetricSet {
+  n: number;
+  base_rate: number;
+  auroc: number;
+  F1: number;
+  accuracy: number;
+  avglogloss: number;
+}
+
+export interface RocPoint {
+  fpr: number;
+  tpr: number;
+}
+
+export interface ModelResult {
+  name: string;
+  group: string;
+  label: string;
+  metrics: MetricSet;
+  metrics_cold: MetricSet | null;
+  roc: RocPoint[];
+}
+
+export interface ValidationDataset {
+  source: string;
+  course: string;
+  split: string;
+  n_learners: number;
+  n_eval_instances: number;
+  n_cold_instances: number;
+  mistake_base_rate: number;
+  node_coverage: number;
+}
+
+export interface ValidationResults {
+  dataset: ValidationDataset;
+  rqs: Record<string, string[]>;
+  models: ModelResult[];
+  meta?: Record<string, unknown>;
 }

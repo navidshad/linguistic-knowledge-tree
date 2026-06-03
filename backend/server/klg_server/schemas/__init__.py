@@ -6,6 +6,10 @@ from .responses import (
     LearnerProfileOut,
     LearnerStatusOut,
     MapOut,
+    MetricsDatasetOut,
+    MetricsOut,
+    MetricSet,
+    ModelResultOut,
     NodeOut,
     TimelineFrameOut,
     TimelineOut,
@@ -16,4 +20,5 @@ __all__ = [
     "CategoryOut", "EdgeOut", "NodeOut", "MapOut",
     "LearnerStatusOut", "LearnerProfileOut", "HealthOut",
     "TimelineOut", "TimelineFrameOut",
+    "MetricsOut", "MetricsDatasetOut", "MetricSet", "ModelResultOut",
 ]

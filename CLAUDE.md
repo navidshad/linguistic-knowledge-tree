@@ -115,7 +115,7 @@ feature branches are local-only (not pushed yet).
     viewer in Phase 4-B (below).
   - Deps added: `torch`, `torch-geometric`. Data source is still fixture-level
     (demo + seeded synthetic generator); the real Duolingo SLAM adapter is Phase 5.
-- **Phase 4-B — DONE** (on `feat/phase4b-confidence-viz`, off `dev`): continuous
+- **Phase 4-B — DONE** (merged into `dev`): continuous
   mastery surfaced and made *visible*.
   - API: `mastery` (per-node [0,1]) added to `GET /api/learner/{id}/status`; new
     `GET /api/learner/{id}/timeline?frames=N` samples mastery across the learner's
@@ -130,3 +130,28 @@ feature branches are local-only (not pushed yet).
   - Contract preserved: status counts unchanged (demo still 48/3). `mastery` is
     nullable — the `POST /api/status` what-if has no evidence, so it's `null` and
     the viewer approximates opacity from the discrete status there.
+- **Phase 5 — DONE** (on `feat/phase5-validation`, off `dev`): validation on real
+  open data. Full write-up: `docs/phase5-validation.md`.
+  - **Data:** Duolingo SLAM 2018 **en_es** (English learners, L1 Spanish; 2.6M
+    token instances, 2,593 learners, 14% mistake rate). License-gated on Harvard
+    Dataverse — **not committed**; `data/` is git-ignored. **en_es = English
+    tokens** (the direction is ambiguous in the literature — confirmed from the
+    bytes). Label **1 = mistake**, so `Event.correct = (label == 0)`.
+  - New `klg_ai.adapters.slam` + `slam_mapping` (parse mirrors official
+    `baseline.py`; rule-based morphosyntactic tag → concept node, dependency-aware
+    for verb constructions, 72.5% token coverage). New `klg_ai.eval` package:
+    `dataset` (temporal split + cold-node mask), `predict` (engine-as-predictor +
+    Platt calibration), `baselines` (in-repo **DKT** LSTM + difficulty/ability/
+    chance), `metrics` (ported from SLAM `eval.py`, pinned to its oracle),
+    `ablations`, `run` (CLI: `python -m klg_ai.eval.run`).
+  - **Results (RQs):** engine **0.641** ≈ DKT **0.656** > per-skill 0.605 >
+    chance 0.500 (RQ1: graph competitive with sequence). Propagation null on
+    predictive AUROC (RQ3) but supplies inferred mastery to 76% of cold nodes
+    (representational, not predictive). Forgetting negligible on the 30-day
+    window (RQ4). No new runtime deps (metrics pure-Python; DKT uses torch).
+  - **Viewer:** new **Validation** tab (RQ cards + ROC curves + ablation table)
+    served by `GET /api/metrics` (reads `data/eval/results.json` else committed
+    `docs/phase5/results.json`). Map tab + status contract unchanged (demo 48/3).
+  - Open: pykt/EdNet scale-check and *training* the propagation weights (RQ3) are
+    deferred — the architecture supports it; Phase 5 delivers the validated
+    comparison with fixed weights.
