@@ -1,0 +1,2636 @@
+{
+  "n_exercises": 18051,
+  "reports": {
+    "rule": {
+      "name": "rule",
+      "micro": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "macro": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "coverage": 0.7242906935079318,
+      "gold_coverage": 0.7242906935079318,
+      "exact_set_rate": 1.0,
+      "n_tokens": 61398,
+      "counts": {
+        "tp": 44710,
+        "fp": 0,
+        "fn": 0
+      },
+      "per_node": {
+        "adjective_basic": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 5368,
+          "tp": 5368,
+          "fp": 0,
+          "fn": 0
+        },
+        "adverbs_degree": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 291,
+          "tp": 291,
+          "fp": 0,
+          "fn": 0
+        },
+        "adverbs_frequency": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 189,
+          "tp": 189,
+          "fp": 0,
+          "fn": 0
+        },
+        "adverbs_manner": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 269,
+          "tp": 269,
+          "fp": 0,
+          "fn": 0
+        },
+        "adverbs_time_place": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 272,
+          "tp": 272,
+          "fp": 0,
+          "fn": 0
+        },
+        "articles_a_an": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1529,
+          "tp": 1529,
+          "fp": 0,
+          "fn": 0
+        },
+        "articles_the": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 5739,
+          "tp": 5739,
+          "fp": 0,
+          "fn": 0
+        },
+        "basic_linkers": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 192,
+          "tp": 192,
+          "fp": 0,
+          "fn": 0
+        },
+        "can_ability": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 503,
+          "tp": 503,
+          "fp": 0,
+          "fn": 0
+        },
+        "comparative_adverbs": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 12,
+          "tp": 12,
+          "fp": 0,
+          "fn": 0
+        },
+        "comparatives": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 133,
+          "tp": 133,
+          "fp": 0,
+          "fn": 0
+        },
+        "coordination": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 566,
+          "tp": 566,
+          "fp": 0,
+          "fn": 0
+        },
+        "could_past_ability": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4,
+          "tp": 4,
+          "fp": 0,
+          "fn": 0
+        },
+        "demonstratives": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 373,
+          "tp": 373,
+          "fp": 0,
+          "fn": 0
+        },
+        "going_to_future": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 136,
+          "tp": 136,
+          "fp": 0,
+          "fn": 0
+        },
+        "indefinite_pronouns": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 119,
+          "tp": 119,
+          "fp": 0,
+          "fn": 0
+        },
+        "might_may_possibility": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 91,
+          "tp": 91,
+          "fp": 0,
+          "fn": 0
+        },
+        "must_have_to": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 13,
+          "tp": 13,
+          "fp": 0,
+          "fn": 0
+        },
+        "negation_basic": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1202,
+          "tp": 1202,
+          "fp": 0,
+          "fn": 0
+        },
+        "passive_present_past": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 50,
+          "tp": 50,
+          "fp": 0,
+          "fn": 0
+        },
+        "past_continuous": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 46,
+          "tp": 46,
+          "fp": 0,
+          "fn": 0
+        },
+        "past_perfect_simple": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 86,
+          "tp": 86,
+          "fp": 0,
+          "fn": 0
+        },
+        "past_simple": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 991,
+          "tp": 991,
+          "fp": 0,
+          "fn": 0
+        },
+        "personal_pronouns": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 9472,
+          "tp": 9472,
+          "fp": 0,
+          "fn": 0
+        },
+        "plural_nouns": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 2195,
+          "tp": 2195,
+          "fp": 0,
+          "fn": 0
+        },
+        "possessive_pronouns": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1954,
+          "tp": 1954,
+          "fp": 0,
+          "fn": 0
+        },
+        "possessive_s": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 13,
+          "tp": 13,
+          "fp": 0,
+          "fn": 0
+        },
+        "prepositions_movement": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 194,
+          "tp": 194,
+          "fp": 0,
+          "fn": 0
+        },
+        "prepositions_place": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1367,
+          "tp": 1367,
+          "fp": 0,
+          "fn": 0
+        },
+        "prepositions_time": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 40,
+          "tp": 40,
+          "fp": 0,
+          "fn": 0
+        },
+        "present_continuous": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 444,
+          "tp": 444,
+          "fp": 0,
+          "fn": 0
+        },
+        "present_perfect_simple": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 124,
+          "tp": 124,
+          "fp": 0,
+          "fn": 0
+        },
+        "present_simple": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 9117,
+          "tp": 9117,
+          "fp": 0,
+          "fn": 0
+        },
+        "quantifiers_basic": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 167,
+          "tp": 167,
+          "fp": 0,
+          "fn": 0
+        },
+        "reflexive_pronouns": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 24,
+          "tp": 24,
+          "fp": 0,
+          "fn": 0
+        },
+        "relative_pronouns": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0
+        },
+        "short_answers": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 229,
+          "tp": 229,
+          "fp": 0,
+          "fn": 0
+        },
+        "superlatives": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25,
+          "tp": 25,
+          "fp": 0,
+          "fn": 0
+        },
+        "wh_questions": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 830,
+          "tp": 830,
+          "fp": 0,
+          "fn": 0
+        },
+        "will_future": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 217,
+          "tp": 217,
+          "fp": 0,
+          "fn": 0
+        },
+        "would_past_habits": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 14,
+          "tp": 14,
+          "fp": 0,
+          "fn": 0
+        },
+        "yes_no_questions": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 109,
+          "tp": 109,
+          "fp": 0,
+          "fn": 0
+        }
+      },
+      "top_confusions": []
+    },
+    "bert": {
+      "name": "?",
+      "micro": {
+        "precision": 0.10003001233840579,
+        "recall": 0.20127488257660478,
+        "f1": 0.13364222969711823
+      },
+      "macro": {
+        "precision": 0.14622792516961955,
+        "recall": 0.39458426351285664,
+        "f1": 0.1435574002115322
+      },
+      "coverage": 0.6675624613179583,
+      "gold_coverage": 0.7242906935079318,
+      "exact_set_rate": 0.0519901056892287,
+      "n_tokens": 61398,
+      "counts": {
+        "tp": 8999,
+        "fp": 80964,
+        "fn": 35711
+      },
+      "per_node": {
+        "addition_sequence_linkers": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 56,
+          "fn": 0
+        },
+        "adjective_basic": {
+          "precision": 0.19772727272727272,
+          "recall": 0.01620715350223547,
+          "f1": 0.029958677685950414,
+          "support": 5368,
+          "tp": 87,
+          "fp": 353,
+          "fn": 5281
+        },
+        "adjective_order": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 160,
+          "fn": 0
+        },
+        "adverb_position": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 77,
+          "fn": 0
+        },
+        "adverbs_degree": {
+          "precision": 0.2962962962962963,
+          "recall": 0.16494845360824742,
+          "f1": 0.2119205298013245,
+          "support": 291,
+          "tp": 48,
+          "fp": 114,
+          "fn": 243
+        },
+        "adverbs_frequency": {
+          "precision": 0.2670157068062827,
+          "recall": 0.5396825396825397,
+          "f1": 0.35726795096322245,
+          "support": 189,
+          "tp": 102,
+          "fp": 280,
+          "fn": 87
+        },
+        "adverbs_manner": {
+          "precision": 0.2608695652173913,
+          "recall": 0.20074349442379183,
+          "f1": 0.226890756302521,
+          "support": 269,
+          "tp": 54,
+          "fp": 153,
+          "fn": 215
+        },
+        "adverbs_time_place": {
+          "precision": 0.010813352139163141,
+          "recall": 0.08455882352941177,
+          "f1": 0.01917465610671113,
+          "support": 272,
+          "tp": 23,
+          "fp": 2104,
+          "fn": 249
+        },
+        "affixation_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 133,
+          "fn": 0
+        },
+        "affixation_basic": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 4,
+          "fn": 0
+        },
+        "articles_a_an": {
+          "precision": 0.6980428704566636,
+          "recall": 0.4898626553302812,
+          "f1": 0.5757109915449654,
+          "support": 1529,
+          "tp": 749,
+          "fp": 324,
+          "fn": 780
+        },
+        "articles_the": {
+          "precision": 0.6256146624944121,
+          "recall": 0.48771562990067957,
+          "f1": 0.5481249388034858,
+          "support": 5739,
+          "tp": 2799,
+          "fp": 1675,
+          "fn": 2940
+        },
+        "backshift_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 347,
+          "fn": 0
+        },
+        "basic_linkers": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 192,
+          "tp": 0,
+          "fp": 25,
+          "fn": 192
+        },
+        "can_ability": {
+          "precision": 0.2640555906506633,
+          "recall": 0.831013916500994,
+          "f1": 0.4007670182166827,
+          "support": 503,
+          "tp": 418,
+          "fp": 1165,
+          "fn": 85
+        },
+        "causative_have_get": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 652,
+          "fn": 0
+        },
+        "cleft_sentences": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 144,
+          "fn": 0
+        },
+        "cohesion_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 42,
+          "fn": 0
+        },
+        "collocation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 819,
+          "fn": 0
+        },
+        "comparative_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 174,
+          "fn": 0
+        },
+        "comparative_adverbs": {
+          "precision": 0.03496503496503497,
+          "recall": 0.8333333333333334,
+          "f1": 0.06711409395973154,
+          "support": 12,
+          "tp": 10,
+          "fp": 276,
+          "fn": 2
+        },
+        "comparatives": {
+          "precision": 0.08450704225352113,
+          "recall": 0.22556390977443608,
+          "f1": 0.12295081967213115,
+          "support": 133,
+          "tp": 30,
+          "fp": 325,
+          "fn": 103
+        },
+        "compound_nouns": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 176,
+          "fn": 0
+        },
+        "concession_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 15,
+          "fn": 0
+        },
+        "conditionals_alternative": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 172,
+          "fn": 0
+        },
+        "contrast_linkers": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 397,
+          "fn": 0
+        },
+        "coordination": {
+          "precision": 0.18181818181818182,
+          "recall": 0.04240282685512368,
+          "f1": 0.06876790830945559,
+          "support": 566,
+          "tp": 24,
+          "fp": 108,
+          "fn": 542
+        },
+        "could_past_ability": {
+          "precision": 0.002652519893899204,
+          "recall": 0.75,
+          "f1": 0.0052863436123348016,
+          "support": 4,
+          "tp": 3,
+          "fp": 1128,
+          "fn": 1
+        },
+        "countable_uncountable": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 171,
+          "fn": 0
+        },
+        "demonstratives": {
+          "precision": 0.18461538461538463,
+          "recall": 0.6434316353887399,
+          "f1": 0.2869097429766886,
+          "support": 373,
+          "tp": 240,
+          "fp": 1060,
+          "fn": 133
+        },
+        "dependent_prepositions": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 27,
+          "fn": 0
+        },
+        "ellipsis_substitution": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 194,
+          "fn": 0
+        },
+        "first_conditional": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 508,
+          "fn": 0
+        },
+        "fronting": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 101,
+          "fn": 0
+        },
+        "future_continuous": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1297,
+          "fn": 0
+        },
+        "future_perfect": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1127,
+          "fn": 0
+        },
+        "gerund_basic": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 177,
+          "fn": 0
+        },
+        "going_to_future": {
+          "precision": 0.0652395514780836,
+          "recall": 0.9411764705882353,
+          "f1": 0.12202097235462345,
+          "support": 136,
+          "tp": 128,
+          "fp": 1834,
+          "fn": 8
+        },
+        "gradable_nongradable": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 267,
+          "fn": 0
+        },
+        "hedging_register": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 200,
+          "fn": 0
+        },
+        "idioms": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 191,
+          "fn": 0
+        },
+        "indefinite_pronouns": {
+          "precision": 0.04318936877076412,
+          "recall": 0.3277310924369748,
+          "f1": 0.07632093933463796,
+          "support": 119,
+          "tp": 39,
+          "fp": 864,
+          "fn": 80
+        },
+        "indirect_questions": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 213,
+          "fn": 0
+        },
+        "infinitive_of_purpose": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 493,
+          "fn": 0
+        },
+        "infinitive_vs_gerund_meaning": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 178,
+          "fn": 0
+        },
+        "introductory_it_there": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1902,
+          "fn": 0
+        },
+        "might_may_possibility": {
+          "precision": 0.043066729768102226,
+          "recall": 1.0,
+          "f1": 0.08257713248638839,
+          "support": 91,
+          "tp": 91,
+          "fp": 2022,
+          "fn": 0
+        },
+        "mixed_conditionals": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 121,
+          "fn": 0
+        },
+        "mixed_tenses_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 435,
+          "fn": 0
+        },
+        "modals_deduction_past": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 66,
+          "fn": 0
+        },
+        "modals_deduction_present": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 252,
+          "fn": 0
+        },
+        "modals_speculation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 381,
+          "fn": 0
+        },
+        "must_have_to": {
+          "precision": 0.017391304347826087,
+          "recall": 0.9230769230769231,
+          "f1": 0.034139402560455195,
+          "support": 13,
+          "tp": 12,
+          "fp": 678,
+          "fn": 1
+        },
+        "narrative_tenses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 17,
+          "fn": 0
+        },
+        "negation_basic": {
+          "precision": 0.5115273775216138,
+          "recall": 0.29534109816971715,
+          "f1": 0.3744725738396625,
+          "support": 1202,
+          "tp": 355,
+          "fp": 339,
+          "fn": 847
+        },
+        "negative_inversion": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1920,
+          "fn": 0
+        },
+        "nominalization": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 66,
+          "fn": 0
+        },
+        "noun_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 365,
+          "fn": 0
+        },
+        "participial_adjectives": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1368,
+          "fn": 0
+        },
+        "participle_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 3409,
+          "fn": 0
+        },
+        "passive_all_tenses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 540,
+          "fn": 0
+        },
+        "passive_modals": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 932,
+          "fn": 0
+        },
+        "passive_present_past": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 50,
+          "tp": 0,
+          "fp": 1063,
+          "fn": 50
+        },
+        "passive_reporting": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 821,
+          "fn": 0
+        },
+        "past_continuous": {
+          "precision": 0.08108108108108109,
+          "recall": 0.2608695652173913,
+          "f1": 0.12371134020618557,
+          "support": 46,
+          "tp": 12,
+          "fp": 136,
+          "fn": 34
+        },
+        "past_perfect_continuous": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 293,
+          "fn": 0
+        },
+        "past_perfect_simple": {
+          "precision": 0.18095238095238095,
+          "recall": 0.6627906976744186,
+          "f1": 0.28428927680798,
+          "support": 86,
+          "tp": 57,
+          "fp": 258,
+          "fn": 29
+        },
+        "past_simple": {
+          "precision": 0.2025089605734767,
+          "recall": 0.11402623612512613,
+          "f1": 0.14590058102001288,
+          "support": 991,
+          "tp": 113,
+          "fp": 445,
+          "fn": 878
+        },
+        "perfect_infinitive": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1550,
+          "fn": 0
+        },
+        "personal_pronouns": {
+          "precision": 0.24145646867371848,
+          "recall": 0.12531672297297297,
+          "f1": 0.1649986099527384,
+          "support": 9472,
+          "tp": 1187,
+          "fp": 3729,
+          "fn": 8285
+        },
+        "phrasal_verbs_basic": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 463,
+          "fn": 0
+        },
+        "plural_nouns": {
+          "precision": 0.23747980613893377,
+          "recall": 0.06697038724373576,
+          "f1": 0.1044776119402985,
+          "support": 2195,
+          "tp": 147,
+          "fp": 472,
+          "fn": 2048
+        },
+        "possessive_pronouns": {
+          "precision": 0.34760087241003274,
+          "recall": 0.6525076765609007,
+          "f1": 0.4535752401280683,
+          "support": 1954,
+          "tp": 1275,
+          "fp": 2393,
+          "fn": 679
+        },
+        "possessive_s": {
+          "precision": 0.004987531172069825,
+          "recall": 0.46153846153846156,
+          "f1": 0.009868421052631578,
+          "support": 13,
+          "tp": 6,
+          "fp": 1197,
+          "fn": 7
+        },
+        "prepositional_phrases_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 94,
+          "fn": 0
+        },
+        "prepositions_movement": {
+          "precision": 0.08631921824104234,
+          "recall": 0.27319587628865977,
+          "f1": 0.1311881188118812,
+          "support": 194,
+          "tp": 53,
+          "fp": 561,
+          "fn": 141
+        },
+        "prepositions_place": {
+          "precision": 0.18271417740712662,
+          "recall": 0.17629846378931968,
+          "f1": 0.17944899478778853,
+          "support": 1367,
+          "tp": 241,
+          "fp": 1078,
+          "fn": 1126
+        },
+        "prepositions_time": {
+          "precision": 0.0035356511490866236,
+          "recall": 0.15,
+          "f1": 0.0069084628670120895,
+          "support": 40,
+          "tp": 6,
+          "fp": 1691,
+          "fn": 34
+        },
+        "present_continuous": {
+          "precision": 0.05490549054905491,
+          "recall": 0.1373873873873874,
+          "f1": 0.07845659163987138,
+          "support": 444,
+          "tp": 61,
+          "fp": 1050,
+          "fn": 383
+        },
+        "present_perfect_continuous": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 644,
+          "fn": 0
+        },
+        "present_perfect_simple": {
+          "precision": 0.03826955074875208,
+          "recall": 0.18548387096774194,
+          "f1": 0.06344827586206897,
+          "support": 124,
+          "tp": 23,
+          "fp": 578,
+          "fn": 101
+        },
+        "present_simple": {
+          "precision": 0.20977596741344195,
+          "recall": 0.0112975759570034,
+          "f1": 0.021440466278101585,
+          "support": 9117,
+          "tp": 103,
+          "fp": 388,
+          "fn": 9014
+        },
+        "quantifiers_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 672,
+          "fn": 0
+        },
+        "quantifiers_basic": {
+          "precision": 0.010395010395010396,
+          "recall": 0.029940119760479042,
+          "f1": 0.0154320987654321,
+          "support": 167,
+          "tp": 5,
+          "fp": 476,
+          "fn": 162
+        },
+        "question_tags": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1404,
+          "fn": 0
+        },
+        "question_words_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 233,
+          "fn": 0
+        },
+        "reason_result_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 96,
+          "fn": 0
+        },
+        "reduced_relative_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1165,
+          "fn": 0
+        },
+        "reflexive_pronouns": {
+          "precision": 0.008381924198250729,
+          "recall": 0.9583333333333334,
+          "f1": 0.01661849710982659,
+          "support": 24,
+          "tp": 23,
+          "fp": 2721,
+          "fn": 1
+        },
+        "relative_clauses_defining": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 112,
+          "fn": 0
+        },
+        "relative_clauses_nondefining": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 54,
+          "fn": 0
+        },
+        "relative_pronouns": {
+          "precision": 0.0010395010395010396,
+          "recall": 1.0,
+          "f1": 0.002076843198338526,
+          "support": 1,
+          "tp": 1,
+          "fp": 961,
+          "fn": 0
+        },
+        "reported_commands": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 3530,
+          "fn": 0
+        },
+        "reported_questions": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 4520,
+          "fn": 0
+        },
+        "reported_statements": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 954,
+          "fn": 0
+        },
+        "reporting_verbs": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 141,
+          "fn": 0
+        },
+        "second_conditional": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 230,
+          "fn": 0
+        },
+        "sentence_adverbs": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 3,
+          "fn": 0
+        },
+        "short_answers": {
+          "precision": 0.017501988862370723,
+          "recall": 0.09606986899563319,
+          "f1": 0.029609690444145353,
+          "support": 229,
+          "tp": 22,
+          "fp": 1235,
+          "fn": 207
+        },
+        "should_advice": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 672,
+          "fn": 0
+        },
+        "subject_object_questions": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 390,
+          "fn": 0
+        },
+        "superlatives": {
+          "precision": 0.008583690987124463,
+          "recall": 0.08,
+          "f1": 0.01550387596899225,
+          "support": 25,
+          "tp": 2,
+          "fp": 231,
+          "fn": 23
+        },
+        "third_conditional": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 33,
+          "fn": 0
+        },
+        "time_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 940,
+          "fn": 0
+        },
+        "used_to": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 807,
+          "fn": 0
+        },
+        "verb_patterns": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 616,
+          "fn": 0
+        },
+        "wh_questions": {
+          "precision": 0.25100133511348466,
+          "recall": 0.22650602409638554,
+          "f1": 0.23812539582013934,
+          "support": 830,
+          "tp": 188,
+          "fp": 561,
+          "fn": 642
+        },
+        "will_future": {
+          "precision": 0.1055184960582171,
+          "recall": 0.8018433179723502,
+          "f1": 0.18649517684887462,
+          "support": 217,
+          "tp": 174,
+          "fp": 1475,
+          "fn": 43
+        },
+        "would_past_habits": {
+          "precision": 0.03225806451612903,
+          "recall": 0.5714285714285714,
+          "f1": 0.06106870229007634,
+          "support": 14,
+          "tp": 8,
+          "fp": 240,
+          "fn": 6
+        },
+        "yes_no_questions": {
+          "precision": 0.04589787722317843,
+          "recall": 0.7339449541284404,
+          "f1": 0.08639308855291578,
+          "support": 109,
+          "tp": 80,
+          "fp": 1663,
+          "fn": 29
+        },
+        "zero_article": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 574,
+          "fn": 0
+        },
+        "zero_conditional": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 238,
+          "fn": 0
+        }
+      },
+      "top_confusions": [
+        {
+          "gold": "present_simple",
+          "pred": "personal_pronouns",
+          "count": 1103
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "reported_questions",
+          "count": 1073
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "participle_clauses",
+          "count": 974
+        },
+        {
+          "gold": "present_simple",
+          "pred": "reported_questions",
+          "count": 941
+        },
+        {
+          "gold": "present_simple",
+          "pred": "passive_present_past",
+          "count": 784
+        },
+        {
+          "gold": "present_simple",
+          "pred": "introductory_it_there",
+          "count": 734
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "reported_commands",
+          "count": 684
+        },
+        {
+          "gold": "present_simple",
+          "pred": "reported_commands",
+          "count": 574
+        },
+        {
+          "gold": "present_simple",
+          "pred": "possessive_pronouns",
+          "count": 521
+        },
+        {
+          "gold": "adjective_basic",
+          "pred": "reported_questions",
+          "count": 508
+        },
+        {
+          "gold": "present_simple",
+          "pred": "reflexive_pronouns",
+          "count": 505
+        },
+        {
+          "gold": "present_simple",
+          "pred": "question_tags",
+          "count": 494
+        },
+        {
+          "gold": "adjective_basic",
+          "pred": "participle_clauses",
+          "count": 491
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "can_ability",
+          "count": 425
+        },
+        {
+          "gold": "present_simple",
+          "pred": "participle_clauses",
+          "count": 422
+        }
+      ]
+    },
+    "kbert": {
+      "name": "?",
+      "micro": {
+        "precision": 0.09279510603255144,
+        "recall": 0.20288526056810557,
+        "f1": 0.12734534580908727
+      },
+      "macro": {
+        "precision": 0.14642623539649588,
+        "recall": 0.40629538631291756,
+        "f1": 0.14114174098056825
+      },
+      "coverage": 0.6769927359197369,
+      "gold_coverage": 0.7242906935079318,
+      "exact_set_rate": 0.03478749718911626,
+      "n_tokens": 61398,
+      "counts": {
+        "tp": 9071,
+        "fp": 88682,
+        "fn": 35639
+      },
+      "per_node": {
+        "addition_sequence_linkers": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 48,
+          "fn": 0
+        },
+        "adjective_basic": {
+          "precision": 0.2803738317757009,
+          "recall": 0.01676602086438152,
+          "f1": 0.03164000703111267,
+          "support": 5368,
+          "tp": 90,
+          "fp": 231,
+          "fn": 5278
+        },
+        "adjective_order": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 178,
+          "fn": 0
+        },
+        "adverb_position": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 44,
+          "fn": 0
+        },
+        "adverbs_degree": {
+          "precision": 0.34328358208955223,
+          "recall": 0.15807560137457044,
+          "f1": 0.2164705882352941,
+          "support": 291,
+          "tp": 46,
+          "fp": 88,
+          "fn": 245
+        },
+        "adverbs_frequency": {
+          "precision": 0.34782608695652173,
+          "recall": 0.6349206349206349,
+          "f1": 0.44943820224719094,
+          "support": 189,
+          "tp": 120,
+          "fp": 225,
+          "fn": 69
+        },
+        "adverbs_manner": {
+          "precision": 0.2872340425531915,
+          "recall": 0.20074349442379183,
+          "f1": 0.2363238512035011,
+          "support": 269,
+          "tp": 54,
+          "fp": 134,
+          "fn": 215
+        },
+        "adverbs_time_place": {
+          "precision": 0.009182334936598164,
+          "recall": 0.07720588235294118,
+          "f1": 0.016412661195779603,
+          "support": 272,
+          "tp": 21,
+          "fp": 2266,
+          "fn": 251
+        },
+        "affixation_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 90,
+          "fn": 0
+        },
+        "affixation_basic": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 9,
+          "fn": 0
+        },
+        "articles_a_an": {
+          "precision": 0.49245147375988496,
+          "recall": 0.44800523217789406,
+          "f1": 0.4691780821917808,
+          "support": 1529,
+          "tp": 685,
+          "fp": 706,
+          "fn": 844
+        },
+        "articles_the": {
+          "precision": 0.6049060542797495,
+          "recall": 0.40390311901028053,
+          "f1": 0.4843798976073555,
+          "support": 5739,
+          "tp": 2318,
+          "fp": 1514,
+          "fn": 3421
+        },
+        "backshift_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 392,
+          "fn": 0
+        },
+        "basic_linkers": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 192,
+          "tp": 0,
+          "fp": 8,
+          "fn": 192
+        },
+        "can_ability": {
+          "precision": 0.26807980049875313,
+          "recall": 0.8548707753479126,
+          "f1": 0.4081632653061224,
+          "support": 503,
+          "tp": 430,
+          "fp": 1174,
+          "fn": 73
+        },
+        "causative_have_get": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 573,
+          "fn": 0
+        },
+        "cleft_sentences": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 320,
+          "fn": 0
+        },
+        "cohesion_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 59,
+          "fn": 0
+        },
+        "collocation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1304,
+          "fn": 0
+        },
+        "comparative_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 234,
+          "fn": 0
+        },
+        "comparative_adverbs": {
+          "precision": 0.043478260869565216,
+          "recall": 0.8333333333333334,
+          "f1": 0.08264462809917356,
+          "support": 12,
+          "tp": 10,
+          "fp": 220,
+          "fn": 2
+        },
+        "comparatives": {
+          "precision": 0.1103448275862069,
+          "recall": 0.12030075187969924,
+          "f1": 0.11510791366906474,
+          "support": 133,
+          "tp": 16,
+          "fp": 129,
+          "fn": 117
+        },
+        "compound_nouns": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 535,
+          "fn": 0
+        },
+        "concession_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 30,
+          "fn": 0
+        },
+        "conditionals_alternative": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 194,
+          "fn": 0
+        },
+        "contrast_linkers": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 259,
+          "fn": 0
+        },
+        "coordination": {
+          "precision": 0.13953488372093023,
+          "recall": 0.0636042402826855,
+          "f1": 0.08737864077669902,
+          "support": 566,
+          "tp": 36,
+          "fp": 222,
+          "fn": 530
+        },
+        "could_past_ability": {
+          "precision": 0.002572898799313894,
+          "recall": 0.75,
+          "f1": 0.005128205128205129,
+          "support": 4,
+          "tp": 3,
+          "fp": 1163,
+          "fn": 1
+        },
+        "countable_uncountable": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 393,
+          "fn": 0
+        },
+        "demonstratives": {
+          "precision": 0.14834834834834834,
+          "recall": 0.6621983914209115,
+          "f1": 0.2423945044160942,
+          "support": 373,
+          "tp": 247,
+          "fp": 1418,
+          "fn": 126
+        },
+        "dependent_prepositions": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 29,
+          "fn": 0
+        },
+        "ellipsis_substitution": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 288,
+          "fn": 0
+        },
+        "first_conditional": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 152,
+          "fn": 0
+        },
+        "fronting": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 106,
+          "fn": 0
+        },
+        "future_continuous": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 2224,
+          "fn": 0
+        },
+        "future_perfect": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1505,
+          "fn": 0
+        },
+        "gerund_basic": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 312,
+          "fn": 0
+        },
+        "going_to_future": {
+          "precision": 0.06315789473684211,
+          "recall": 0.9264705882352942,
+          "f1": 0.11825434068512436,
+          "support": 136,
+          "tp": 126,
+          "fp": 1869,
+          "fn": 10
+        },
+        "gradable_nongradable": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 363,
+          "fn": 0
+        },
+        "hedging_register": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 240,
+          "fn": 0
+        },
+        "idioms": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 194,
+          "fn": 0
+        },
+        "indefinite_pronouns": {
+          "precision": 0.04582210242587601,
+          "recall": 0.42857142857142855,
+          "f1": 0.08279220779220779,
+          "support": 119,
+          "tp": 51,
+          "fp": 1062,
+          "fn": 68
+        },
+        "indirect_questions": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 215,
+          "fn": 0
+        },
+        "infinitive_of_purpose": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 579,
+          "fn": 0
+        },
+        "infinitive_vs_gerund_meaning": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 192,
+          "fn": 0
+        },
+        "introductory_it_there": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 2059,
+          "fn": 0
+        },
+        "might_may_possibility": {
+          "precision": 0.04443359375,
+          "recall": 1.0,
+          "f1": 0.08508648901355774,
+          "support": 91,
+          "tp": 91,
+          "fp": 1957,
+          "fn": 0
+        },
+        "mixed_conditionals": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 51,
+          "fn": 0
+        },
+        "mixed_tenses_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 422,
+          "fn": 0
+        },
+        "modals_deduction_past": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 37,
+          "fn": 0
+        },
+        "modals_deduction_present": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 116,
+          "fn": 0
+        },
+        "modals_speculation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 176,
+          "fn": 0
+        },
+        "must_have_to": {
+          "precision": 0.013574660633484163,
+          "recall": 0.9230769230769231,
+          "f1": 0.026755852842809364,
+          "support": 13,
+          "tp": 12,
+          "fp": 872,
+          "fn": 1
+        },
+        "narrative_tenses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 20,
+          "fn": 0
+        },
+        "negation_basic": {
+          "precision": 0.5903010033444817,
+          "recall": 0.29367720465890185,
+          "f1": 0.39222222222222225,
+          "support": 1202,
+          "tp": 353,
+          "fp": 245,
+          "fn": 849
+        },
+        "negative_inversion": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 2348,
+          "fn": 0
+        },
+        "nominalization": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 97,
+          "fn": 0
+        },
+        "noun_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 480,
+          "fn": 0
+        },
+        "participial_adjectives": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1344,
+          "fn": 0
+        },
+        "participle_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 2627,
+          "fn": 0
+        },
+        "passive_all_tenses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 89,
+          "fn": 0
+        },
+        "passive_modals": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1516,
+          "fn": 0
+        },
+        "passive_present_past": {
+          "precision": 0.011516314779270634,
+          "recall": 0.24,
+          "f1": 0.02197802197802198,
+          "support": 50,
+          "tp": 12,
+          "fp": 1030,
+          "fn": 38
+        },
+        "passive_reporting": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1011,
+          "fn": 0
+        },
+        "past_continuous": {
+          "precision": 0.023809523809523808,
+          "recall": 0.2608695652173913,
+          "f1": 0.04363636363636364,
+          "support": 46,
+          "tp": 12,
+          "fp": 492,
+          "fn": 34
+        },
+        "past_perfect_continuous": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 461,
+          "fn": 0
+        },
+        "past_perfect_simple": {
+          "precision": 0.19195046439628483,
+          "recall": 0.7209302325581395,
+          "f1": 0.30317848410757947,
+          "support": 86,
+          "tp": 62,
+          "fp": 261,
+          "fn": 24
+        },
+        "past_simple": {
+          "precision": 0.26296296296296295,
+          "recall": 0.07164480322906155,
+          "f1": 0.112609040444092,
+          "support": 991,
+          "tp": 71,
+          "fp": 199,
+          "fn": 920
+        },
+        "perfect_infinitive": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1907,
+          "fn": 0
+        },
+        "personal_pronouns": {
+          "precision": 0.24899799599198397,
+          "recall": 0.15741131756756757,
+          "f1": 0.19288486416558862,
+          "support": 9472,
+          "tp": 1491,
+          "fp": 4497,
+          "fn": 7981
+        },
+        "phrasal_verbs_basic": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 399,
+          "fn": 0
+        },
+        "plural_nouns": {
+          "precision": 0.24639289678135406,
+          "recall": 0.10113895216400912,
+          "f1": 0.1434108527131783,
+          "support": 2195,
+          "tp": 222,
+          "fp": 679,
+          "fn": 1973
+        },
+        "possessive_pronouns": {
+          "precision": 0.3226128147594116,
+          "recall": 0.6622313203684749,
+          "f1": 0.43386420787929586,
+          "support": 1954,
+          "tp": 1294,
+          "fp": 2717,
+          "fn": 660
+        },
+        "possessive_s": {
+          "precision": 0.0035971223021582736,
+          "recall": 0.46153846153846156,
+          "f1": 0.007138607971445569,
+          "support": 13,
+          "tp": 6,
+          "fp": 1662,
+          "fn": 7
+        },
+        "prepositional_phrases_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 115,
+          "fn": 0
+        },
+        "prepositions_movement": {
+          "precision": 0.07661822985468957,
+          "recall": 0.29896907216494845,
+          "f1": 0.12197686645636172,
+          "support": 194,
+          "tp": 58,
+          "fp": 699,
+          "fn": 136
+        },
+        "prepositions_place": {
+          "precision": 0.2161874334398296,
+          "recall": 0.2970007315288954,
+          "f1": 0.25023112480739595,
+          "support": 1367,
+          "tp": 406,
+          "fp": 1472,
+          "fn": 961
+        },
+        "prepositions_time": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 40,
+          "tp": 0,
+          "fp": 1312,
+          "fn": 40
+        },
+        "present_continuous": {
+          "precision": 0.047475961538461536,
+          "recall": 0.17792792792792791,
+          "f1": 0.07495256166982922,
+          "support": 444,
+          "tp": 79,
+          "fp": 1585,
+          "fn": 365
+        },
+        "present_perfect_continuous": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 737,
+          "fn": 0
+        },
+        "present_perfect_simple": {
+          "precision": 0.040690505548705305,
+          "recall": 0.2661290322580645,
+          "f1": 0.07058823529411766,
+          "support": 124,
+          "tp": 33,
+          "fp": 778,
+          "fn": 91
+        },
+        "present_simple": {
+          "precision": 0.20554272517321015,
+          "recall": 0.009761983108478665,
+          "f1": 0.018638743455497382,
+          "support": 9117,
+          "tp": 89,
+          "fp": 344,
+          "fn": 9028
+        },
+        "quantifiers_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 587,
+          "fn": 0
+        },
+        "quantifiers_basic": {
+          "precision": 0.01272264631043257,
+          "recall": 0.029940119760479042,
+          "f1": 0.017857142857142856,
+          "support": 167,
+          "tp": 5,
+          "fp": 388,
+          "fn": 162
+        },
+        "question_tags": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1885,
+          "fn": 0
+        },
+        "question_words_advanced": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 169,
+          "fn": 0
+        },
+        "reason_result_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 104,
+          "fn": 0
+        },
+        "reduced_relative_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1019,
+          "fn": 0
+        },
+        "reflexive_pronouns": {
+          "precision": 0.006184458187684862,
+          "recall": 0.9583333333333334,
+          "f1": 0.012289607266898211,
+          "support": 24,
+          "tp": 23,
+          "fp": 3696,
+          "fn": 1
+        },
+        "relative_clauses_defining": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 40,
+          "fn": 0
+        },
+        "relative_clauses_nondefining": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 47,
+          "fn": 0
+        },
+        "relative_pronouns": {
+          "precision": 0.0011363636363636363,
+          "recall": 1.0,
+          "f1": 0.002270147559591373,
+          "support": 1,
+          "tp": 1,
+          "fp": 879,
+          "fn": 0
+        },
+        "reported_commands": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 2775,
+          "fn": 0
+        },
+        "reported_questions": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 3546,
+          "fn": 0
+        },
+        "reported_statements": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1051,
+          "fn": 0
+        },
+        "reporting_verbs": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 20,
+          "fn": 0
+        },
+        "second_conditional": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 268,
+          "fn": 0
+        },
+        "sentence_adverbs": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 4,
+          "fn": 0
+        },
+        "short_answers": {
+          "precision": 0.02916978309648467,
+          "recall": 0.1703056768558952,
+          "f1": 0.04980842911877395,
+          "support": 229,
+          "tp": 39,
+          "fp": 1298,
+          "fn": 190
+        },
+        "should_advice": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 843,
+          "fn": 0
+        },
+        "subject_object_questions": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 395,
+          "fn": 0
+        },
+        "superlatives": {
+          "precision": 0.013333333333333334,
+          "recall": 0.08,
+          "f1": 0.022857142857142857,
+          "support": 25,
+          "tp": 2,
+          "fp": 148,
+          "fn": 23
+        },
+        "third_conditional": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 28,
+          "fn": 0
+        },
+        "time_clauses": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 994,
+          "fn": 0
+        },
+        "used_to": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 951,
+          "fn": 0
+        },
+        "verb_patterns": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 601,
+          "fn": 0
+        },
+        "wh_questions": {
+          "precision": 0.22,
+          "recall": 0.2385542168674699,
+          "f1": 0.22890173410404624,
+          "support": 830,
+          "tp": 198,
+          "fp": 702,
+          "fn": 632
+        },
+        "will_future": {
+          "precision": 0.07880676758682101,
+          "recall": 0.815668202764977,
+          "f1": 0.14372716199756394,
+          "support": 217,
+          "tp": 177,
+          "fp": 2069,
+          "fn": 40
+        },
+        "would_past_habits": {
+          "precision": 0.015779092702169626,
+          "recall": 0.5714285714285714,
+          "f1": 0.03071017274472169,
+          "support": 14,
+          "tp": 8,
+          "fp": 499,
+          "fn": 6
+        },
+        "yes_no_questions": {
+          "precision": 0.039508809396689805,
+          "recall": 0.6788990825688074,
+          "f1": 0.07467204843592332,
+          "support": 109,
+          "tp": 74,
+          "fp": 1799,
+          "fn": 35
+        },
+        "zero_article": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 1424,
+          "fn": 0
+        },
+        "zero_conditional": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0,
+          "tp": 0,
+          "fp": 150,
+          "fn": 0
+        }
+      },
+      "top_confusions": [
+        {
+          "gold": "present_simple",
+          "pred": "personal_pronouns",
+          "count": 1164
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "participle_clauses",
+          "count": 793
+        },
+        {
+          "gold": "present_simple",
+          "pred": "introductory_it_there",
+          "count": 707
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "reported_questions",
+          "count": 701
+        },
+        {
+          "gold": "present_simple",
+          "pred": "passive_present_past",
+          "count": 674
+        },
+        {
+          "gold": "present_simple",
+          "pred": "reflexive_pronouns",
+          "count": 649
+        },
+        {
+          "gold": "present_simple",
+          "pred": "reported_questions",
+          "count": 636
+        },
+        {
+          "gold": "present_simple",
+          "pred": "possessive_pronouns",
+          "count": 633
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "negative_inversion",
+          "count": 605
+        },
+        {
+          "gold": "present_simple",
+          "pred": "question_tags",
+          "count": 585
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "will_future",
+          "count": 564
+        },
+        {
+          "gold": "present_simple",
+          "pred": "passive_modals",
+          "count": 560
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "reported_commands",
+          "count": 507
+        },
+        {
+          "gold": "personal_pronouns",
+          "pred": "going_to_future",
+          "count": 452
+        },
+        {
+          "gold": "present_simple",
+          "pred": "reported_commands",
+          "count": 442
+        }
+      ]
+    }
+  },
+  "meta": {
+    "generated_at": "2026-06-03T16:45:48+00:00",
+    "course": "en_es",
+    "split": "dev",
+    "max_learners": 400,
+    "seed": 0,
+    "threshold": 0.25,
+    "top_k": 3,
+    "embedder": "sentence-transformers/all-MiniLM-L6-v2"
+  }
+}

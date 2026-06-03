@@ -63,7 +63,7 @@ linguistic-knowledge-tree/
 ## Stages & Phases
 
 **Status legend:** ✅ Done · 🟡 Partial · ⬜ Todo.
-(Phases 0–4B are on `dev`; Phase 5 is on `feat/phase5-validation`, pending merge into `dev`.)
+(Phases 0–5 are on `dev`; Phase 6 is on `feat/phase6-semantic-embedding`, off `dev`.)
 
 ### Stage I — Map & Explore
 
@@ -103,10 +103,10 @@ linguistic-knowledge-tree/
 
 ### Stage IV — Semantic & Personal
 
-**Phase 6 — Semantic embedding (BERT/K-BERT) for evidence→node mapping** · ⬜ Todo
-- A: Map **free learner text** (dialog turns, saved phrases) to map nodes via embeddings + knowledge injection (K-BERT). Ablation BERT vs K-BERT (RQ2). This is what lets *unlabeled text* activate the map.
-- B: Click a node → show the text evidence that activated it.
-- **Deliverable:** learner writing/dialog activates the map automatically. *(= §3.4; prerequisite for Subturtle transcripts.)*
+**Phase 6 — Semantic embedding (BERT/K-BERT) for evidence→node mapping** · ✅ Done (on `feat/phase6-semantic-embedding`) ← lets *unlabeled text* activate the map
+- A: `klg_ai.semantic` — a local **BERT** (sentence-transformers MiniLM, CPU-pinned, lazy) text→node mapper, with a **K-BERT** variant that fuses each node's 1-hop prerequisite-graph neighbours into its embedding (the RQ2 toggle). Committed node-vector artifact (`docs/phase6/node_vectors.npz`); a deterministic `HashingEmbedder` keeps tests offline. **Intrinsic RQ2** (`klg_ai.eval.mapping_eval`): scored token-in-context against the rule-based `map_exercise` as silver labels on SLAM en_es. **Extrinsic** RQ2 reuses the Phase-5 harness via an additive `mapper={rule,bert,kbert}` flag (Phase-5 numbers untouched).
+- B: **Chat tab** — a Gemini tutor (`POST /api/chat`, REST + deterministic mock); each learner turn is mapped→nodes by the validated mapper, folded as `dialog` evidence, and the map lights up live. Click a node → the **Evidence** panel shows the chat turns that activated it.
+- **Deliverable:** learner dialog activates the map automatically. **RQ2 result:** semantic embeddings recover the rule mapping only weakly (peak micro-F1 ≈ 0.14 vs the oracle's 1.0) and K-BERT ≈ BERT (1-hop graph injection gives no consistent lift) — frozen sentence embeddings capture grammatical *construction* weakly; the morphosyntactic rule mapper stays the stronger evidence source. Full write-up: `docs/phase6-validation.md`. *(= §3.4; prerequisite for Subturtle transcripts.)*
 
 **Phase 7 — Personalization (KGT) + recommender handoff** · ⬜ Todo
 - A: **Knowledge Graph Tuning** — per-learner edge tuning without full retrain (RQ5, §3.8). Finalize and document the **knowledge-state API** the separate "what's-next" system consumes.
@@ -141,4 +141,4 @@ linguistic-knowledge-tree/
 
 ## Immediate next step
 
-**Phase 6** — semantic embedding (BERT/K-BERT) for evidence→node mapping: map free learner text (dialog turns, saved phrases) to map nodes via embeddings + knowledge injection, ablation BERT vs K-BERT (RQ2). This generalizes the Phase-5 rule-based tag→node mapper to *unlabeled* text — the prerequisite for Subturtle transcripts. Housekeeping: merge `feat/phase5-validation` → `dev`; optional EdNet scale-check and a learned-propagation extension (train the RQ3 weights) remain open from Phase 5.
+**Phase 7** — personalization (KGT) + recommender handoff: per-learner edge tuning without full retrain (RQ5, §3.8), and finalize/document the knowledge-state API the separate "what's-next" system consumes. Housekeeping: merge `feat/phase6-semantic-embedding` → `dev`. Open items carried forward: train the K-BERT injection / propagation weights instead of fixing them (RQ2/RQ3), richer node text + fuller EGP coverage to lift semantic-mapping F1, optional Gemini-assisted turn tagging, and the EdNet scale-check.

@@ -3,7 +3,7 @@
 export type Cefr = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 export type Status = "known" | "interior_gap" | "frontier" | "further";
 export type LayoutName = "matrix" | "concentric" | "force";
-export type Tab = "map" | "metrics";
+export type Tab = "map" | "metrics" | "chat";
 
 export interface Category {
   id: string;
@@ -102,4 +102,27 @@ export interface ValidationResults {
   rqs: Record<string, string[]>;
   models: ModelResult[];
   meta?: Record<string, unknown>;
+}
+
+// --- Phase 6: Gemini chat demo (dialog turns activate the map) ---
+
+export interface ChatTurn {
+  role: "user" | "tutor";
+  text: string;
+}
+
+export interface NodeEvidence {
+  node_id: string;
+  confidence: number;
+  turn_indices: number[];
+}
+
+export interface ChatResponse {
+  reply: string;
+  mapped_nodes: string[];
+  confidences: Record<string, number>;
+  counts: Partial<Record<Status, number>>;
+  statuses: Record<string, Status>;
+  mastery: Record<string, number>;
+  evidence: NodeEvidence[];
 }

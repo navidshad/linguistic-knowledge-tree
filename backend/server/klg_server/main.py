@@ -4,7 +4,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import learner, map as map_router, metrics, status
+from .routers import chat, learner, map as map_router, metrics, status
 from .schemas import HealthOut
 
 app = FastAPI(title="Linguistic Knowledge Graph API", version="0.1.0")
@@ -21,6 +21,7 @@ app.include_router(map_router.router)
 app.include_router(learner.router)
 app.include_router(status.router)
 app.include_router(metrics.router)
+app.include_router(chat.router)
 
 
 @app.get("/api/health", response_model=HealthOut, tags=["meta"])

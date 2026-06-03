@@ -59,6 +59,7 @@ def run_ablations(
     split: str = "dev",
     dkt_epochs: int = 10,
     seed: int = 0,
+    mapper: str = "rule",
 ) -> dict:
     """Run every model and return the full results dict."""
     instances = all_eval_instances(learners)
@@ -90,6 +91,7 @@ def run_ablations(
             "source": "Duolingo SLAM 2018",
             "course": course,
             "split": split,
+            "mapper": mapper,
             "n_learners": len(learners),
             "n_eval_instances": len(instances),
             "n_cold_instances": len(cold_idx),

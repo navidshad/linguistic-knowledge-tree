@@ -38,28 +38,39 @@ def main(argv: list[str] | None = None) -> int:
                    help="cap on learners (seeded sample); 0 = all")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--dkt-epochs", type=int, default=10)
-    p.add_argument("--out", type=Path, default=_REPO / "data" / "eval" / "results.json")
+    p.add_argument("--mapper", default="rule", choices=["rule", "bert", "kbert"],
+                   help="evidence->node mapping: rule (Phase 5) | bert | kbert (Phase 6 RQ2)")
+    p.add_argument("--out", type=Path, default=None,
+                   help="results JSON (default: data/eval/results.json, or results_<mapper>.json "
+                        "for bert/kbert so a semantic run never clobbers the rule results)")
     args = p.parse_args(argv)
+
+    # Default the output per mapper so an RQ2 run never overwrites the rule results.
+    out = args.out or (
+        _REPO / "data" / "eval"
+        / ("results.json" if args.mapper == "rule" else f"results_{args.mapper}.json")
+    )
 
     max_learners = None if args.max_learners == 0 else args.max_learners
     print(f"Loading {args.course}/{args.split} from {args.data} "
-          f"(max_learners={max_learners}, seed={args.seed}) ...")
+          f"(max_learners={max_learners}, seed={args.seed}, mapper={args.mapper}) ...")
     learners = load_track(args.data, course=args.course, split=args.split,
-                          max_learners=max_learners, seed=args.seed)
+                          max_learners=max_learners, seed=args.seed, mapper=args.mapper)
     n_eval = sum(len(ld.evalset) for ld in learners)
     print(f"  {len(learners)} learners, {n_eval} eval instances. Running models ...")
 
     results = run_ablations(learners, course=args.course, split=args.split,
-                            dkt_epochs=args.dkt_epochs, seed=args.seed)
+                            dkt_epochs=args.dkt_epochs, seed=args.seed, mapper=args.mapper)
     results["meta"] = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "max_learners": max_learners,
         "seed": args.seed,
         "dkt_epochs": args.dkt_epochs,
+        "mapper": args.mapper,
     }
 
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(results, indent=2), encoding="utf-8")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(results, indent=2), encoding="utf-8")
 
     d = results["dataset"]
     print(f"\n{d['source']} — {d['course']}/{d['split']}: "
@@ -74,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
         cold_auroc = f"{cold['auroc']:>12.3f}" if cold else f"{'-':>12}"
         print(f"  {m['label']:<32}{mt['auroc']:>8.3f}{mt['F1']:>8.3f}"
               f"{mt['accuracy']:>8.3f}{mt['avglogloss']:>9.3f}{cold_auroc}")
-    print(f"\nWrote {args.out}")
+    print(f"\nWrote {out}")
     return 0
 
 

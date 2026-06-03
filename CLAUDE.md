@@ -130,7 +130,7 @@ feature branches are local-only (not pushed yet).
   - Contract preserved: status counts unchanged (demo still 48/3). `mastery` is
     nullable — the `POST /api/status` what-if has no evidence, so it's `null` and
     the viewer approximates opacity from the discrete status there.
-- **Phase 5 — DONE** (on `feat/phase5-validation`, off `dev`): validation on real
+- **Phase 5 — DONE** (merged into `dev`): validation on real
   open data. Full write-up: `docs/phase5-validation.md`.
   - **Data:** Duolingo SLAM 2018 **en_es** (English learners, L1 Spanish; 2.6M
     token instances, 2,593 learners, 14% mistake rate). License-gated on Harvard
@@ -155,3 +155,37 @@ feature branches are local-only (not pushed yet).
   - Open: pykt/EdNet scale-check and *training* the propagation weights (RQ3) are
     deferred — the architecture supports it; Phase 5 delivers the validated
     comparison with fixed weights.
+- **Phase 6 — DONE** (on `feat/phase6-semantic-embedding`, off `dev`): semantic
+  embedding (BERT vs K-BERT) for evidence→node mapping (RQ2) + a Gemini chat demo.
+  Full write-up: `docs/phase6-validation.md`.
+  - **Semantic mapper** — new `klg_ai.semantic` package: `embedder` (lazy
+    sentence-transformers MiniLM, **CPU-pinned** for bit-stable vectors; a
+    dependency-free `HashingEmbedder` fake forced by `KLG_EMBEDDER=hash` so tests/CI
+    need no model), `node_vectors` (per-node embeddings; **K-BERT** = blend each
+    node's text with its 1-hop prerequisite-graph neighbours — the RQ2 toggle is
+    just which matrix the mapper dots against), `mapper` (`SemanticMapper.map_text`
+    / `map_token_in_context` / `map_exercise`, cosine + top-k + threshold), `build_vectors`
+    CLI. Committed artifact: `docs/phase6/node_vectors.npz` (MiniLM, dim 384).
+    `sentence-transformers` is an optional `[semantic]` extra (lazy-imported).
+  - **RQ2 eval** — `klg_ai.eval.mapping_eval` + `mapping_run` CLI: **intrinsic**,
+    token-in-context vs the rule-based `map_exercise` as **silver labels** on SLAM
+    en_es (micro/macro P/R/F1, coverage, exact-set, confusions). **Extrinsic** reuses
+    the Phase-5 harness via an **additive** `load_track/run_ablations/run(--mapper
+    {rule,bert,kbert})` flag defaulting to `rule` (KLG_SEMANTIC_THRESHOLD env) — the
+    Phase-5 numbers + `docs/phase5/results.json` are never touched.
+  - **Result (RQ2):** semantic embeddings recover the rule mapping only **weakly**
+    (peak micro-F1 ≈ 0.14 at threshold 0.25 vs the rule oracle's 1.0) and
+    **K-BERT ≈ BERT** — 1-hop prerequisite-graph injection gives no consistent lift.
+    Frozen sentence embeddings capture grammatical *construction* poorly; the
+    morphosyntactic rule mapper stays the stronger evidence source. (Mirrors the
+    Phase-5 RQ3 theme: the graph is representational, not a predictive lift.)
+  - **Chat demo (6-B)** — `POST /api/chat` (`routers/chat.py` + `gemini.py`):
+    stateless like `POST /api/status`; a **Gemini** tutor (minimal REST, **deterministic
+    mock** when `KLG_GEMINI_MOCK=1`/no key) replies, and each learner turn is mapped→
+    nodes (validated mapper, `dialog` source) → live map overlay. Viewer: a **Chat**
+    tab (`ChatPanel.vue` + `stores/chat.ts`) where the map lights up as you talk, and
+    a NodeDetails **Evidence** section showing the turns behind a node. Map/Validation
+    tabs + demo contract (48/3) unchanged. Chat threshold `KLG_CHAT_THRESHOLD` (0.22)
+    is below the eval default since a whole turn embeds to a "mixed" point.
+  - Open: train the K-BERT/propagation weights (vs fixed); richer node text + fuller
+    EGP coverage to lift mapping F1; optional Gemini-assisted turn tagging.

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { MapNode, Status, SyntaxMap } from "../types";
+import type { ChatTurn, MapNode, NodeEvidence, Status, SyntaxMap } from "../types";
 import { CEFR_COLOR, STATUS_COLOR, STATUS_LABEL } from "../constants";
 
 const props = defineProps<{
@@ -8,7 +8,16 @@ const props = defineProps<{
   status: Status | undefined;
   mastery: number | undefined;
   map: SyntaxMap;
+  // Phase 6: the chat turns that activated this node (the 6-B evidence view).
+  evidence?: NodeEvidence;
+  chatTurns?: ChatTurn[];
 }>();
+
+const evidenceTurns = computed(() =>
+  props.evidence && props.chatTurns
+    ? props.evidence.turn_indices.map((i) => props.chatTurns![i]?.text).filter(Boolean)
+    : [],
+);
 
 const emit = defineEmits<{ (e: "toggle", nodeId: string): void }>();
 
@@ -57,6 +66,14 @@ const isKnown = computed(() => props.status === "known");
         </div>
       </div>
 
+      <div v-if="evidenceTurns.length" class="evidence">
+        <div class="mhead">
+          <span class="k">Evidence — chat turns</span>
+          <b v-if="evidence">{{ Math.round(evidence.confidence * 100) }}%</b>
+        </div>
+        <ul><li v-for="(t, i) in evidenceTurns" :key="i">“{{ t }}”</li></ul>
+      </div>
+
       <button class="toggle-btn" :class="{ on: isKnown }" @click="emit('toggle', node.id)">
         {{ isKnown ? "Mark as not known" : "Mark as known" }}
       </button>
@@ -89,6 +106,9 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: 
 .mhead .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
 .bar { height: 8px; background: #eceff1; border-radius: 5px; overflow: hidden; }
 .fill { height: 100%; border-radius: 5px; transition: width 0.2s ease; }
+.evidence { margin-bottom: 12px; }
+.evidence ul { margin: 4px 0 0; padding-left: 16px; }
+.evidence li { margin: 3px 0; color: #455a64; line-height: 1.4; font-style: italic; }
 .toggle-btn { width: 100%; padding: 7px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; margin-bottom: 12px; }
 .toggle-btn:hover { background: #f5f5f5; }
 .toggle-btn.on { border-color: var(--known); color: var(--known); }
