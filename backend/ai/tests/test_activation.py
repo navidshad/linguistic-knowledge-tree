@@ -58,3 +58,34 @@ def test_synthetic_learner_activates_its_known_core():
     events = generate_events(known, seed=1, reviews_per_node=5, accuracy=1.0)
     act = activated_from_events(k.default_graph(), events)
     assert set(known) <= act
+
+
+def test_timeline_unknown_learner_is_none():
+    assert k.mastery_timeline("nobody") is None
+
+
+def test_timeline_frames_are_time_ordered_and_cover_every_node():
+    frames = k.mastery_timeline("intermediate", frames=12)
+    assert len(frames) == 12
+    times = [f.t for f in frames]
+    assert times == sorted(times)
+    n_nodes = k.default_graph().number_of_nodes()
+    assert all(len(f.mastery) == n_nodes for f in frames)  # every node scored each frame
+
+
+def test_timeline_shows_growth_then_decay():
+    # Total mastery rises as a synthetic learner's reviews accrue, peaks once the
+    # evidence window closes, then falls as forgetting takes over.
+    frames = k.mastery_timeline("intermediate", frames=24)
+    totals = [sum(f.mastery.values()) for f in frames]
+    peak = max(range(len(totals)), key=lambda i: totals[i])
+    assert totals[0] < totals[peak]    # grew from the first frame
+    assert totals[-1] < totals[peak]   # decayed by the last frame
+
+
+def test_timeline_demo_starts_full_then_forgets():
+    # All demo evidence lands at t=0, so frame 0 is the full known set (48) and
+    # later frames can only forget it (pure inference never refills it).
+    frames = k.mastery_timeline("demo", frames=10)
+    assert len(frames[0].activated) == 48
+    assert len(frames[-1].activated) < 48

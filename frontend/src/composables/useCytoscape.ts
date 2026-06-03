@@ -4,7 +4,7 @@
 // display:none hides the node), so they compose freely.
 import cytoscape from "cytoscape";
 import type { Core, ElementDefinition } from "cytoscape";
-import { CEFR_COLOR, CEFR_INDEX, CEFR_ORDER, STATUS_COLOR } from "../constants";
+import { CEFR_COLOR, CEFR_INDEX, CEFR_ORDER, CONFIDENCE_MIN_OPACITY, STATUS_COLOR } from "../constants";
 import type { Cefr, LayoutName, Status, SyntaxMap } from "../types";
 
 const COL_W = 250;
@@ -55,6 +55,9 @@ const STYLE = [
   ...CEFR_ORDER.map((l) => ({ selector: `node[cefr="${l}"]`, style: { "border-color": CEFR_COLOR[l] } })),
   // bare-map mode: neutral fill regardless of status (placed AFTER status rules to win)
   { selector: "node.neutral", style: { "background-color": "#eceff1", color: "#607d8b" } },
+  // confidence overlay: node opacity tracks mastery (status color unchanged, so
+  // color = status and opacity = how strongly the engine believes it).
+  { selector: "node.confidence", style: { opacity: `mapData(mastery, 0, 1, ${CONFIDENCE_MIN_OPACITY}, 1)` } },
   { selector: ".pseudo", style: { "background-opacity": 0, "border-width": 0, events: "no", width: 1, height: 1 } },
   { selector: ".header", style: { "font-size": 22, "font-weight": "bold", color: "#455a64" } },
   { selector: ".lane", style: {
@@ -70,7 +73,7 @@ const STYLE = [
   { selector: ".lvl-off", style: { display: "none" } },
   { selector: ".sub-hidden", style: { display: "none" } },
   { selector: ".pseudo-off", style: { display: "none" } },
-] as unknown as cytoscape.Stylesheet[];
+] as unknown as cytoscape.StylesheetCSS[];
 
 export interface GraphCallbacks {
   onSelect: (nodeId: string | null) => void;
@@ -80,6 +83,8 @@ export interface GraphCallbacks {
 export interface GraphHandle {
   cy: Core;
   setStatuses(statuses: Record<string, Status>): void;
+  setMastery(mastery: Record<string, number>): void;
+  setConfidence(on: boolean): void;
   setOverlay(on: boolean): void;
   setEnabledLevels(levels: Set<Cefr>): void;
   setSubgraphOnly(on: boolean): void;
@@ -102,7 +107,7 @@ export function createGraph(
   map.categories.forEach((c) => (matrixPositions["__lane_" + c.id] = { x: LABEL_X, y: laneCenter[c.id] }));
 
   const elements: ElementDefinition[] = [
-    ...map.nodes.map((n) => ({ data: { id: n.id, label: n.label, cefr: n.cefr, status: statuses[n.id] ?? "further" } })),
+    ...map.nodes.map((n) => ({ data: { id: n.id, label: n.label, cefr: n.cefr, status: statuses[n.id] ?? "further", mastery: 0 } })),
     ...CEFR_ORDER.map((l) => ({ data: { id: "__hdr_" + l, label: l }, classes: "pseudo header", selectable: false, grabbable: false })),
     ...map.categories.map((c) => ({ data: { id: "__lane_" + c.id, label: catLabel[c.id] }, classes: "pseudo lane", selectable: false, grabbable: false })),
     ...map.edges.map((e, i) => ({ data: { id: "e" + i, source: e.source, target: e.target } })),
@@ -111,7 +116,7 @@ export function createGraph(
   const cy = cytoscape({
     container,
     elements,
-    layout: { name: "preset", positions: (n: cytoscape.NodeSingular) => matrixPositions[n.id()], fit: false } as cytoscape.PresetLayoutOptions,
+    layout: { name: "preset", positions: (n: cytoscape.NodeSingular) => matrixPositions[n.id()], fit: false } as unknown as cytoscape.PresetLayoutOptions,
     style: STYLE,
     wheelSensitivity: 0.25,
   });
@@ -135,7 +140,7 @@ export function createGraph(
   function setLayout(name: LayoutName) {
     if (name === "matrix") {
       cy.nodes(".pseudo").removeClass("pseudo-off");
-      cy.layout({ name: "preset", positions: (n: cytoscape.NodeSingular) => matrixPositions[n.id()], fit: false } as cytoscape.PresetLayoutOptions).run();
+      cy.layout({ name: "preset", positions: (n: cytoscape.NodeSingular) => matrixPositions[n.id()], fit: false } as unknown as cytoscape.PresetLayoutOptions).run();
     } else {
       cy.nodes(".pseudo").addClass("pseudo-off");
       const eles = realNodes();
@@ -165,6 +170,17 @@ export function createGraph(
           if (el.nonempty()) el.data("status", st);
         });
       });
+    },
+    setMastery(m) {
+      cy.batch(() => {
+        realNodes().forEach((n) => {
+          n.data("mastery", m[n.id()] ?? 0);
+        });
+      });
+    },
+    setConfidence(on) {
+      if (on) realNodes().addClass("confidence");
+      else realNodes().removeClass("confidence");
     },
     setOverlay(on) {
       if (on) realNodes().removeClass("neutral");

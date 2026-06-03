@@ -63,7 +63,7 @@ linguistic-knowledge-tree/
 ## Stages & Phases
 
 **Status legend:** ✅ Done · 🟡 Partial · ⬜ Todo.
-(Phases 0–1 are on `dev`; Phases 2–4A are implemented on `feat/phase2-activation`, pending merge into `dev`.)
+(Phases 0–3 and 4-A are on `dev`; Phase 4-B is on `feat/phase4b-confidence-viz`, pending merge into `dev`.)
 
 ### Stage I — Map & Explore
 
@@ -91,9 +91,9 @@ linguistic-knowledge-tree/
 
 ### Stage III — Dynamic & Validated (the thesis proof)
 
-**Phase 4 — Propagation + forgetting** · 🟡 Partial — engine (4-A) done; confidence/timeline viz (4-B) todo
+**Phase 4 — Propagation + forgetting** · ✅ Done
 - A: GNN-style **propagation** (activating a node lifts inferred mastery of related nodes); **forgetting/decay** over time (Leitner-style) so the map is temporally dynamic.
-- B: Encode confidence via opacity/size; optional timeline scrubber to see decay/growth.
+- B: Confidence encoded as **node opacity ∝ mastery** (status = color, confidence = opacity), so GNN-lifted interior gaps glow below the known threshold; **timeline scrubber** (slider + play/pause) replays growth + forgetting. Mastery surfaced via `mastery` on `GET /api/learner/{id}/status` + `GET /api/learner/{id}/timeline`; evidence scoring is now point-in-time/causal.
 - **Deliverable:** the map infers beyond direct evidence and evolves over time. *(= §3.5, §3.6, §2.6.)*
 
 **Phase 5 — Validation on open data** · ⬜ Todo ← turns the thesis from theoretical to validated
@@ -141,4 +141,4 @@ linguistic-knowledge-tree/
 
 ## Immediate next step
 
-**Phase 4-B** — surface continuous mastery (`compute_mastery()` already computes it but the API/viewer don't expose it): add it to the API and encode it in the viewer (node opacity/size + optional timeline) so propagation + forgetting become *visible*. Then **Phase 5** (validation on Duolingo SLAM / EdNet, AUC vs DKT via pykt). Housekeeping: merge `feat/phase2-activation` → `dev`.
+**Phase 5** — validation on open data (Duolingo SLAM primary, EdNet scale check): adapters → run the engine → held-out / next-step prediction, **AUC vs DKT baseline** (pykt), with the RQ ablations (propagation on/off RQ3, forgetting on/off RQ4, graph vs sequence RQ1). Housekeeping: merge `feat/phase4b-confidence-viz` → `dev`.

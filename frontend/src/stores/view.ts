@@ -8,6 +8,7 @@ export const useViewStore = defineStore("view", () => {
   const enabledLevels = ref<Set<Cefr>>(new Set(CEFR_ORDER)); // all levels visible
   const overlayOn = ref(true); // show learner status overlay vs bare map
   const subgraphOnly = ref(false); // hide "further" nodes
+  const confidenceOn = ref(false); // node opacity tracks mastery (Phase 4-B)
 
   function setLayout(l: LayoutName) {
     layout.value = l;
@@ -19,5 +20,5 @@ export const useViewStore = defineStore("view", () => {
     enabledLevels.value = next;
   }
 
-  return { layout, enabledLevels, overlayOn, subgraphOnly, setLayout, toggleLevel };
+  return { layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn, setLayout, toggleLevel };
 });

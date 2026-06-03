@@ -6,6 +6,8 @@ import { createGraph, type GraphHandle } from "../composables/useCytoscape";
 const props = defineProps<{
   map: SyntaxMap;
   statuses: Record<string, Status>;
+  mastery: Record<string, number>;
+  confidenceOn: boolean;
   layout: LayoutName;
   enabledLevels: Set<Cefr>;
   overlayOn: boolean;
@@ -31,6 +33,8 @@ onMounted(async () => {
   await nextTick();
   if (!handle) return;
   handle.setOverlay(props.overlayOn);
+  handle.setMastery(props.mastery);
+  handle.setConfidence(props.confidenceOn);
   handle.setEnabledLevels(props.enabledLevels);
   handle.setSubgraphOnly(props.subgraphOnly);
   handle.setLayout(props.layout);
@@ -39,6 +43,8 @@ onMounted(async () => {
 onBeforeUnmount(() => handle?.destroy());
 
 watch(() => props.statuses, (s) => handle?.setStatuses(s), { deep: true });
+watch(() => props.mastery, (m) => handle?.setMastery(m), { deep: true });
+watch(() => props.confidenceOn, (o) => handle?.setConfidence(o));
 watch(() => props.layout, (l) => handle?.setLayout(l));
 watch(() => props.enabledLevels, (l) => handle?.setEnabledLevels(l));
 watch(() => props.overlayOn, (o) => handle?.setOverlay(o));
