@@ -1,0 +1,55 @@
+# prompt:Yo soy un niño.
+# user:learnerA  countries:US  days:1.0  client:web  session:lesson  format:reverse_translate  time:5
+A00000010101 I PRON Case=Nom|Number=Sing|Person=1|PronType=Prs|fPOS=PRON++PRP nsubj 4 0
+A00000010102 am VERB Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin|fPOS=VERB++VBP cop 4 0
+A00000010103 a DET Definite=Ind|PronType=Art|fPOS=DET++DT det 4 0
+A00000010104 boy NOUN Number=Sing|fPOS=NOUN++NN ROOT 0 0
+
+# prompt:Ella está leyendo.
+# user:learnerA  countries:US  days:2.0  client:web  session:lesson  format:reverse_translate  time:6
+A00000020101 She PRON Number=Sing|Person=3|PronType=Prs|fPOS=PRON++PRP nsubj 3 0
+A00000020102 is AUX Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|fPOS=AUX++VBZ aux 3 0
+A00000020103 reading VERB Tense=Pres|VerbForm=Part|fPOS=VERB++VBG ROOT 0 1
+
+# prompt:Me gustan los libros.
+# user:learnerA  countries:US  days:3.0  client:web  session:lesson  format:reverse_translate  time:7
+A00000030101 I PRON Case=Nom|Number=Sing|Person=1|PronType=Prs|fPOS=PRON++PRP nsubj 2 0
+A00000030102 like VERB Mood=Ind|Tense=Pres|VerbForm=Fin|fPOS=VERB++VBP ROOT 0 0
+A00000030103 the DET Definite=Def|PronType=Art|fPOS=DET++DT det 4 0
+A00000030104 books NOUN Number=Plur|fPOS=NOUN++NNS dobj 2 0
+
+# prompt:Yo puedo nadar.
+# user:learnerA  countries:US  days:4.0  client:web  session:lesson  format:reverse_translate  time:5
+A00000040101 I PRON Case=Nom|Number=Sing|Person=1|PronType=Prs|fPOS=PRON++PRP nsubj 3 0
+A00000040102 can AUX VerbForm=Fin|fPOS=AUX++MD aux 3 0
+A00000040103 swim VERB VerbForm=Inf|fPOS=VERB++VB ROOT 0 0
+
+# prompt:Es más grande.
+# user:learnerA  countries:US  days:5.0  client:web  session:lesson  format:reverse_translate  time:8
+A00000050101 It PRON Number=Sing|Person=3|PronType=Prs|fPOS=PRON++PRP nsubj 3 0
+A00000050102 is VERB Tense=Pres|VerbForm=Fin|fPOS=VERB++VBZ cop 3 0
+A00000050103 bigger ADJ Degree=Cmp|fPOS=ADJ++JJR ROOT 0 0
+
+# prompt:Ellos han comido.
+# user:learnerB  countries:GB  days:1.0  client:ios  session:lesson  format:listen  time:7
+B00000010101 They PRON Number=Plur|Person=3|PronType=Prs|fPOS=PRON++PRP nsubj 3 0
+B00000010102 have AUX Mood=Ind|Tense=Pres|VerbForm=Fin|fPOS=AUX++VBP aux 3 0
+B00000010103 eaten VERB Tense=Past|VerbForm=Part|fPOS=VERB++VBN ROOT 0 0
+
+# prompt:Yo no sé.
+# user:learnerB  countries:GB  days:2.0  client:ios  session:lesson  format:reverse_translate  time:6
+B00000020101 I PRON Case=Nom|Number=Sing|Person=1|PronType=Prs|fPOS=PRON++PRP nsubj 4 0
+B00000020102 do AUX Mood=Ind|Tense=Pres|VerbForm=Fin|fPOS=AUX++VBP aux 4 0
+B00000020103 not PART fPOS=PART++RB neg 4 0
+B00000020104 know VERB VerbForm=Inf|fPOS=VERB++VB ROOT 0 0
+
+# prompt:Caminé a casa.
+# user:learnerB  countries:GB  days:3.0  client:ios  session:lesson  format:reverse_translate  time:9
+B00000030101 I PRON Case=Nom|Number=Sing|Person=1|PronType=Prs|fPOS=PRON++PRP nsubj 2 0
+B00000030102 walked VERB Mood=Ind|Tense=Past|VerbForm=Fin|fPOS=VERB++VBD ROOT 0 0
+B00000030103 home ADV fPOS=ADV++RB advmod 2 0
+
+# prompt:Mi libro.
+# user:learnerB  countries:GB  days:4.0  client:ios  session:lesson  format:reverse_translate  time:4
+B00000040101 my PRON Number=Sing|Person=1|Poss=Yes|PronType=Prs|fPOS=PRON++PRP$ nmod:poss 2 0
+B00000040102 book NOUN Number=Sing|fPOS=NOUN++NN ROOT 0 0

@@ -1,0 +1,12 @@
+# prompt:Yo tengo un gato.
+# user:learnerA  countries:US  days:20.0  client:web  session:lesson  format:reverse_translate  time:6
+A00000200101 I PRON Case=Nom|Number=Sing|Person=1|PronType=Prs|fPOS=PRON++PRP nsubj 2
+A00000200102 have VERB Mood=Ind|Tense=Pres|VerbForm=Fin|fPOS=VERB++VBP ROOT 0
+A00000200103 a DET Definite=Ind|PronType=Art|fPOS=DET++DT det 4
+A00000200104 cat NOUN Number=Sing|fPOS=NOUN++NN dobj 2
+
+# prompt:¿Dónde estás?
+# user:learnerB  countries:GB  days:20.0  client:ios  session:lesson  format:reverse_translate  time:7
+B00000200101 Where ADV fPOS=ADV++WRB advmod 2
+B00000200102 are VERB Tense=Pres|VerbForm=Fin|fPOS=VERB++VBP cop 0
+B00000200103 you PRON Person=2|PronType=Prs|fPOS=PRON++PRP nsubj 2
