@@ -35,3 +35,9 @@ export interface LearnerStatus {
   counts: Partial<Record<Status, number>>;
   statuses: Record<string, Status>;
 }
+
+export interface LearnerProfile {
+  id: string;
+  label: string;
+  description: string;
+}

@@ -33,6 +33,7 @@ function onToggle(id: string) {
 
 onMounted(() => {
   mapStore.load();
+  learnerStore.loadLearners();
   learnerStore.load("demo");
 });
 </script>

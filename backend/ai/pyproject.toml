@@ -7,7 +7,11 @@ name = "klg-ai"
 version = "0.1.0"
 description = "Linguistic Knowledge Graph — AI engine (map, activation, status, gaps)"
 requires-python = ">=3.10"
-dependencies = ["networkx>=3.0"]
+dependencies = [
+    "networkx>=3.0",
+    "torch>=2.2",            # GNN propagation (lazy-imported in propagation.py)
+    "torch-geometric>=2.5",  # MessagePassing layer
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]

@@ -46,3 +46,18 @@ def test_post_status_empty():
     r = client.post("/api/status", json={"activated": []})
     assert r.status_code == 200
     assert r.json()["counts"].get("known", 0) == 0
+
+
+def test_learners_list():
+    r = client.get("/api/learners")
+    assert r.status_code == 200
+    ids = {p["id"] for p in r.json()}
+    assert {"demo", "beginner", "intermediate"} <= ids
+
+
+def test_synthetic_learner_status_differs_from_demo():
+    demo_known = client.get("/api/learner/demo/status").json()["counts"]["known"]
+    beginner = client.get("/api/learner/beginner/status")
+    assert beginner.status_code == 200
+    # a beginner knows a real, smaller slice of the map than the demo learner
+    assert 0 < beginner.json()["counts"]["known"] < demo_known

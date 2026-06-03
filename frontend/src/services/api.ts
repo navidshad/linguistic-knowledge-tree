@@ -1,6 +1,6 @@
 // Typed client for the FastAPI backend. Transport is isolated here so it can be
 // swapped (e.g. for Subturtle's client) without touching stores/components.
-import type { LearnerStatus, SyntaxMap } from "../types";
+import type { LearnerProfile, LearnerStatus, SyntaxMap } from "../types";
 
 const BASE = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000";
 
@@ -22,6 +22,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 export const api = {
   getMap: () => get<SyntaxMap>("/api/map"),
+  getLearners: () => get<LearnerProfile[]>("/api/learners"),
   getLearnerStatus: (id: string) => get<LearnerStatus>(`/api/learner/${id}/status`),
   // Interactive what-if: compute statuses for an arbitrary activated set.
   postStatus: (activated: string[]) => post<LearnerStatus>("/api/status", { activated }),

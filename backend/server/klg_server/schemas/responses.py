@@ -38,3 +38,9 @@ class LearnerStatusOut(BaseModel):
     learner_id: str
     counts: dict[str, int]            # status -> count
     statuses: dict[str, str]          # node_id -> status
+
+
+class LearnerProfileOut(BaseModel):
+    id: str
+    label: str
+    description: str = ""

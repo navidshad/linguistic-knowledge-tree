@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useViewStore } from "../stores/view";
 import { useLearnerStore } from "../stores/learner";
 import { CEFR_COLOR, CEFR_ORDER, STATUS_COLOR } from "../constants";
@@ -22,10 +23,22 @@ function onOverlay(e: Event) {
 function onSubgraph(e: Event) {
   view.subgraphOnly = (e.target as HTMLInputElement).checked;
 }
+function onLearner(e: Event) {
+  learner.load((e.target as HTMLSelectElement).value);
+}
+const selectedDescription = computed(
+  () => learner.learners.find((l) => l.id === learner.learnerId)?.description ?? "",
+);
 </script>
 
 <template>
   <aside class="panel">
+    <h2>Learner</h2>
+    <select class="select" autocomplete="off" :value="learner.learnerId" @change="onLearner">
+      <option v-for="l in learner.learners" :key="l.id" :value="l.id">{{ l.label }}</option>
+    </select>
+    <p class="hint">{{ selectedDescription }}</p>
+
     <h2>Layout</h2>
     <select class="select" autocomplete="off" :value="view.layout" @change="onLayout">
       <option v-for="o in LAYOUTS" :key="o.value" :value="o.value">{{ o.label }}</option>
@@ -56,7 +69,7 @@ function onSubgraph(e: Event) {
       Only relevant subgraph
     </label>
     <p class="hint">Right-click a node to mark it known / not known.</p>
-    <button class="reset" @click="learner.load('demo')">Reset to demo learner</button>
+    <button class="reset" @click="learner.load(learner.learnerId)">Reset what-if edits</button>
 
     <h2>Status legend</h2>
     <div class="row"><span class="sw" :style="{ background: STATUS_COLOR.known }" /> Known</div>
