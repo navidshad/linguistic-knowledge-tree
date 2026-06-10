@@ -83,6 +83,14 @@ watch(kgtOn, (on) => {
   learnerStore.load(learnerStore.learnerId, on);
 });
 
+// Switching learner: resume the chat for an editable profile (saved transcript +
+// overlay), otherwise reset to an ephemeral conversation. Centralised here so it
+// fires whatever triggered the switch (selector, create, delete).
+watch(
+  () => learnerStore.learnerId,
+  (id) => (learnerStore.isEditable ? chatStore.loadForProfile(id) : chatStore.reset()),
+);
+
 const selectedNode = computed<MapNode | null>(() =>
   map.value && selectedId.value ? map.value.nodes.find((n) => n.id === selectedId.value) ?? null : null,
 );
@@ -103,7 +111,12 @@ const mode = computed(() => learnerData.value?.learner_id ?? learnerStore.learne
 
 function onToggle(id: string) {
   if (tab.value !== "map") return; // chat/validation overlays are not hand-editable
-  learnerStore.toggle(id);
+  if (learnerStore.isEditable) {
+    // Editable profile: persist the mark as review evidence (mastery + KGT).
+    learnerStore.markNode(id, learnerStore.statusOf(id) !== "known", kgtOn.value);
+  } else {
+    learnerStore.toggle(id); // built-in: ephemeral what-if
+  }
 }
 
 onMounted(() => {

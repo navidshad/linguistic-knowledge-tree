@@ -50,23 +50,16 @@ def _round(mastery: dict[str, float], ndigits: int = 3) -> dict[str, float]:
     return {n: round(m, ndigits) for n, m in mastery.items()}
 
 
-@router.get("/learners", response_model=list[LearnerProfileOut])
-def learners() -> list[LearnerProfileOut]:
-    return [
-        LearnerProfileOut(id=p.id, label=p.label, description=p.description)
-        for p in list_learners()
-    ]
+def status_payload(learner_id: str, kgt: bool = False) -> LearnerStatusOut | None:
+    """Full per-learner status (mastery + gap scores + KGT edges), or None if unknown.
 
-
-@router.get("/learner/{learner_id}/status", response_model=LearnerStatusOut)
-def learner_status(learner_id: str, kgt: bool = False) -> LearnerStatusOut:
-    # One propagation: compute mastery, then derive the known-set from it.
-    # ``kgt`` switches to the learner's personalized graph (Phase 7, RQ5) and
-    # reports the edge adjustments; the default path is unchanged.
+    The single place this payload is built, so file-backed profiles get the
+    identical mastery / KGT / gap-score treatment as the built-in learners.
+    """
     g = get_graph()
     mastery = compute_mastery(learner_id, config=KGT_CONFIG if kgt else DEFAULT_CONFIG)
     if mastery is None:
-        raise HTTPException(status_code=404, detail=f"Unknown learner '{learner_id}'")
+        return None
     activated = threshold_activated(mastery)
     statuses = {n: s.value for n, s in compute_status(g, activated).items()}
     adjustments = None
@@ -82,6 +75,24 @@ def learner_status(learner_id: str, kgt: bool = False) -> LearnerStatusOut:
         gap_scores=_round(gap_scores(g, statuses, mastery)),
         edge_adjustments=adjustments,
     )
+
+
+@router.get("/learners", response_model=list[LearnerProfileOut])
+def learners() -> list[LearnerProfileOut]:
+    return [
+        LearnerProfileOut(id=p.id, label=p.label, description=p.description, editable=p.editable)
+        for p in list_learners()
+    ]
+
+
+@router.get("/learner/{learner_id}/status", response_model=LearnerStatusOut)
+def learner_status(learner_id: str, kgt: bool = False) -> LearnerStatusOut:
+    # ``kgt`` switches to the learner's personalized graph (Phase 7, RQ5) and
+    # reports the edge adjustments; the default path is unchanged.
+    payload = status_payload(learner_id, kgt)
+    if payload is None:
+        raise HTTPException(status_code=404, detail=f"Unknown learner '{learner_id}'")
+    return payload
 
 
 @router.post("/learner/{learner_id}/retrain", response_model=RetrainOut)

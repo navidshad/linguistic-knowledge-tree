@@ -3,8 +3,11 @@
 import type {
   ChatResponse,
   ChatTurn,
+  Conversation,
   LearnerProfile,
   LearnerStatus,
+  ProfileCreate,
+  ProfileEvent,
   RetrainResult,
   SyntaxMap,
   Timeline,
@@ -29,9 +32,22 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   return (await res.json()) as T;
 }
 
+async function del(path: string): Promise<void> {
+  const res = await fetch(`${BASE}${path}`, { method: "DELETE" });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${path}`);
+}
+
 export const api = {
   getMap: () => get<SyntaxMap>("/api/map"),
+  // Built-ins + file-backed user profiles, merged (each carries `editable`).
   getLearners: () => get<LearnerProfile[]>("/api/learners"),
+  // Persistent profile CRUD (Phase 8).
+  createProfile: (body: ProfileCreate) => post<LearnerProfile>("/api/profiles", body),
+  deleteProfile: (id: string) => del(`/api/profiles/${id}`),
+  // Append evidence (e.g. marking a node known) → returns the recomputed status.
+  postProfileEvent: (id: string, body: ProfileEvent, kgt = false) =>
+    post<LearnerStatus>(`/api/profiles/${id}/events${kgt ? "?kgt=1" : ""}`, body),
+  getConversation: (id: string) => get<Conversation>(`/api/profiles/${id}/conversation`),
   // kgt=true computes mastery over the learner's personalized graph (Phase 7,
   // RQ5) and includes the edge adjustments behind it.
   getLearnerStatus: (id: string, kgt = false) =>
@@ -47,7 +63,10 @@ export const api = {
   // Phase 5 validation results (SLAM ablation table + ROC curves).
   getMetrics: () => get<ValidationResults>("/api/metrics"),
   // Phase 6 chat: a tutor turn + the knowledge state the learner's turns imply.
-  // sessionId keys the server-side per-session pipeline trace.
-  postChat: (messages: ChatTurn[], activated: string[], sessionId?: string) =>
-    post<ChatResponse>("/api/chat", { messages, activated, session_id: sessionId }),
+  // sessionId keys the server-side per-session pipeline trace; profileId (Phase 8)
+  // persists the conversation + dialog evidence to that profile.
+  postChat: (messages: ChatTurn[], activated: string[], sessionId?: string, profileId?: string) =>
+    post<ChatResponse>("/api/chat", {
+      messages, activated, session_id: sessionId, profile_id: profileId,
+    }),
 };

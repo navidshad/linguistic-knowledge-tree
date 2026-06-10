@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { api } from "../services/api";
-import type { EdgeAdjustment, LearnerProfile, LearnerStatus, Status } from "../types";
+import type { Cefr, EdgeAdjustment, LearnerProfile, LearnerStatus, Status } from "../types";
 
 export const useLearnerStore = defineStore("learner", () => {
   const learnerId = ref("demo");
@@ -14,6 +14,11 @@ export const useLearnerStore = defineStore("learner", () => {
   // The learner's personal-graph deltas (present after a kgt=true load).
   const edgeAdjustments = computed<EdgeAdjustment[] | null>(
     () => data.value?.edge_adjustments ?? null,
+  );
+
+  // Is the active learner a file-backed user profile (vs. a read-only built-in)?
+  const isEditable = computed(
+    () => learners.value.find((l) => l.id === learnerId.value)?.editable ?? false,
   );
 
   async function loadLearners() {
@@ -45,6 +50,33 @@ export const useLearnerStore = defineStore("learner", () => {
     }
   }
 
+  // Persist a known/not-known mark to an editable profile as review evidence,
+  // then take the recomputed status (mastery + KGT) the server returns.
+  async function markNode(nodeId: string, known: boolean, kgt = false) {
+    error.value = null;
+    try {
+      data.value = await api.postProfileEvent(
+        learnerId.value, { node_ids: [nodeId], correct: known, source: "review" }, kgt,
+      );
+      syncActivatedFromData();
+    } catch (e) {
+      error.value = (e as Error).message;
+    }
+  }
+
+  async function createProfile(name: string, seedLevel: Cefr | null = null) {
+    const p = await api.createProfile({ name, seed_level: seedLevel });
+    await loadLearners();
+    await load(p.id);
+    return p;
+  }
+
+  async function deleteProfile(id: string) {
+    await api.deleteProfile(id);
+    await loadLearners();
+    if (learnerId.value === id) await load("demo");
+  }
+
   // Recompute statuses for the current editable activated set (engine drives it).
   async function refresh() {
     error.value = null;
@@ -66,5 +98,8 @@ export const useLearnerStore = defineStore("learner", () => {
     return data.value?.statuses[nodeId];
   }
 
-  return { learnerId, learners, data, activated, loading, error, edgeAdjustments, loadLearners, load, refresh, toggle, statusOf };
+  return {
+    learnerId, learners, data, activated, loading, error, edgeAdjustments, isEditable,
+    loadLearners, load, refresh, toggle, statusOf, markNode, createProfile, deleteProfile,
+  };
 });

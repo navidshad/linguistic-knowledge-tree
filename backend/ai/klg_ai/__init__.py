@@ -25,9 +25,21 @@ from .adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
 from .events import SOURCE_WEIGHTS, Event
 from .evidence import direct_scores
 from .forgetting import recency_weight
-from .gaps import connecting_subgraph, interior_gaps
+from .gaps import connecting_subgraph, gap_scores, interior_gaps
 from .graph import build_graph, default_graph
 from .loader import DEFAULT_MAP_PATH, Edge, Node, SyntaxMap, load_map
+from .profiles import (
+    RESERVED_IDS,
+    ProfileMeta,
+    append_events,
+    create_profile,
+    delete_profile,
+    list_profiles,
+    load_conversation,
+    load_events,
+    load_profile,
+    save_conversation,
+)
 from .status import Status, compute_status
 
 __all__ = [
@@ -35,7 +47,7 @@ __all__ = [
     "DEFAULT_MAP_PATH", "load_map", "SyntaxMap", "Node", "Edge",
     "build_graph", "default_graph",
     # status + gaps
-    "compute_status", "Status", "interior_gaps", "connecting_subgraph",
+    "compute_status", "Status", "interior_gaps", "connecting_subgraph", "gap_scores",
     # evidence -> activation engine
     "Event", "SOURCE_WEIGHTS", "direct_scores", "recency_weight",
     "EngineConfig", "DEFAULT_CONFIG",
@@ -45,4 +57,8 @@ __all__ = [
     "LearnerProfile", "list_learners",
     # synthetic evidence
     "DEMO_KNOWN", "demo_events", "generate_events",
+    # persistent profiles
+    "ProfileMeta", "RESERVED_IDS", "list_profiles", "load_profile", "load_events",
+    "load_conversation", "create_profile", "delete_profile", "append_events",
+    "save_conversation",
 ]

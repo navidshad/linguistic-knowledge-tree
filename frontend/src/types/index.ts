@@ -73,6 +73,25 @@ export interface LearnerProfile {
   id: string;
   label: string;
   description: string;
+  editable?: boolean; // built-ins read-only; file-backed user profiles editable
+}
+
+// Create a persistent profile (optionally seeded to a starting CEFR band).
+export interface ProfileCreate {
+  name: string;
+  seed_level?: Cefr | null;
+}
+
+// One piece of evidence appended to a profile (e.g. marking a node known).
+export interface ProfileEvent {
+  node_ids: string[];
+  correct: boolean;
+  source: "review" | "dialog" | "exposure";
+}
+
+export interface Conversation {
+  profile_id: string;
+  messages: ChatTurn[];
 }
 
 // --- Phase 5: validation metrics (Duolingo SLAM) ---

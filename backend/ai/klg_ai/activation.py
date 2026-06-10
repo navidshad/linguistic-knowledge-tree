@@ -137,10 +137,15 @@ def activated_from_events(
 
 @dataclass(frozen=True)
 class LearnerProfile:
-    """A selectable learner shown in the viewer (metadata only)."""
+    """A selectable learner shown in the viewer (metadata only).
+
+    ``editable`` distinguishes the built-in synthetic learners (read-only,
+    ``False``) from file-backed user profiles (``True``) — see ``profiles.py``.
+    """
     id: str
     label: str
     description: str = ""
+    editable: bool = False
 
 
 # Built-in learners for the selector. "demo" is the curated fixture; the others
@@ -160,8 +165,17 @@ LEARNER_PROFILES: list[LearnerProfile] = [
 
 
 def list_learners() -> list[LearnerProfile]:
-    """Metadata for the built-in learners (powers the API's learner selector)."""
-    return list(LEARNER_PROFILES)
+    """Built-in learners (read-only) + file-backed user profiles (editable).
+
+    Built-ins are listed first and unchanged; user profiles come from the
+    persistent store (``profiles.py``).
+    """
+    from .profiles import list_profiles
+    stored = [
+        LearnerProfile(p.id, p.label, p.description, editable=True)
+        for p in list_profiles()
+    ]
+    return list(LEARNER_PROFILES) + stored
 
 
 def _cefr_nodes(*levels: str) -> list[str]:
@@ -193,7 +207,8 @@ def _events_for(learner_id: str) -> list[Event] | None:
         return generate_events(known, learner_id="struggling",
                                seed=13, reviews_per_node=4, accuracy=1.0, span_days=14.0,
                                failed=failed)
-    return None
+    from .profiles import load_events  # lazy: file store only touched on fall-through
+    return load_events(learner_id)
 
 
 def learner_events(learner_id: str) -> list[Event] | None:

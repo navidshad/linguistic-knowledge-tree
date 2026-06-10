@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
+from .requests import ChatTurn
+
 
 class HealthOut(BaseModel):
     status: str
@@ -63,6 +65,13 @@ class LearnerProfileOut(BaseModel):
     id: str
     label: str
     description: str = ""
+    editable: bool = False            # built-ins read-only; file-backed profiles editable
+
+
+class ConversationOut(BaseModel):
+    """A profile's persisted chat transcript (so a session resumes)."""
+    profile_id: str
+    messages: list[ChatTurn]
 
 
 class TimelineFrameOut(BaseModel):
