@@ -5,7 +5,9 @@ import { useMapStore } from "./stores/map";
 import { useLearnerStore } from "./stores/learner";
 import { useViewStore } from "./stores/view";
 import { useTimelineStore } from "./stores/timeline";
+import { useChatStore } from "./stores/chat";
 import ControlsPanel from "./components/ControlsPanel.vue";
+import ChatPanel from "./components/ChatPanel.vue";
 import GraphCanvas from "./components/GraphCanvas.vue";
 import StatusBar from "./components/StatusBar.vue";
 import NodeDetails from "./components/NodeDetails.vue";
@@ -17,22 +19,32 @@ const mapStore = useMapStore();
 const learnerStore = useLearnerStore();
 const viewStore = useViewStore();
 const timelineStore = useTimelineStore();
+const chatStore = useChatStore();
 const { map } = storeToRefs(mapStore);
 const { data: learnerData } = storeToRefs(learnerStore);
 const { tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn } = storeToRefs(viewStore);
 const { currentFrame } = storeToRefs(timelineStore);
+const {
+  statuses: chatStatuses,
+  mastery: chatMastery,
+  counts: chatCounts,
+  evidenceByNode,
+  messages: chatMessages,
+} = storeToRefs(chatStore);
 
 const selectedId = ref<string | null>(null);
 
 const ready = computed(() => !!map.value && !!learnerData.value);
 
-// What the graph renders: the active timeline frame if the scrubber is engaged,
-// otherwise the learner's live status. Centralising this keeps the graph, the
-// status bar and the node panel showing the same instant.
-const displayStatuses = computed<Record<string, Status>>(
-  () => currentFrame.value?.statuses ?? learnerData.value?.statuses ?? {},
-);
+// What the graph renders: in chat mode the live conversation overlay; otherwise
+// the active timeline frame if the scrubber is engaged, else the learner's status.
+// Centralising this keeps the graph, status bar and node panel on the same instant.
+const displayStatuses = computed<Record<string, Status>>(() => {
+  if (tab.value === "chat") return chatStatuses.value;
+  return currentFrame.value?.statuses ?? learnerData.value?.statuses ?? {};
+});
 const displayMastery = computed<Record<string, number>>(() => {
+  if (tab.value === "chat") return chatMastery.value;
   if (currentFrame.value) return currentFrame.value.mastery;
   const m = learnerData.value?.mastery;
   if (m) return m;
@@ -41,17 +53,28 @@ const displayMastery = computed<Record<string, number>>(() => {
     Object.entries(displayStatuses.value).map(([id, s]) => [id, STATUS_MASTERY[s]]),
   );
 });
-const displayCounts = computed(() => currentFrame.value?.counts ?? learnerData.value?.counts ?? {});
+const displayCounts = computed(() => {
+  if (tab.value === "chat") return chatCounts.value;
+  return currentFrame.value?.counts ?? learnerData.value?.counts ?? {};
+});
 const displayTotal = computed(() => Object.keys(displayStatuses.value).length);
+
+// Chat mode glows by mastery (confidence overlay) so the map fills in as the
+// learner talks; the Map tab keeps its user-controlled confidence toggle.
+const confidenceActive = computed(() => (tab.value === "chat" ? true : confidenceOn.value));
 
 const selectedNode = computed<MapNode | null>(() =>
   map.value && selectedId.value ? map.value.nodes.find((n) => n.id === selectedId.value) ?? null : null,
 );
 const selectedStatus = computed(() => (selectedId.value ? displayStatuses.value[selectedId.value] : undefined));
 const selectedMastery = computed(() => (selectedId.value ? displayMastery.value[selectedId.value] : undefined));
+const selectedEvidence = computed(() =>
+  tab.value === "chat" && selectedId.value ? evidenceByNode.value[selectedId.value] : undefined,
+);
 const mode = computed(() => learnerData.value?.learner_id ?? learnerStore.learnerId);
 
 function onToggle(id: string) {
+  if (tab.value !== "map") return; // chat/validation overlays are not hand-editable
   learnerStore.toggle(id);
 }
 
@@ -68,16 +91,28 @@ onMounted(() => {
       <h1>Learner Linguistic Knowledge Graph</h1>
       <nav class="tabs">
         <button :class="{ active: tab === 'map' }" @click="viewStore.setTab('map')">Map</button>
+        <button :class="{ active: tab === 'chat' }" @click="viewStore.setTab('chat')">Chat</button>
         <button :class="{ active: tab === 'metrics' }" @click="viewStore.setTab('metrics')">Validation</button>
       </nav>
-      <template v-if="tab === 'map'">
-        <span class="sub">Static syntax map (v0) · learner: {{ mode }}</span>
-        <StatusBar class="bar" :counts="displayCounts" :total="displayTotal" :day="currentFrame ? timelineStore.day : null" />
+      <template v-if="tab !== 'metrics'">
+        <span class="sub">
+          {{ tab === "chat" ? "Live chat · your turns activate the map" : "Static syntax map (v0) · learner: " + mode }}
+        </span>
+        <StatusBar
+          class="bar"
+          :counts="displayCounts"
+          :total="displayTotal"
+          :day="currentFrame && tab === 'map' ? timelineStore.day : null"
+        />
       </template>
     </header>
 
-    <template v-if="tab === 'map'">
-      <ControlsPanel />
+    <template v-if="tab === 'metrics'">
+      <MetricsDashboard class="metrics-pane" />
+    </template>
+    <template v-else>
+      <ControlsPanel v-if="tab === 'map'" />
+      <ChatPanel v-else />
 
       <main>
         <div v-if="mapStore.loading || learnerStore.loading" class="msg">Loading…</div>
@@ -90,7 +125,7 @@ onMounted(() => {
           :map="map"
           :statuses="displayStatuses"
           :mastery="displayMastery"
-          :confidence-on="confidenceOn"
+          :confidence-on="confidenceActive"
           :layout="layout"
           :enabled-levels="enabledLevels"
           :overlay-on="overlayOn"
@@ -106,11 +141,11 @@ onMounted(() => {
         :status="selectedStatus"
         :mastery="selectedMastery"
         :map="map"
+        :evidence="selectedEvidence"
+        :chat-turns="tab === 'chat' ? chatMessages : undefined"
         @toggle="onToggle"
       />
     </template>
-
-    <MetricsDashboard v-else class="metrics-pane" />
   </div>
 </template>
 

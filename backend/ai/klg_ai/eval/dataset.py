@@ -70,14 +70,39 @@ class LearnerData:
         return min((it.day for it in self.evalset), default=0.0)
 
 
+def _resolve_mapper(mapper: str):
+    """An ``ex -> {instance_id: tuple[node_id, ...]}`` function for the chosen mapper.
+
+    ``"rule"`` (default) is the Phase-5 morphosyntactic mapper — byte-identical to
+    before. ``"bert"`` / ``"kbert"`` use the Phase-6 semantic embedding mapper (the
+    RQ2 ablation), reading only token text; both normalize to the same ``{iid: tuple}``
+    shape so the rest of the harness is unchanged.
+    """
+    if mapper == "rule":
+        return map_exercise
+    if mapper not in ("bert", "kbert"):
+        raise ValueError(f"unknown mapper {mapper!r} (expected rule|bert|kbert)")
+    import os
+
+    from ..semantic.mapper import default_mapper
+
+    threshold = float(os.environ.get("KLG_SEMANTIC_THRESHOLD", "0.30"))
+    sm = default_mapper(knowledge_injection=(mapper == "kbert"), threshold=threshold, top_k=3)
+    return lambda ex: {iid: m.node_ids for iid, m in sm.map_exercise(ex).items()}
+
+
 def _interactions(path: str | Path, key: dict[str, int] | None, users: set[str] | None,
-                  ) -> dict[str, list[Interaction]]:
-    """Stream a SLAM file into ``{user: [Interaction, ...]}`` (optionally filtered)."""
+                  *, map_fn=map_exercise) -> dict[str, list[Interaction]]:
+    """Stream a SLAM file into ``{user: [Interaction, ...]}`` (optionally filtered).
+
+    ``map_fn`` is the evidence->node mapper (``ex -> {instance_id: tuple[node_id]}``):
+    the rule-based ``map_exercise`` by default; a semantic mapper for the RQ2 path.
+    """
     out: dict[str, list[Interaction]] = {}
     for ex in iter_exercises(path, key=key):
         if users is not None and ex.user not in users:
             continue
-        node_map = map_exercise(ex)
+        node_map = map_fn(ex)
         bucket = out.setdefault(ex.user, [])
         for tok in ex.tokens:
             if tok.label is None:
@@ -105,6 +130,7 @@ def load_track(
     split: str = "dev",
     max_learners: int | None = None,
     seed: int = 0,
+    mapper: str = "rule",
     min_train: int = 5,
     min_eval: int = 1,
 ) -> list[LearnerData]:
@@ -112,7 +138,9 @@ def load_track(
 
     ``split`` selects the held-out file (``dev`` or ``test``); its ``.key`` labels
     are attached. ``max_learners`` caps the learner count (seeded sample of
-    learners that appear in the eval split); ``None`` uses all of them. Learners
+    learners that appear in the eval split); ``None`` uses all of them. ``mapper``
+    selects the evidence->node mapping (``"rule"`` default = Phase 5; ``"bert"`` /
+    ``"kbert"`` = the Phase-6 semantic mapper, for the RQ2 extrinsic run). Learners
     with fewer than ``min_train`` train interactions or ``min_eval`` eval items
     are dropped. Each learner's interactions are returned time-sorted.
     """
@@ -130,9 +158,10 @@ def load_track(
         rng = random.Random(seed)
         target = set(rng.sample(users, min(max_learners, len(users))))
 
+    map_fn = _resolve_mapper(mapper)
     key = parse_key(key_path)
-    train = _interactions(train_path, key=None, users=target)
-    evalset = _interactions(eval_path, key=key, users=target)
+    train = _interactions(train_path, key=None, users=target, map_fn=map_fn)
+    evalset = _interactions(eval_path, key=key, users=target, map_fn=map_fn)
 
     learners: list[LearnerData] = []
     for user, evs in evalset.items():

@@ -14,6 +14,10 @@ frontend/dist/
 # Datasets (large, license-gated — never commit; Phase 5 validation data)
 data/
 
+# Secrets / local env (e.g. GEMINI_API_KEY for the Phase 6 chat tutor) — never commit
+.env
+.env.*
+
 # Editor / OS
 .DS_Store
 .idea/

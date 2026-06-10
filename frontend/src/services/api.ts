@@ -1,6 +1,8 @@
 // Typed client for the FastAPI backend. Transport is isolated here so it can be
 // swapped (e.g. for Subturtle's client) without touching stores/components.
 import type {
+  ChatResponse,
+  ChatTurn,
   LearnerProfile,
   LearnerStatus,
   SyntaxMap,
@@ -37,4 +39,8 @@ export const api = {
   postStatus: (activated: string[]) => post<LearnerStatus>("/api/status", { activated }),
   // Phase 5 validation results (SLAM ablation table + ROC curves).
   getMetrics: () => get<ValidationResults>("/api/metrics"),
+  // Phase 6 chat: a tutor turn + the knowledge state the learner's turns imply.
+  // sessionId keys the server-side per-session pipeline trace.
+  postChat: (messages: ChatTurn[], activated: string[], sessionId?: string) =>
+    post<ChatResponse>("/api/chat", { messages, activated, session_id: sessionId }),
 };
