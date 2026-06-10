@@ -10,6 +10,7 @@ export const useViewStore = defineStore("view", () => {
   const overlayOn = ref(true); // show learner status overlay vs bare map
   const subgraphOnly = ref(false); // hide "further" nodes
   const confidenceOn = ref(false); // node opacity tracks mastery (Phase 4-B)
+  const kgtOn = ref(false); // personalized graph: KGT edge adjustments (Phase 7, RQ5)
 
   function setTab(t: Tab) {
     tab.value = t;
@@ -25,5 +26,5 @@ export const useViewStore = defineStore("view", () => {
     enabledLevels.value = next;
   }
 
-  return { tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn, setTab, setLayout, toggleLevel };
+  return { tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn, kgtOn, setTab, setLayout, toggleLevel };
 });

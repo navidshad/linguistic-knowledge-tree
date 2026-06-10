@@ -36,9 +36,22 @@ from klg_ai.status import compute_status
 from .. import trace
 from ..deps import get_graph, get_map
 from ..gemini import gemini_grade, gemini_reply
-from ..schemas import ChatIn, ChatOut, NodeEvidenceOut
+from ..schemas import ChatIn, ChatOut, EdgeAdjustmentOut, NodeEvidenceOut
 
 router = APIRouter(prefix="/api", tags=["chat"])
+
+
+def _chat_config() -> EngineConfig:
+    """Engine config for chat: KGT on unless ``KLG_CHAT_KGT=0``.
+
+    A conversation is short, so the KGT evidence gate is relaxed
+    (``KLG_CHAT_KGT_MASS0``, default 1.0 vs. the engine's 2.0) for the same
+    reason the chat mapper threshold sits below the eval default: a handful of
+    dialog turns should already visibly adapt the personal graph.
+    """
+    if os.environ.get("KLG_CHAT_KGT", "1") == "0":
+        return DEFAULT_CONFIG
+    return EngineConfig(kgt=True, kgt_mass0=float(os.environ.get("KLG_CHAT_KGT_MASS0", "1.0")))
 
 # Grades per (turn text, candidate ids): the stateless client resends the full
 # history every request, so without this only-the-newest-turn caching each turn
@@ -111,9 +124,17 @@ def chat(body: ChatIn) -> ChatOut:
     reply = gemini_reply(body.messages)
 
     g = get_graph()
-    mastery = mastery_from_events(g, events, DEFAULT_CONFIG)
-    activated = threshold_activated(mastery)
+    config = _chat_config()
+    mastery = mastery_from_events(g, events, config)
+    activated = threshold_activated(mastery, config)
     statuses = {n: s.value for n, s in compute_status(g, activated).items()}
+
+    adjustments = None
+    if config.kgt:
+        from klg_ai.kgt import tune_edges
+        adjustments = [
+            EdgeAdjustmentOut(**vars(a)) for a in tune_edges(g, events, config).adjustments
+        ]
 
     if trace.enabled():
         _trace_turn(g, body, events, mastery, statuses,
@@ -133,6 +154,7 @@ def chat(body: ChatIn) -> ChatOut:
                             incorrect_turn_indices=sorted(d["wrong"]))
             for nid, d in sorted(evidence.items())
         ],
+        edge_adjustments=adjustments,
     )
 
 

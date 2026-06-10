@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { api } from "../services/api";
-import type { ChatTurn, NodeEvidence, Status } from "../types";
+import type { ChatTurn, EdgeAdjustment, NodeEvidence, Status } from "../types";
 
 // The Gemini chat demo: each learner turn is mapped to concept nodes server-side
 // and folded as `dialog` evidence, so the map overlay (statuses/mastery) reflects
@@ -15,6 +15,7 @@ export const useChatStore = defineStore("chat", () => {
   const evidenceByNode = ref<Record<string, NodeEvidence>>({});
   const lastMapped = ref<string[]>([]); // nodes the most recent turn lit up
   const lastGrades = ref<Record<string, boolean>>({}); // node -> used correctly?
+  const edgeAdjustments = ref<EdgeAdjustment[] | null>(null); // KGT live on the conversation
   const sending = ref(false);
   const error = ref<string | null>(null);
 
@@ -39,6 +40,7 @@ export const useChatStore = defineStore("chat", () => {
       counts.value = res.counts;
       lastMapped.value = res.mapped_nodes;
       lastGrades.value = res.grades;
+      edgeAdjustments.value = res.edge_adjustments ?? null;
       // The server returns the full accumulated evidence, so just index it.
       evidenceByNode.value = Object.fromEntries(res.evidence.map((e) => [e.node_id, e]));
     } catch (e) {
@@ -57,12 +59,13 @@ export const useChatStore = defineStore("chat", () => {
     evidenceByNode.value = {};
     lastMapped.value = [];
     lastGrades.value = {};
+    edgeAdjustments.value = null;
     error.value = null;
     sessionId.value = crypto.randomUUID(); // fresh session → fresh trace file
   }
 
   return {
     sessionId, messages, statuses, mastery, counts, evidenceByNode, lastMapped, lastGrades,
-    sending, error, activated, send, reset,
+    edgeAdjustments, sending, error, activated, send, reset,
   };
 });

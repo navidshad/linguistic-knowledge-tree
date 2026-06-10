@@ -4,12 +4,15 @@ import { storeToRefs } from "pinia";
 import { useViewStore } from "../stores/view";
 import { useLearnerStore } from "../stores/learner";
 import { useTimelineStore } from "../stores/timeline";
-import { CEFR_COLOR, CEFR_ORDER, STATUS_COLOR } from "../constants";
+import { useRetrainStore } from "../stores/retrain";
+import RetrainPanel from "./RetrainPanel.vue";
+import { CEFR_COLOR, CEFR_ORDER, KGT_EDGE_COLOR, STATUS_COLOR } from "../constants";
 import type { LayoutName } from "../types";
 
 const view = useViewStore();
 const learner = useLearnerStore();
 const timeline = useTimelineStore();
+const retrain = useRetrainStore();
 const { enabled: timelineOn, playing, loading: timelineLoading, frames, index, day } = storeToRefs(timeline);
 
 const LAYOUTS: { value: LayoutName; label: string }[] = [
@@ -32,7 +35,11 @@ function onSubgraph(e: Event) {
 }
 function onLearner(e: Event) {
   timeline.reset(); // drop stale frames; the new learner has its own history
-  learner.load((e.target as HTMLSelectElement).value);
+  retrain.reset(); // the fit belongs to the previous learner
+  learner.load((e.target as HTMLSelectElement).value, view.kgtOn);
+}
+function onKgt(e: Event) {
+  view.kgtOn = (e.target as HTMLInputElement).checked; // App reloads the learner state
 }
 function onTimeline(e: Event) {
   if ((e.target as HTMLInputElement).checked) timeline.enable(learner.learnerId);
@@ -89,7 +96,23 @@ const selectedDescription = computed(
       Only relevant subgraph
     </label>
     <p class="hint">Right-click a node to mark it known / not known.</p>
-    <button class="reset" @click="learner.load(learner.learnerId)">Reset what-if edits</button>
+    <button class="reset" @click="learner.load(learner.learnerId, view.kgtOn)">Reset what-if edits</button>
+
+    <h2>Personal graph (KGT)</h2>
+    <label class="toggle">
+      <input type="checkbox" autocomplete="off" :checked="view.kgtOn" @change="onKgt" />
+      Personalize edges from feedback
+    </label>
+    <template v-if="view.kgtOn">
+      <div class="row"><span class="esw solid" :style="{ background: KGT_EDGE_COLOR.strengthened }" /> Reinforced edge</div>
+      <div class="row"><span class="esw dashed" :style="{ borderColor: KGT_EDGE_COLOR.weakened }" /> Weakened edge</div>
+      <div class="row"><span class="esw dotted" :style="{ borderColor: KGT_EDGE_COLOR.removed }" /> Removed edge</div>
+      <p class="hint">
+        Edges re-weighted from this learner's own evidence — contradictions cut the
+        inference they falsify. Click a node to see the reasons.
+      </p>
+      <RetrainPanel />
+    </template>
 
     <h2>Timeline</h2>
     <label class="toggle">
@@ -146,4 +169,8 @@ h2:first-child { margin-top: 0; }
 .day { font-size: 12px; font-weight: 600; white-space: nowrap; }
 .row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
 .sw { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+.esw { width: 18px; height: 0; flex: none; }
+.esw.solid { height: 3px; border-radius: 2px; }
+.esw.dashed { border-top: 2.5px dashed; }
+.esw.dotted { border-top: 2.5px dotted; }
 </style>

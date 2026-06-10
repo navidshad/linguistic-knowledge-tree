@@ -20,8 +20,12 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import networkx as nx
+
+if TYPE_CHECKING:
+    from .kgt import EdgeAdjustment
 
 # Re-exported so existing imports (`from klg_ai.activation import ...`) keep working.
 from .adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
@@ -31,7 +35,8 @@ from .graph import default_graph
 
 __all__ = [
     "EngineConfig", "DEFAULT_CONFIG",
-    "get_activation", "compute_mastery", "mastery_timeline",
+    "get_activation", "compute_mastery", "compute_edge_adjustments", "mastery_timeline",
+    "learner_events",
     "mastery_from_events", "activated_from_events", "threshold_activated",
     "TimelineFrame", "event_span",
     "LearnerProfile", "list_learners",
@@ -55,6 +60,13 @@ class EngineConfig:
     prop_alpha_fwd: float = 0.15      # weight of "prereqs known => ready for this" (weak)
     prop_rounds: int = 2              # message-passing iterations
     inferred_ceiling: float = 0.45    # cap on inference-only lift (< known_threshold)
+    kgt: bool = False                 # RQ5 ablation: per-learner edge tuning (kgt.py)?
+    kgt_mass0: float = 2.0            # evidence gate: > evidence's mass0, demands consistency
+    kgt_gain_up: float = 0.5          # γ⁺ — how far agreement reinforces an edge
+    kgt_gain_down: float = 1.25       # γ⁻ — how far contradiction weakens it (can reach 0)
+    kgt_factor_min: float = 0.0       # multiplier floor (0 = edge removal)
+    kgt_factor_max: float = 2.0       # multiplier ceiling
+    kgt_min_effect: float = 0.1       # report adjustments deviating at least this from ×1
 
     def __post_init__(self) -> None:
         if self.inferred_ceiling >= self.known_threshold:
@@ -62,6 +74,10 @@ class EngineConfig:
                 "inferred_ceiling must be < known_threshold so pure inference "
                 "cannot fabricate 'known' nodes"
             )
+        if not (0.0 <= self.kgt_factor_min <= 1.0 <= self.kgt_factor_max):
+            raise ValueError("kgt factor bounds must satisfy 0 <= min <= 1 <= max")
+        if self.kgt_gain_up < 0 or self.kgt_gain_down < 0 or self.kgt_mass0 <= 0:
+            raise ValueError("kgt gains must be >= 0 and kgt_mass0 > 0")
 
 
 DEFAULT_CONFIG = EngineConfig()
@@ -77,15 +93,22 @@ def mastery_from_events(
     """Per-node mastery in [0, 1] for every node in ``g`` from an event stream.
 
     ``now`` overrides the decay reference time (defaults to the latest event),
-    which lets a caller evaluate mastery as of any point in time.
+    which lets a caller evaluate mastery as of any point in time. With
+    ``config.kgt`` the propagation runs over the learner's *personalized* edge
+    weights (see ``kgt.tune_edges``).
     """
+    events = list(events)  # consumed twice when KGT is on
     direct = direct_scores(
         events, now=now, half_life_days=config.half_life_days, forgetting=config.forgetting
     )
     if not config.propagation:
         return {n: direct.get(n, 0.0) for n in g.nodes}
+    edge_factors = None
+    if config.kgt:
+        from .kgt import tune_edges
+        edge_factors = tune_edges(g, events, config, now=now).factors
     from .propagation import propagate  # lazy: torch only loaded when propagation runs
-    return propagate(g, direct, config)
+    return propagate(g, direct, config, edge_factors=edge_factors)
 
 
 def threshold_activated(
@@ -130,6 +153,9 @@ LEARNER_PROFILES: list[LearnerProfile] = [
                    "Knows most A1 grammar; everything above is frontier or further."),
     LearnerProfile("intermediate", "Intermediate — A1–B1",
                    "Solid on A1–A2 and about half of B1."),
+    LearnerProfile("struggling", "Struggling — contradictory feedback",
+                   "Uses some B1 structures correctly while consistently failing their "
+                   "prerequisites — watch KGT weaken or cut those inference edges."),
 ]
 
 
@@ -157,7 +183,27 @@ def _events_for(learner_id: str) -> list[Event] | None:
         known = _cefr_nodes("A1", "A2") + b1[: len(b1) // 2]
         return generate_events(known, learner_id="intermediate",
                                seed=12, reviews_per_node=3, accuracy=1.0, span_days=14.0)
+    if learner_id == "struggling":
+        # Knows the A1 core plus two B1/B2 dependents, while consistently failing
+        # those dependents' direct prerequisites — the contradiction KGT detects
+        # (produces defining relative clauses but fails relative pronouns; handles
+        # the third conditional but fails the second).
+        known = _cefr_nodes("A1") + ["relative_clauses_defining", "third_conditional"]
+        failed = ["relative_pronouns", "second_conditional"]
+        return generate_events(known, learner_id="struggling",
+                               seed=13, reviews_per_node=4, accuracy=1.0, span_days=14.0,
+                               failed=failed)
     return None
+
+
+def learner_events(learner_id: str) -> list[Event] | None:
+    """The built-in learner's event stream, or None if unknown.
+
+    Public accessor over the registry so callers outside the engine (e.g. the
+    API's live-retrain endpoint) can feed a learner's events to other engine
+    functions without reaching into ``_events_for``.
+    """
+    return _events_for(learner_id)
 
 
 def compute_mastery(
@@ -173,6 +219,27 @@ def compute_mastery(
         return None
     g = default_graph() if graph is None else graph
     return mastery_from_events(g, events, config, now=now)
+
+
+def compute_edge_adjustments(
+    learner_id: str,
+    *,
+    graph: nx.DiGraph | None = None,
+    config: EngineConfig | None = None,
+    now: float | None = None,
+) -> list["EdgeAdjustment"] | None:
+    """A learner's personalized edge adjustments, or None if unknown.
+
+    ``config`` defaults to the engine defaults *with KGT enabled* — the caller
+    asking for adjustments wants them computed regardless of the global toggle.
+    """
+    from .kgt import tune_edges
+    events = _events_for(learner_id)
+    if events is None:
+        return None
+    g = default_graph() if graph is None else graph
+    cfg = EngineConfig(kgt=True) if config is None else config
+    return tune_edges(g, events, cfg, now=now).adjustments
 
 
 def get_activation(

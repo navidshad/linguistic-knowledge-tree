@@ -34,6 +34,16 @@ class MapOut(BaseModel):
     edges: list[EdgeOut]
 
 
+class EdgeAdjustmentOut(BaseModel):
+    """One KGT edge re-weighting in a learner's personal graph (Phase 7, RQ5)."""
+    source: str                       # the prerequisite
+    target: str                       # the dependent
+    factor_back: float                # multiplier on the backward inference message
+    factor_fwd: float                 # multiplier on the forward readiness message
+    kind: str                         # strengthened | weakened | removed
+    reason: str                       # human-readable, cites the learner's evidence
+
+
 class LearnerStatusOut(BaseModel):
     learner_id: str
     counts: dict[str, int]            # status -> count
@@ -42,6 +52,11 @@ class LearnerStatusOut(BaseModel):
     # confidence overlay). None for the what-if endpoint, which is given a hand-
     # picked activated set with no evidence to score.
     mastery: dict[str, float] | None = None
+    # §3.7 recommender handoff: pedagogical priority for interior-gap/frontier
+    # nodes (level_weight × (1 − mastery)). None where mastery is None.
+    gap_scores: dict[str, float] | None = None
+    # Personal-graph deltas (only with ?kgt=1; None otherwise).
+    edge_adjustments: list[EdgeAdjustmentOut] | None = None
 
 
 class LearnerProfileOut(BaseModel):
@@ -76,6 +91,12 @@ class MetricSet(BaseModel):
     avglogloss: float
 
 
+class CostOut(BaseModel):
+    """Measured compute cost of one model's fit+predict (RQ5 runs only)."""
+    fit_predict_seconds: float
+    seconds_per_learner: float
+
+
 class ModelResultOut(BaseModel):
     name: str
     group: str                        # RQ grouping / baseline tag
@@ -83,6 +104,8 @@ class ModelResultOut(BaseModel):
     metrics: MetricSet
     metrics_cold: MetricSet | None = None   # cold-node slice (RQ3), if any
     roc: list[dict[str, float]]             # [{fpr, tpr}, ...] for plotting
+    cost: CostOut | None = None             # present in --kgt (RQ5) runs
+    retrain_curve: list[dict[str, float]] | None = None  # [{epoch, loss}] (retrain arm)
 
 
 class MetricsDatasetOut(BaseModel):
@@ -124,3 +147,23 @@ class ChatOut(BaseModel):
     statuses: dict[str, str]           # node_id -> status (live overlay)
     mastery: dict[str, float]          # node_id -> mastery [0, 1]
     evidence: list[NodeEvidenceOut]    # per node, the turns behind it (6-B)
+    # Phase 7: KGT live on the conversation — wrong usage weakens inference edges.
+    edge_adjustments: list[EdgeAdjustmentOut] | None = None
+
+
+# --- Phase 7: live per-learner retrain (the RQ5 demo endpoint) --------------
+
+class RetrainEpochOut(BaseModel):
+    """One epoch of the gradient fit: train loss + the edge factors so far."""
+    epoch: int
+    loss: float
+    edge_adjustments: list[EdgeAdjustmentOut]
+
+
+class RetrainOut(BaseModel):
+    """A per-learner gradient retrain, epoch by epoch, vs. KGT's one-shot time."""
+    learner_id: str
+    n_items: int                       # supervision pairs the fit saw
+    wall_ms: float                     # full gradient fit
+    kgt_wall_ms: float                 # closed-form KGT on the same events
+    epochs: list[RetrainEpochOut]

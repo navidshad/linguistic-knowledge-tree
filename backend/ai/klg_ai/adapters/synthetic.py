@@ -62,20 +62,26 @@ def generate_events(
     reviews_per_node: int = 3,
     accuracy: float = 0.9,
     span_days: float = 60.0,
+    failed: Iterable[str] = (),
 ) -> list[Event]:
     """A deterministic event stream for a learner who knows ``known``.
 
     Each known node gets ``reviews_per_node`` graded reviews placed at random
     times within the last ``span_days`` (ts in [0, span_days], larger = more
-    recent), correct with probability ``accuracy``. Seeded purely by ``seed`` —
-    no wall-clock — so results are stable across runs.
+    recent), correct with probability ``accuracy``. Nodes in ``failed`` get the
+    same number of reviews but correct with probability ``1 - accuracy`` — a
+    learner who demonstrably *struggles* there (contradictory feedback for the
+    KGT personalization, thesis RQ5). Seeded purely by ``seed`` — no wall-clock
+    — so results are stable across runs.
     """
     rng = random.Random(seed)
     events: list[Event] = []
-    for node in sorted(set(known)):
+    failed = set(failed)
+    for node in sorted(set(known) | failed):
+        p_correct = (1.0 - accuracy) if node in failed else accuracy
         for _ in range(reviews_per_node):
             ts = rng.uniform(0.0, span_days)
-            correct = rng.random() < accuracy
+            correct = rng.random() < p_correct
             events.append(
                 Event(learner_id=learner_id, node_ids=(node,), correct=correct,
                       ts=ts, source="review")

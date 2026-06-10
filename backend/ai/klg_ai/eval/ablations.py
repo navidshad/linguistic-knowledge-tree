@@ -7,11 +7,18 @@ Assembles the comparison table the thesis reports. Every model is scored on the
   node-tagged interactions; per-skill/per-user/global means anchor the scale.
 * **RQ3 (propagation)** — engine with GNN propagation on vs. off.
 * **RQ4 (forgetting)** — engine with recency decay on vs. off.
+* **RQ5 (personalization, ``kgt=True`` runs only)** — closed-form KGT edge
+  tuning vs. per-learner gradient retraining over the same hypothesis space;
+  each model also gets a measured compute ``cost``, since RQ5 is a cost
+  question as much as a fit question. The default ``kgt=False`` output is
+  key-for-key identical to Phase 5.
 
 Returns a JSON-serializable dict (dataset summary + per-model metrics + ROC
 points + RQ groupings) consumed by the CLI, the API, and the viewer dashboard.
 """
 from __future__ import annotations
+
+import time
 
 from ..activation import EngineConfig
 from .baselines import DKTPredictor
@@ -25,9 +32,9 @@ from .predict import (
 )
 
 
-def _models(dkt_epochs: int, seed: int):
+def _models(dkt_epochs: int, seed: int, *, kgt: bool = False, retrain_epochs: int = 30):
     """(predictor, rq_group, display_label) for every model in the comparison."""
-    return [
+    models = [
         (EnginePredictor(EngineConfig(), "engine_full"),
          "engine", "Engine (graph + forgetting)"),
         (EnginePredictor(EngineConfig(propagation=False), "engine_no_prop"),
@@ -42,6 +49,15 @@ def _models(dkt_epochs: int, seed: int):
         (PerUserMeanPredictor(), "baseline", "Per-user mean (ability)"),
         (GlobalMeanPredictor(), "baseline", "Global mean"),
     ]
+    if kgt:
+        from .retrain import PerLearnerRetrainPredictor
+        models += [
+            (EnginePredictor(EngineConfig(kgt=True), "engine_kgt"),
+             "RQ5", "Engine + KGT (personal edges)"),
+            (PerLearnerRetrainPredictor(epochs=retrain_epochs, seed=seed),
+             "RQ5", "Engine + per-learner retrain"),
+        ]
+    return models
 
 
 def _coverage(learners: list[LearnerData]) -> float:
@@ -60,32 +76,66 @@ def run_ablations(
     dkt_epochs: int = 10,
     seed: int = 0,
     mapper: str = "rule",
+    kgt: bool = False,
+    retrain_epochs: int = 30,
 ) -> dict:
-    """Run every model and return the full results dict."""
+    """Run every model and return the full results dict.
+
+    ``kgt=True`` (the Phase-7 RQ5 run) adds the two personalization arms and a
+    measured per-model compute ``cost``; the default output is unchanged.
+    """
     instances = all_eval_instances(learners)
     actual = [float(it.label) for it in instances]  # 1 = mistake
     cold = cold_eval_mask(learners)
     cold_idx = [i for i, c in enumerate(cold) if c]
     cold_actual = [actual[i] for i in cold_idx]
 
+    if kgt:
+        # Warm up the lazy torch/PyG import + layer build before timing, so the
+        # first engine arm's cost isn't inflated by one-time setup.
+        from ..graph import default_graph
+        from ..propagation import propagate
+        propagate(default_graph(), {}, EngineConfig())
+
     models: list[dict] = []
-    for predictor, group, label in _models(dkt_epochs, seed):
+    for predictor, group, label in _models(dkt_epochs, seed, kgt=kgt, retrain_epochs=retrain_epochs):
+        t0 = time.perf_counter()
         predicted = predictor.predict(learners)
+        dt = time.perf_counter() - t0
         if len(predicted) != len(actual):
             raise RuntimeError(
                 f"{predictor.name}: {len(predicted)} preds vs {len(actual)} instances")
         # Cold-node slice: eval items on nodes the learner never practiced (RQ3).
         cold_metrics = evaluate(cold_actual, [predicted[i] for i in cold_idx]) if cold_idx else None
-        models.append({
+        entry = {
             "name": predictor.name,
             "group": group,
             "label": label,
             "metrics": evaluate(actual, predicted),
             "metrics_cold": cold_metrics,
             "roc": roc_curve(actual, predicted),
-        })
+        }
+        if kgt:
+            # RQ5 is a cost question: fit+predict wall-clock, same machine/process
+            # for every arm so the ratio is meaningful.
+            entry["cost"] = {
+                "fit_predict_seconds": round(dt, 3),
+                "seconds_per_learner": round(dt / max(1, len(learners)), 5),
+            }
+            curve = getattr(predictor, "curve_", None)
+            if curve:
+                entry["retrain_curve"] = curve
+        models.append(entry)
 
     models.sort(key=lambda m: m["metrics"]["auroc"], reverse=True)
+    rqs = {
+        "RQ1_graph_vs_sequence": ["engine_full", "dkt", "per_skill_mean"],
+        "RQ3_propagation": ["engine_full", "engine_no_prop"],
+        "RQ3_propagation_cold": ["engine_full", "engine_no_prop"],
+        "RQ4_forgetting": ["engine_full", "engine_no_forget"],
+    }
+    if kgt:
+        rqs["RQ5_personalization"] = ["engine_full", "engine_kgt", "engine_retrain"]
     return {
         "dataset": {
             "source": "Duolingo SLAM 2018",
@@ -98,11 +148,6 @@ def run_ablations(
             "mistake_base_rate": (sum(actual) / len(actual)) if actual else 0.0,
             "node_coverage": _coverage(learners),
         },
-        "rqs": {
-            "RQ1_graph_vs_sequence": ["engine_full", "dkt", "per_skill_mean"],
-            "RQ3_propagation": ["engine_full", "engine_no_prop"],
-            "RQ3_propagation_cold": ["engine_full", "engine_no_prop"],
-            "RQ4_forgetting": ["engine_full", "engine_no_forget"],
-        },
+        "rqs": rqs,
         "models": models,
     }

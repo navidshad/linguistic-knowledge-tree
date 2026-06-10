@@ -5,6 +5,7 @@ import type {
   ChatTurn,
   LearnerProfile,
   LearnerStatus,
+  RetrainResult,
   SyntaxMap,
   Timeline,
   ValidationResults,
@@ -31,7 +32,13 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 export const api = {
   getMap: () => get<SyntaxMap>("/api/map"),
   getLearners: () => get<LearnerProfile[]>("/api/learners"),
-  getLearnerStatus: (id: string) => get<LearnerStatus>(`/api/learner/${id}/status`),
+  // kgt=true computes mastery over the learner's personalized graph (Phase 7,
+  // RQ5) and includes the edge adjustments behind it.
+  getLearnerStatus: (id: string, kgt = false) =>
+    get<LearnerStatus>(`/api/learner/${id}/status${kgt ? "?kgt=1" : ""}`),
+  // Run the RQ5 retrain comparator live: per-epoch loss + edge factors.
+  postRetrain: (id: string, epochs = 30) =>
+    post<RetrainResult>(`/api/learner/${id}/retrain?epochs=${epochs}`, {}),
   // Mastery sampled across the learner's history, for the timeline scrubber.
   getTimeline: (id: string, frames = 24) =>
     get<Timeline>(`/api/learner/${id}/timeline?frames=${frames}`),

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { api } from "../services/api";
-import type { LearnerProfile, LearnerStatus, Status } from "../types";
+import type { EdgeAdjustment, LearnerProfile, LearnerStatus, Status } from "../types";
 
 export const useLearnerStore = defineStore("learner", () => {
   const learnerId = ref("demo");
@@ -10,6 +10,11 @@ export const useLearnerStore = defineStore("learner", () => {
   const activated = ref<Set<string>>(new Set()); // editable known-set for what-if
   const loading = ref(false);
   const error = ref<string | null>(null);
+
+  // The learner's personal-graph deltas (present after a kgt=true load).
+  const edgeAdjustments = computed<EdgeAdjustment[] | null>(
+    () => data.value?.edge_adjustments ?? null,
+  );
 
   async function loadLearners() {
     try {
@@ -26,12 +31,12 @@ export const useLearnerStore = defineStore("learner", () => {
     );
   }
 
-  async function load(id: string = learnerId.value) {
+  async function load(id: string = learnerId.value, kgt = false) {
     learnerId.value = id;
     loading.value = true;
     error.value = null;
     try {
-      data.value = await api.getLearnerStatus(id);
+      data.value = await api.getLearnerStatus(id, kgt);
       syncActivatedFromData();
     } catch (e) {
       error.value = (e as Error).message;
@@ -61,5 +66,5 @@ export const useLearnerStore = defineStore("learner", () => {
     return data.value?.statuses[nodeId];
   }
 
-  return { learnerId, learners, data, activated, loading, error, loadLearners, load, refresh, toggle, statusOf };
+  return { learnerId, learners, data, activated, loading, error, edgeAdjustments, loadLearners, load, refresh, toggle, statusOf };
 });

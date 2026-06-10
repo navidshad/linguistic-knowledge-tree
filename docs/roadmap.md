@@ -63,7 +63,7 @@ linguistic-knowledge-tree/
 ## Stages & Phases
 
 **Status legend:** ✅ Done · 🟡 Partial · ⬜ Todo.
-(Phases 0–5 are on `dev`; Phase 6 is on `feat/phase6-semantic-embedding`, off `dev`.)
+(Phases 0–6 are merged into `dev`; Phase 7 is on `feat/phase7-kgt-personalization`, off `dev`.)
 
 ### Stage I — Map & Explore
 
@@ -108,10 +108,10 @@ linguistic-knowledge-tree/
 - B: **Chat tab** — a Gemini tutor (`POST /api/chat`, REST + deterministic mock); each learner turn is mapped→nodes by the validated mapper, folded as `dialog` evidence, and the map lights up live. Click a node → the **Evidence** panel shows the chat turns that activated it.
 - **Deliverable:** learner dialog activates the map automatically. **RQ2 result:** semantic embeddings recover the rule mapping only weakly (peak micro-F1 ≈ 0.14 vs the oracle's 1.0) and K-BERT ≈ BERT (1-hop graph injection gives no consistent lift) — frozen sentence embeddings capture grammatical *construction* weakly; the morphosyntactic rule mapper stays the stronger evidence source. Full write-up: `docs/phase6-validation.md`. *(= §3.4; prerequisite for Subturtle transcripts.)*
 
-**Phase 7 — Personalization (KGT) + recommender handoff** · ⬜ Todo
-- A: **Knowledge Graph Tuning** — per-learner edge tuning without full retrain (RQ5, §3.8). Finalize and document the **knowledge-state API** the separate "what's-next" system consumes.
-- B: Visualize per-learner edge adaptations; expose status + scores cleanly.
-- **Deliverable:** adapted personal graphs + a documented API boundary for the delegated recommender.
+**Phase 7 — Personalization (KGT) + recommender handoff** · ✅ Done (on `feat/phase7-kgt-personalization`)
+- A: **Knowledge Graph Tuning** (`klg_ai.kgt`) — closed-form per-learner edge multipliers from the learner's own feedback (consistent contradiction weakens/removes the inference message it falsifies; agreement reinforces), applied pre-normalization so both propagation guarantees survive. RQ5 ablation on the Phase-5 harness (`--kgt`): **engine+KGT = per-learner gradient retrain = global engine at AUROC 0.6406, but at 4.0 vs 363.4 ms/learner — ×90 cheaper** (null robust across a knob sweep; KGT fires on 500/500 learners). Knowledge-state API documented for the recommender: `docs/knowledge-state-api.md`; `gap_scores` (§3.7) computed on the status payload.
+- B: Viewer **"Personal graph (KGT)"** toggle (green/dashed-red/dotted edges + per-edge evidence reasons in NodeDetails), live **retrain-process animation** (epoch scrubber + loss + wall-time verdict vs KGT one-shot), Validation-tab RQ5 card (parity + log-scale cost bars + convergence curve), chat KGT (wrong usage weakens edges live). New "struggling" demo learner carries the contradiction story.
+- **Deliverable:** adapted personal graphs + a documented API boundary for the delegated recommender. Full write-up: `docs/phase7-validation.md`; committed artifact `docs/phase7/results.json`.
 
 ### Stage V — Ship
 
@@ -130,7 +130,7 @@ linguistic-knowledge-tree/
 | RQ2 — BERT vs K-BERT | 6 |
 | RQ3 — GNN propagation for gaps | 3, 4, 5 |
 | RQ4 — forgetting / dynamics | 4, 5 |
-| RQ5 — KGT personalization vs retrain | 7 |
+| RQ5 — KGT personalization vs retrain | 7 ✓ |
 
 ## Dependencies & risks
 
@@ -141,4 +141,4 @@ linguistic-knowledge-tree/
 
 ## Immediate next step
 
-**Phase 7** — personalization (KGT) + recommender handoff: per-learner edge tuning without full retrain (RQ5, §3.8), and finalize/document the knowledge-state API the separate "what's-next" system consumes. Housekeeping: merge `feat/phase6-semantic-embedding` → `dev`. Open items carried forward: train the K-BERT injection / propagation weights instead of fixing them (RQ2/RQ3), richer node text + fuller EGP coverage to lift semantic-mapping F1, optional Gemini-assisted turn tagging, and the EdNet scale-check.
+All five RQs now have empirical answers (RQ1/RQ3/RQ4 → Phase 5, RQ2 → Phase 6, RQ5 → Phase 7). Next: **paper catch-up** (translate the phase write-ups into the results chapters; fix §1.8) and **Phase 8** — Subturtle integration (start the `leitner_review_log` early — history can't be backfilled; spec in `docs/subturtle-review-event-log-spec.md`). Housekeeping: merge `feat/phase7-kgt-personalization` → `dev`. Open items carried forward: train the K-BERT injection / propagation weights instead of fixing them (RQ2/RQ3), richer node text + fuller EGP coverage to lift semantic-mapping F1, optional Gemini-assisted turn tagging, and the EdNet scale-check.

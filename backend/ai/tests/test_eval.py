@@ -126,3 +126,66 @@ def test_run_ablations_structure():
         assert m["metrics"]["n"] == res["dataset"]["n_eval_instances"]
     for group in res["rqs"].values():
         assert all(any(mm["name"] == nm for mm in res["models"]) for nm in group)
+
+
+# --- Phase 7 (RQ5): KGT vs per-learner retrain ------------------------------
+
+def test_run_ablations_default_output_unchanged_by_phase7():
+    # The byte-identical guard: without kgt the model set, per-model keys and
+    # rq groups are exactly the Phase-5 output (no cost, no RQ5 group).
+    pytest.importorskip("torch_geometric")
+    from klg_ai.eval.ablations import run_ablations
+
+    res = run_ablations(_learners(), dkt_epochs=2)
+    assert {m["name"] for m in res["models"]} == {
+        "engine_full", "engine_no_prop", "engine_no_forget", "engine_neither",
+        "dkt", "per_skill_mean", "per_user_mean", "global_mean"}
+    for m in res["models"]:
+        assert set(m.keys()) == {"name", "group", "label", "metrics", "metrics_cold", "roc"}
+    assert "RQ5_personalization" not in res["rqs"]
+
+
+def test_run_ablations_kgt_adds_rq5_arms_and_cost():
+    pytest.importorskip("torch_geometric")
+    from klg_ai.eval.ablations import run_ablations
+
+    res = run_ablations(_learners(), dkt_epochs=2, kgt=True, retrain_epochs=2)
+    names = {m["name"] for m in res["models"]}
+    assert {"engine_kgt", "engine_retrain"} <= names
+    assert res["rqs"]["RQ5_personalization"] == ["engine_full", "engine_kgt", "engine_retrain"]
+    for m in res["models"]:
+        assert m["cost"]["fit_predict_seconds"] >= 0.0
+        assert m["cost"]["seconds_per_learner"] >= 0.0
+    retrain = next(m for m in res["models"] if m["name"] == "engine_retrain")
+    assert [p["epoch"] for p in retrain["retrain_curve"]] == [1, 2]
+
+
+def test_retrain_predictor_is_aligned_bounded_and_seeded():
+    pytest.importorskip("torch_geometric")
+    from klg_ai.eval.retrain import PerLearnerRetrainPredictor
+
+    learners = _learners()
+    n = len(all_eval_instances(learners))
+    p = PerLearnerRetrainPredictor(epochs=2, min_train_mapped=1, seed=0)
+    a = p.predict(learners)
+    b = PerLearnerRetrainPredictor(epochs=2, min_train_mapped=1, seed=0).predict(learners)
+    assert len(a) == n
+    assert all(0.0 <= x <= 1.0 for x in a)
+    assert a == b  # zero-init + full-batch + fixed epochs = deterministic
+
+
+def test_fit_edge_factors_records_epochs_and_descends():
+    pytest.importorskip("torch_geometric")
+    from klg_ai.eval.retrain import fit_edge_factors
+    from klg_ai.activation import EngineConfig, generate_events
+    from klg_ai.graph import default_graph
+
+    events = generate_events(
+        ["relative_clauses_defining"], failed=["relative_pronouns"],
+        seed=5, reviews_per_node=4)
+    trace = fit_edge_factors(default_graph(), events, EngineConfig(kgt=True),
+                             epochs=8, record_epochs=True)
+    assert len(trace.losses) == len(trace.epoch_factors) == 8
+    assert trace.losses[-1] < trace.losses[0]  # the fit makes progress
+    for m_back, m_fwd in trace.factors.values():
+        assert 0.0 < m_back < 2.0 and 0.0 < m_fwd < 2.0  # sigmoid reparam bounds

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useMapStore } from "./stores/map";
 import { useLearnerStore } from "./stores/learner";
 import { useViewStore } from "./stores/view";
 import { useTimelineStore } from "./stores/timeline";
 import { useChatStore } from "./stores/chat";
+import { useRetrainStore } from "./stores/retrain";
 import ControlsPanel from "./components/ControlsPanel.vue";
 import ChatPanel from "./components/ChatPanel.vue";
 import GraphCanvas from "./components/GraphCanvas.vue";
@@ -20,16 +21,19 @@ const learnerStore = useLearnerStore();
 const viewStore = useViewStore();
 const timelineStore = useTimelineStore();
 const chatStore = useChatStore();
+const retrainStore = useRetrainStore();
 const { map } = storeToRefs(mapStore);
-const { data: learnerData } = storeToRefs(learnerStore);
-const { tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn } = storeToRefs(viewStore);
+const { data: learnerData, edgeAdjustments: learnerAdjustments } = storeToRefs(learnerStore);
+const { tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn, kgtOn } = storeToRefs(viewStore);
 const { currentFrame } = storeToRefs(timelineStore);
+const { currentEpoch } = storeToRefs(retrainStore);
 const {
   statuses: chatStatuses,
   mastery: chatMastery,
   counts: chatCounts,
   evidenceByNode,
   messages: chatMessages,
+  edgeAdjustments: chatAdjustments,
 } = storeToRefs(chatStore);
 
 const selectedId = ref<string | null>(null);
@@ -63,6 +67,22 @@ const displayTotal = computed(() => Object.keys(displayStatuses.value).length);
 // learner talks; the Map tab keeps its user-controlled confidence toggle.
 const confidenceActive = computed(() => (tab.value === "chat" ? true : confidenceOn.value));
 
+// Which personal-graph deltas to paint on the edges (Phase 7): the chat's live
+// adjustments in chat mode; on the Map tab the retrain animation frame when it
+// is playing, else the learner's KGT adjustments when the toggle is on.
+const displayEdgeAdjustments = computed(() => {
+  if (tab.value === "chat") return chatAdjustments.value;
+  if (!kgtOn.value) return null;
+  return currentEpoch.value?.edge_adjustments ?? learnerAdjustments.value;
+});
+
+// The KGT toggle re-fetches the learner state over the personalized graph
+// (and back); the retrain animation belongs to that mode, so drop it on toggle.
+watch(kgtOn, (on) => {
+  retrainStore.reset();
+  learnerStore.load(learnerStore.learnerId, on);
+});
+
 const selectedNode = computed<MapNode | null>(() =>
   map.value && selectedId.value ? map.value.nodes.find((n) => n.id === selectedId.value) ?? null : null,
 );
@@ -70,6 +90,14 @@ const selectedStatus = computed(() => (selectedId.value ? displayStatuses.value[
 const selectedMastery = computed(() => (selectedId.value ? displayMastery.value[selectedId.value] : undefined));
 const selectedEvidence = computed(() =>
   tab.value === "chat" && selectedId.value ? evidenceByNode.value[selectedId.value] : undefined,
+);
+// The selected node's incident edge adjustments (for the details panel).
+const selectedAdjustments = computed(() =>
+  selectedId.value
+    ? (displayEdgeAdjustments.value ?? []).filter(
+        (a) => a.source === selectedId.value || a.target === selectedId.value,
+      )
+    : [],
 );
 const mode = computed(() => learnerData.value?.learner_id ?? learnerStore.learnerId);
 
@@ -130,6 +158,7 @@ onMounted(() => {
           :enabled-levels="enabledLevels"
           :overlay-on="overlayOn"
           :subgraph-only="subgraphOnly"
+          :edge-adjustments="displayEdgeAdjustments"
           @select="selectedId = $event"
           @toggle="onToggle"
         />
@@ -143,6 +172,7 @@ onMounted(() => {
         :map="map"
         :evidence="selectedEvidence"
         :chat-turns="tab === 'chat' ? chatMessages : undefined"
+        :edge-adjustments="selectedAdjustments"
         @toggle="onToggle"
       />
     </template>

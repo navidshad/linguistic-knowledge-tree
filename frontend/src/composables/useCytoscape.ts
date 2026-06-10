@@ -4,8 +4,8 @@
 // display:none hides the node), so they compose freely.
 import cytoscape from "cytoscape";
 import type { Core, ElementDefinition } from "cytoscape";
-import { CEFR_COLOR, CEFR_INDEX, CEFR_ORDER, CONFIDENCE_MIN_OPACITY, STATUS_COLOR } from "../constants";
-import type { Cefr, LayoutName, Status, SyntaxMap } from "../types";
+import { CEFR_COLOR, CEFR_INDEX, CEFR_ORDER, CONFIDENCE_MIN_OPACITY, KGT_EDGE_COLOR, STATUS_COLOR } from "../constants";
+import type { Cefr, EdgeAdjustment, LayoutName, Status, SyntaxMap } from "../types";
 
 const COL_W = 250;
 const ROW_H = 58;
@@ -68,6 +68,19 @@ const STYLE = [
       width: 1.4, "line-color": "#d0d7db", "target-arrow-color": "#aebcc2",
       "target-arrow-shape": "triangle", "arrow-scale": 0.8, "curve-style": "bezier", opacity: 0.7,
   } },
+  // KGT personal-graph deltas (Phase 7): edge style encodes how this learner's
+  // own feedback re-weighted the edge (placed after the base rule to win).
+  { selector: "edge.kgt-strong", style: {
+      width: 3, "line-color": KGT_EDGE_COLOR.strengthened, "target-arrow-color": KGT_EDGE_COLOR.strengthened, opacity: 1,
+  } },
+  { selector: "edge.kgt-weak", style: {
+      width: 2.5, "line-color": KGT_EDGE_COLOR.weakened, "target-arrow-color": KGT_EDGE_COLOR.weakened,
+      "line-style": "dashed", opacity: 0.9,
+  } },
+  { selector: "edge.kgt-removed", style: {
+      width: 2, "line-color": KGT_EDGE_COLOR.removed, "target-arrow-color": KGT_EDGE_COLOR.removed,
+      "line-style": "dotted", opacity: 0.45,
+  } },
   { selector: "node:selected", style: { "border-color": "#000", "border-width": 5 } },
   // any of these hides the element
   { selector: ".lvl-off", style: { display: "none" } },
@@ -88,10 +101,17 @@ export interface GraphHandle {
   setOverlay(on: boolean): void;
   setEnabledLevels(levels: Set<Cefr>): void;
   setSubgraphOnly(on: boolean): void;
+  setEdgeAdjustments(adjustments: EdgeAdjustment[] | null): void;
   setLayout(name: LayoutName): void;
   fit(): void;
   destroy(): void;
 }
+
+const KGT_CLASS: Record<EdgeAdjustment["kind"], string> = {
+  strengthened: "kgt-strong",
+  weakened: "kgt-weak",
+  removed: "kgt-removed",
+};
 
 export function createGraph(
   container: HTMLElement,
@@ -199,6 +219,14 @@ export function createGraph(
       if (on) realNodes().filter('[status="further"]').addClass("sub-hidden");
       else cy.nodes(".sub-hidden").removeClass("sub-hidden");
       fit();
+    },
+    setEdgeAdjustments(adjustments) {
+      cy.batch(() => {
+        cy.edges().removeClass("kgt-strong kgt-weak kgt-removed");
+        (adjustments ?? []).forEach((a) => {
+          cy.edges(`[source="${a.source}"][target="${a.target}"]`).addClass(KGT_CLASS[a.kind]);
+        });
+      });
     },
     setLayout,
     fit,
