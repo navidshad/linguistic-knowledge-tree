@@ -182,10 +182,15 @@ feature branches are local-only (not pushed yet).
   - **Chat demo (6-B)** — `POST /api/chat` (`routers/chat.py` + `gemini.py`):
     stateless like `POST /api/status`; a **Gemini** tutor (minimal REST, **deterministic
     mock** when `KLG_GEMINI_MOCK=1`/no key) replies, and each learner turn is mapped→
-    nodes (validated mapper, `dialog` source) → live map overlay. Viewer: a **Chat**
-    tab (`ChatPanel.vue` + `stores/chat.ts`) where the map lights up as you talk, and
-    a NodeDetails **Evidence** section showing the turns behind a node. Map/Validation
-    tabs + demo contract (48/3) unchanged. Chat threshold `KLG_CHAT_THRESHOLD` (0.22)
-    is below the eval default since a whole turn embeds to a "mixed" point.
+    nodes (validated mapper, `dialog` source) → live map overlay. Evidence is **graded**:
+    the mapper proposes, `gemini_grade` judges used/correct per candidate — unused pruned,
+    wrong usage = negative evidence (`correct=False`; never fabricates "known"); cached
+    per turn, fails open to all-correct in mock mode, `KLG_CHAT_GRADE=0` disables.
+    Per-session pipeline trace → `KLG_TRACE_DIR` JSON (`KLG_TRACE=0` off). Viewer: a
+    **Chat** tab (`ChatPanel.vue` + `stores/chat.ts`) where the map lights up as you talk
+    (✓/✗ per detected concept), and a NodeDetails **Evidence** section showing the turns
+    behind a node (incorrect uses flagged). Map/Validation tabs + demo contract (48/3)
+    unchanged. Chat threshold `KLG_CHAT_THRESHOLD` (0.22) is below the eval default since
+    a whole turn embeds to a "mixed" point. Pipeline figure: `docs/phase6/journey.png`.
   - Open: train the K-BERT/propagation weights (vs fixed); richer node text + fuller
     EGP coverage to lift mapping F1; optional Gemini-assisted turn tagging.

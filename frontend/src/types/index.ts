@@ -115,12 +115,14 @@ export interface NodeEvidence {
   node_id: string;
   confidence: number;
   turn_indices: number[];
+  incorrect_turn_indices: number[]; // subset graded as wrong usage
 }
 
 export interface ChatResponse {
   reply: string;
   mapped_nodes: string[];
   confidences: Record<string, number>;
+  grades: Record<string, boolean>; // node -> used correctly? (latest turn)
   counts: Partial<Record<Status, number>>;
   statuses: Record<string, Status>;
   mastery: Record<string, number>;

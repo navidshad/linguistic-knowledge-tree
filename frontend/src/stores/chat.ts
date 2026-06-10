@@ -14,6 +14,7 @@ export const useChatStore = defineStore("chat", () => {
   const counts = ref<Partial<Record<Status, number>>>({});
   const evidenceByNode = ref<Record<string, NodeEvidence>>({});
   const lastMapped = ref<string[]>([]); // nodes the most recent turn lit up
+  const lastGrades = ref<Record<string, boolean>>({}); // node -> used correctly?
   const sending = ref(false);
   const error = ref<string | null>(null);
 
@@ -37,6 +38,7 @@ export const useChatStore = defineStore("chat", () => {
       mastery.value = res.mastery;
       counts.value = res.counts;
       lastMapped.value = res.mapped_nodes;
+      lastGrades.value = res.grades;
       // The server returns the full accumulated evidence, so just index it.
       evidenceByNode.value = Object.fromEntries(res.evidence.map((e) => [e.node_id, e]));
     } catch (e) {
@@ -54,12 +56,13 @@ export const useChatStore = defineStore("chat", () => {
     counts.value = {};
     evidenceByNode.value = {};
     lastMapped.value = [];
+    lastGrades.value = {};
     error.value = null;
     sessionId.value = crypto.randomUUID(); // fresh session → fresh trace file
   }
 
   return {
-    sessionId, messages, statuses, mastery, counts, evidenceByNode, lastMapped, sending, error,
-    activated, send, reset,
+    sessionId, messages, statuses, mastery, counts, evidenceByNode, lastMapped, lastGrades,
+    sending, error, activated, send, reset,
   };
 });

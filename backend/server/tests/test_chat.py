@@ -19,6 +19,7 @@ client = TestClient(app)
 def _deterministic(monkeypatch):
     monkeypatch.setenv("KLG_GEMINI_MOCK", "1")
     monkeypatch.setenv("KLG_TRACE", "0")  # don't write trace files in most tests
+    chat_mod._GRADE_CACHE.clear()  # grades are cached per (text, nodes) across requests
     emb = HashingEmbedder(dim=64)
     mapper = SemanticMapper(
         emb, build_node_vectors(emb, load_map()),
@@ -63,6 +64,50 @@ def test_chat_mock_reply_is_deterministic_and_echoes():
 def test_chat_does_not_break_legacy_endpoints():
     assert client.get("/api/learner/demo/status").json()["counts"]["known"] == 48
     assert len(client.get("/api/map").json()["nodes"]) == 113
+
+
+def _first_mapped_node(text: str) -> str:
+    """The first node the (mock-graded, all-correct) mapper assigns to a turn."""
+    d = client.post("/api/chat", json={"messages": [{"role": "user", "text": text}]}).json()
+    assert d["mapped_nodes"]
+    return d["mapped_nodes"][0]
+
+
+def test_incorrect_usage_is_negative_evidence(monkeypatch):
+    turn = "she is reading a book and i have finished my homework"
+    target = _first_mapped_node(turn)
+    baseline = client.post(
+        "/api/chat", json={"messages": [{"role": "user", "text": turn}]}).json()
+    assert baseline["grades"][target] is True
+    assert baseline["mastery"][target] >= 0.5  # all-correct grading -> known
+
+    # Grade the target node as used-but-wrong; everything else stays correct.
+    def grade_target_wrong(text, candidates, **kw):
+        return {nid: {"used": True, "correct": nid != target} for nid, _ in candidates}
+
+    chat_mod._GRADE_CACHE.clear()
+    monkeypatch.setattr(chat_mod, "gemini_grade", grade_target_wrong)
+    d = client.post("/api/chat", json={"messages": [{"role": "user", "text": turn}]}).json()
+    assert d["grades"][target] is False
+    assert d["mastery"][target] < baseline["mastery"][target]  # wrong use lowers mastery
+    assert d["statuses"][target] != "known"                    # and never fabricates known
+    ev = next(e for e in d["evidence"] if e["node_id"] == target)
+    assert ev["incorrect_turn_indices"] == [0]
+
+
+def test_unused_candidates_are_pruned(monkeypatch):
+    turn = "she is reading a book and i have finished my homework"
+    target = _first_mapped_node(turn)
+
+    def grade_target_unused(text, candidates, **kw):
+        return {nid: {"used": nid != target, "correct": nid != target} for nid, _ in candidates}
+
+    chat_mod._GRADE_CACHE.clear()
+    monkeypatch.setattr(chat_mod, "gemini_grade", grade_target_unused)
+    d = client.post("/api/chat", json={"messages": [{"role": "user", "text": turn}]}).json()
+    assert target not in d["mapped_nodes"]                       # pruned from the lit-up set
+    assert all(e["node_id"] != target for e in d["evidence"])    # and from the evidence
+    assert d["mastery"][target] == 0.0                           # no event emitted for it
 
 
 def test_chat_writes_per_session_trace(tmp_path, monkeypatch):

@@ -4,7 +4,7 @@ import { storeToRefs } from "pinia";
 import { useChatStore } from "../stores/chat";
 
 const chat = useChatStore();
-const { messages, sending, error, lastMapped } = storeToRefs(chat);
+const { messages, sending, error, lastMapped, lastGrades } = storeToRefs(chat);
 const draft = ref("");
 const listEl = ref<HTMLElement | null>(null);
 
@@ -40,7 +40,12 @@ watch(
       </div>
       <div v-if="sending" class="msg tutor pending"><span class="who">Tutor</span><p>…</p></div>
     </div>
-    <p v-if="lastMapped.length" class="mapped">lit up: {{ lastMapped.join(", ") }}</p>
+    <p v-if="lastMapped.length" class="mapped">
+      detected:
+      <span v-for="n in lastMapped" :key="n" class="tag" :class="{ wrong: lastGrades[n] === false }">
+        {{ n }} {{ lastGrades[n] === false ? "✗" : "✓" }}
+      </span>
+    </p>
     <p v-if="error" class="err">{{ error }}</p>
     <form class="composer" @submit.prevent="send">
       <input v-model="draft" placeholder="Say something in English…" :disabled="sending" />
@@ -62,6 +67,8 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: 
 .msg.tutor p { background: #eceff1; color: #1a1a1a; }
 .msg.pending p { opacity: 0.5; }
 .mapped { font-size: 11px; color: var(--known, #2e7d32); margin: 6px 0 0; }
+.mapped .tag { margin-right: 8px; white-space: nowrap; }
+.mapped .tag.wrong { color: var(--gap, #c62828); }
 .err { color: var(--gap, #c62828); font-size: 11px; margin: 6px 0 0; }
 .composer { display: flex; gap: 6px; margin-top: 8px; }
 .composer input { flex: 1; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }

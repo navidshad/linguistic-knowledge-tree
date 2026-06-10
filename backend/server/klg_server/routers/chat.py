@@ -5,6 +5,14 @@ Stateless (mirrors ``POST /api/status``): the client sends the full message hist
 Phase-6 semantic mapper, K-BERT arm), folds them as ``dialog`` evidence into
 point-in-time mastery, and returns the tutor reply alongside the recomputed
 knowledge state and the per-node text evidence (which turns lit each node — 6-B).
+
+Evidence is **graded**, not assumed: the mapper only *proposes* candidate concepts;
+``gemini_grade`` judges per candidate whether the turn really uses it and whether
+it is used correctly. Wrong usage becomes negative evidence (``Event.correct=False``
+lowers mastery), unused candidates are pruned (the mapper's false positives), and
+in mock/keyless mode grading fails open to all-correct so the offline demo and
+tests behave as before. Grades are cached per (text, candidates) because the
+stateless client resends the whole history each request.
 """
 from __future__ import annotations
 
@@ -27,10 +35,26 @@ from klg_ai.status import compute_status
 
 from .. import trace
 from ..deps import get_graph, get_map
-from ..gemini import gemini_reply
+from ..gemini import gemini_grade, gemini_reply
 from ..schemas import ChatIn, ChatOut, NodeEvidenceOut
 
 router = APIRouter(prefix="/api", tags=["chat"])
+
+# Grades per (turn text, candidate ids): the stateless client resends the full
+# history every request, so without this only-the-newest-turn caching each turn
+# would be re-graded (one Gemini call per historical turn per request).
+_GRADE_CACHE: dict[tuple[str, tuple[str, ...]], dict[str, dict]] = {}
+
+
+def _graded(text: str, node_ids: tuple[str, ...]) -> dict[str, dict]:
+    """Grade a turn's candidate nodes (cached); ``KLG_CHAT_GRADE=0`` disables grading."""
+    if os.environ.get("KLG_CHAT_GRADE", "1") == "0":
+        return {n: {"used": True, "correct": True} for n in node_ids}
+    key = (text, node_ids)
+    if key not in _GRADE_CACHE:
+        m = get_map()
+        _GRADE_CACHE[key] = gemini_grade(text, [(n, m.node(n).label) for n in node_ids])
+    return _GRADE_CACHE[key]
 
 
 @lru_cache(maxsize=1)
@@ -53,8 +77,10 @@ def chat(body: ChatIn) -> ChatOut:
     active = set(body.activated)
 
     events: list[Event] = []
-    evidence: dict[str, dict] = {}  # node_id -> {"confidence": float, "turns": set[int]}
+    # node_id -> {"confidence": float, "turns": set[int], "wrong": set[int]}
+    evidence: dict[str, dict] = {}
     latest_scores: dict[str, float] = {}
+    latest_grades: dict[str, bool] = {}
     latest_idx: int | None = None
     latest_text: str | None = None
     for i, turn in enumerate(body.messages):
@@ -62,16 +88,25 @@ def chat(body: ChatIn) -> ChatOut:
             continue
         latest_idx, latest_text = i, turn.text
         match = mapper.map_text(turn.text, active_nodes=active)
-        if match.node_ids:
-            events.append(
-                Event(learner_id="chat", node_ids=match.node_ids, correct=True,
-                      ts=float(i), source="dialog")
-            )
-        latest_scores = dict(match.scores)
-        for nid, conf in match.scores.items():
-            slot = evidence.setdefault(nid, {"confidence": 0.0, "turns": set()})
-            slot["confidence"] = max(slot["confidence"], conf)
+        grades = _graded(turn.text, match.node_ids)
+        used = {n for n in match.node_ids if grades.get(n, {}).get("used", True)}
+        right = tuple(n for n in used if grades[n].get("correct", True))
+        wrong = tuple(n for n in used if not grades[n].get("correct", True))
+        # Event.correct is per event, so correct and incorrect usage split in two.
+        if right:
+            events.append(Event(learner_id="chat", node_ids=right, correct=True,
+                                ts=float(i), source="dialog"))
+        if wrong:
+            events.append(Event(learner_id="chat", node_ids=wrong, correct=False,
+                                ts=float(i), source="dialog"))
+        latest_scores = {n: match.scores[n] for n in match.node_ids if n in used}
+        latest_grades = {n: n in right for n in latest_scores}
+        for nid in used:
+            slot = evidence.setdefault(nid, {"confidence": 0.0, "turns": set(), "wrong": set()})
+            slot["confidence"] = max(slot["confidence"], match.scores[nid])
             slot["turns"].add(i)
+            if nid in wrong:
+                slot["wrong"].add(i)
 
     reply = gemini_reply(body.messages)
 
@@ -81,24 +116,28 @@ def chat(body: ChatIn) -> ChatOut:
     statuses = {n: s.value for n, s in compute_status(g, activated).items()}
 
     if trace.enabled():
-        _trace_turn(g, body, events, mastery, statuses, latest_idx, latest_text, latest_scores, reply)
+        _trace_turn(g, body, events, mastery, statuses,
+                    latest_idx, latest_text, latest_scores, latest_grades, reply)
 
     return ChatOut(
         reply=reply,
         mapped_nodes=list(latest_scores),
         confidences={k: round(v, 3) for k, v in latest_scores.items()},
+        grades=latest_grades,
         counts=dict(Counter(statuses.values())),
         statuses=statuses,
         mastery={n: round(m, 3) for n, m in mastery.items()},
         evidence=[
             NodeEvidenceOut(node_id=nid, confidence=round(d["confidence"], 3),
-                            turn_indices=sorted(d["turns"]))
+                            turn_indices=sorted(d["turns"]),
+                            incorrect_turn_indices=sorted(d["wrong"]))
             for nid, d in sorted(evidence.items())
         ],
     )
 
 
-def _trace_turn(g, body, events, mastery, statuses, latest_idx, latest_text, latest_scores, reply):
+def _trace_turn(g, body, events, mastery, statuses,
+                latest_idx, latest_text, latest_scores, latest_grades, reply):
     """Append this turn's pipeline journey to the per-session trace file.
 
     Recomputes the *direct* (GNN-off) scores so the trace shows each touched node's
@@ -131,7 +170,8 @@ def _trace_turn(g, body, events, mastery, statuses, latest_idx, latest_text, lat
             "input": latest_text,
             "mapper": {
                 "arm": "kbert",
-                "matched": [{"node": k, "cosine": round(v, 3)} for k, v in latest_scores.items()],
+                "matched": [{"node": k, "cosine": round(v, 3),
+                             "correct": latest_grades.get(k)} for k, v in latest_scores.items()],
             },
             "events_total": len(events),
             "touched": [_row(n) for n in touched],          # nodes with direct dialog evidence

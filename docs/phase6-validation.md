@@ -118,6 +118,8 @@ the graph's value here (as in Phase 5) is representational rather than a predict
 
 ## The chat demo (Track B / 6-B)
 
+![The journey of a learner turn through the system](phase6/journey.png)
+
 `POST /api/chat` is stateless (mirrors `POST /api/status`): the client sends the
 conversation + current known-set; the server maps each **learner** turn to nodes via the
 validated mapper, emits them as `dialog`-source `Event`s, folds them into point-in-time
@@ -127,6 +129,16 @@ disabled so the short reply isn't starved of tokens; override via `GEMINI_MODEL`
 **deterministic mock** (`KLG_GEMINI_MOCK=1` / no key) — the reply never blocks the
 thesis-relevant part (mapping the turn), so the map lights up even if Gemini is down. Only
 the learner's production is evidence (review > **dialog** > exposure).
+
+Evidence is **graded**, not assumed. The mapper only *proposes* candidate concepts;
+`gemini_grade` judges each one — actually used in the turn? formed correctly? Unused
+candidates are pruned (the embedding mapper's false positives), and incorrect usage becomes
+**negative evidence** (`Event.correct=False` lowers mastery), so a garbled sentence can no
+longer light concepts up as "known" — it shows as *attempted, used incorrectly ✗* in the
+Evidence panel instead. Grades are cached per turn (the stateless client resends history),
+fail open to all-correct in mock/keyless mode, and `KLG_CHAT_GRADE=0` disables grading.
+A per-session pipeline trace (`KLG_TRACE_DIR`, default `<tmp>/klg-chat-traces/<session>.json`)
+records each turn's full journey: input → matched+graded → direct score → GNN lift → status.
 
 The viewer adds a **Chat** tab: type in English and the map activates live; click a node
 and NodeDetails shows the **chat turns that activated it** (the 6-B "text evidence"). A

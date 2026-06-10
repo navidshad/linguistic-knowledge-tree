@@ -107,17 +107,19 @@ class MetricsOut(BaseModel):
 # --- Phase 6: Gemini chat demo (dialog turns activate the map) -------------
 
 class NodeEvidenceOut(BaseModel):
-    """Which chat turn(s) activated a node, and the mapper's confidence."""
+    """Which chat turn(s) touched a node, and the mapper's confidence."""
     node_id: str
     confidence: float
     turn_indices: list[int]
+    incorrect_turn_indices: list[int] = []  # subset graded as wrong usage
 
 
 class ChatOut(BaseModel):
     """Tutor reply + the knowledge state the learner's dialog turns imply."""
     reply: str
-    mapped_nodes: list[str]            # nodes the latest user turn lit up
+    mapped_nodes: list[str]            # nodes the latest user turn touched (graded as used)
     confidences: dict[str, float]      # node_id -> cosine, for that latest turn
+    grades: dict[str, bool] = {}       # node_id -> used correctly?, for that latest turn
     counts: dict[str, int]
     statuses: dict[str, str]           # node_id -> status (live overlay)
     mastery: dict[str, float]          # node_id -> mastery [0, 1]

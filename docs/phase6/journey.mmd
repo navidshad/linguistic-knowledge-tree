@@ -1,0 +1,41 @@
+flowchart TD
+    subgraph BROWSER["Browser · Vue (Chat tab)"]
+        U["Learner types a turn<br/><b>'I will did studied master of...'</b>"]
+        OV["Map overlay updates live<br/>detected: node ✓ / node ✗<br/>NodeDetails Evidence: 'used incorrectly ✗'"]
+    end
+
+    subgraph SERVER["FastAPI · POST /api/chat  (stateless)"]
+        direction TB
+        EMB["1. BERT embed — MiniLM (CPU)<br/>text to v in R-384 (L2-norm)<br/>semantic/embedder.py"]
+        COS["2. Cosine match vs 113 node vecs<br/>sims = matrix_kbert dot v<br/>top-k, cos >= 0.22 — PROPOSES candidates<br/>semantic/mapper.py"]
+        GRADE["3. Gemini grades each candidate<br/>used? formed correctly?<br/>unused = pruned (false positives)<br/>cached per turn · mock = all-correct<br/>gemini.py:gemini_grade"]
+        EVOK["4a. dialog Event correct=True<br/>(concepts used correctly)"]
+        EVBAD["4b. dialog Event correct=False<br/>(concepts used with errors —<br/>negative evidence)"]
+        GEM["Gemini tutor reply<br/>(parallel — NOT evidence)<br/>gemini.py:gemini_reply"]
+    end
+
+    subgraph ENGINE["klg_ai · mastery_from_events()  (re-run over ALL events each turn)"]
+        direction TB
+        DIR["5. direct_scores<br/>acc = weighted share of CORRECT evidence<br/>wrong usage lowers acc to 0 = mastery 0<br/>evidence.py"]
+        GNN["6. GNN propagate  (fixed weights)<br/>PyG MessagePassing over prereq DAG<br/>back 0.5 / fwd 0.15 · 2 rounds<br/>lift = clamp(inferred - direct, 0 .. 0.45)<br/>propagation.py"]
+        STAT["7. threshold >= 0.5 to known set<br/>compute_status: known / interior-gap /<br/>frontier / further<br/>activation.py · status.py"]
+    end
+
+    TRACE["per-session trace<br/>data/chat-traces/&lt;session&gt;.json<br/>input · matched+graded · direct ·<br/>gnn_lift · status<br/>trace.py"]
+
+    U -->|"messages + session_id + activated"| EMB
+    EMB --> COS --> GRADE
+    GRADE -->|"used + correct"| EVOK --> DIR
+    GRADE -->|"used + WRONG"| EVBAD --> DIR
+    DIR --> GNN --> STAT
+    EVOK -. "history" .-> GEM
+    STAT -->|"ChatOut: reply, statuses, mastery,<br/>grades, evidence"| OV
+    GEM -. "reply" .-> OV
+    STAT -. "append turn" .-> TRACE
+
+    style GNN fill:#2e7d32,color:#fff,stroke:#1b5e20,stroke-width:2px
+    style EMB fill:#1565c0,color:#fff
+    style COS fill:#1565c0,color:#fff
+    style GRADE fill:#8e24aa,color:#fff,stroke:#4a148c,stroke-width:2px
+    style GEM fill:#8e24aa,color:#fff
+    style EVBAD fill:#c62828,color:#fff

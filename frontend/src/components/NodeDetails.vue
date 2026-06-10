@@ -13,11 +13,13 @@ const props = defineProps<{
   chatTurns?: ChatTurn[];
 }>();
 
-const evidenceTurns = computed(() =>
-  props.evidence && props.chatTurns
-    ? props.evidence.turn_indices.map((i) => props.chatTurns![i]?.text).filter(Boolean)
-    : [],
-);
+const evidenceTurns = computed(() => {
+  if (!props.evidence || !props.chatTurns) return [];
+  const wrong = new Set(props.evidence.incorrect_turn_indices ?? []);
+  return props.evidence.turn_indices
+    .map((i) => ({ text: props.chatTurns![i]?.text ?? "", wrong: wrong.has(i) }))
+    .filter((t) => t.text);
+});
 
 const emit = defineEmits<{ (e: "toggle", nodeId: string): void }>();
 
@@ -71,7 +73,11 @@ const isKnown = computed(() => props.status === "known");
           <span class="k">Evidence — chat turns</span>
           <b v-if="evidence">{{ Math.round(evidence.confidence * 100) }}%</b>
         </div>
-        <ul><li v-for="(t, i) in evidenceTurns" :key="i">“{{ t }}”</li></ul>
+        <ul>
+          <li v-for="(t, i) in evidenceTurns" :key="i" :class="{ wrong: t.wrong }">
+            “{{ t.text }}”<span v-if="t.wrong"> — used incorrectly ✗</span>
+          </li>
+        </ul>
       </div>
 
       <button class="toggle-btn" :class="{ on: isKnown }" @click="emit('toggle', node.id)">
@@ -109,6 +115,7 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: 
 .evidence { margin-bottom: 12px; }
 .evidence ul { margin: 4px 0 0; padding-left: 16px; }
 .evidence li { margin: 3px 0; color: #455a64; line-height: 1.4; font-style: italic; }
+.evidence li.wrong { color: var(--gap, #c62828); }
 .toggle-btn { width: 100%; padding: 7px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; margin-bottom: 12px; }
 .toggle-btn:hover { background: #f5f5f5; }
 .toggle-btn.on { border-color: var(--known); color: var(--known); }
