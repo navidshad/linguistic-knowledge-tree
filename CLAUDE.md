@@ -194,3 +194,42 @@ feature branches are local-only (not pushed yet).
     a whole turn embeds to a "mixed" point. Pipeline figure: `docs/phase6/journey.png`.
   - Open: train the K-BERT/propagation weights (vs fixed); richer node text + fuller
     EGP coverage to lift mapping F1; optional Gemini-assisted turn tagging.
+- **Phase 7 — DONE** (on `feat/phase7-kgt-personalization`, off `dev`): **KGT
+  personalization (RQ5)** + recommender handoff. Full write-up:
+  `docs/phase7-validation.md`.
+  - **KGT** — new `klg_ai.kgt`: closed-form per-learner `(back, fwd)` multipliers
+    per prerequisite edge from the learner's own feedback (gated signals `k`/`w`;
+    agreement reinforces, contradiction weakens exactly the message it falsifies;
+    factor→0 = removal). Applied in `_build_edges` *pre-normalization* →
+    propagation stays convex, `inferred_ceiling` intact, demo contract (48/3)
+    preserved with the toggle ON. `EngineConfig.kgt` (default off) + 6 knobs;
+    `compute_edge_adjustments()`; every adjustment carries a human-readable
+    evidence `reason`. New built-in "struggling" learner (knows B1/B2 dependents,
+    consistently fails their prereqs) demos contradiction — KGT cuts its
+    `relative_pronouns` from ceiling-inferred 0.45 to 0.15.
+  - **RQ5 eval** — additive `--kgt` flag (mirrors Phase-6 `--mapper`): adds
+    `engine_kgt` + `engine_retrain` (`eval/retrain.py`: per-learner Adam fit of
+    the SAME per-edge space via a differentiable propagation, L2-anchored at the
+    global weights; reusable `fit_edge_factors`), per-model wall-clock `cost`,
+    retrain loss curve, `RQ5_personalization` group; writes `results_kgt.json`
+    (Phase-5 `results.json` untouched — test-guarded). **Result: engine_kgt =
+    engine_retrain = engine_full at AUROC 0.6406 (parity; null robust across a
+    knob sweep, KGT fires on 500/500 learners) but 4.0 vs 363.4 ms/learner —
+    KGT ×90 cheaper, and interpretable.** Committed artifact
+    `docs/phase7/results.json` (strict superset of Phase 5; `GET /api/metrics`
+    resolves it first). Side finding: the gradient arm is blind exactly where KGT
+    acts — the `inferred_ceiling` clamp zeroes gradients on ceiling-saturated nodes.
+  - **API/Viewer (7-B)** — `?kgt=1` on learner status → personalized mastery +
+    `edge_adjustments`; `gap_scores` (§3.7, `level_weight × (1−mastery)`,
+    interior-gap + frontier only) always on the status payload;
+    `POST /api/learner/{id}/retrain` runs the gradient comparator live and
+    returns per-epoch loss + factors; chat runs KGT on the conversation
+    (`KLG_CHAT_KGT=0` off, `KLG_CHAT_KGT_MASS0` default 1.0). Viewer: Map-tab
+    **KGT toggle** (reinforced green / weakened dashed-red / removed dotted
+    edges), NodeDetails per-edge reasons, **RetrainPanel** epoch animation
+    (scrubber + loss + wall-time verdict vs KGT one-shot), Validation-tab RQ5
+    card (parity + log-cost bars + convergence curve), ChatPanel adaptation
+    note. Recommender contract: `docs/knowledge-state-api.md`.
+  - Open: per-learner edge *discovery* (beyond reweighting existing DAG edges);
+    soft-clamp retrain variant; longitudinal data (Subturtle review log) where
+    personalization should matter more than on SLAM's 30-day window.

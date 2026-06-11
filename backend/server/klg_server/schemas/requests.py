@@ -23,8 +23,26 @@ class ChatIn(BaseModel):
     Stateless, mirroring ``ActivationIn``: the client carries the full message
     history and activated set, and the server re-derives the knowledge state from
     the learner's turns each request. ``session_id`` (client-generated, stable per
-    conversation) keys the per-session pipeline trace.
+    conversation) keys the per-session pipeline trace. ``profile_id`` (Phase 8)
+    targets a persistent profile: its dialog evidence + transcript are then saved.
     """
     messages: list[ChatTurn] = []
     activated: list[str] = []
     session_id: str | None = None
+    profile_id: str | None = None
+
+
+Cefr = Literal["A1", "A2", "B1", "B2", "C1", "C2"]
+
+
+class ProfileCreateIn(BaseModel):
+    """Create a persistent learner profile; optionally seed a starting CEFR band."""
+    name: str
+    seed_level: Cefr | None = None
+
+
+class ProfileEventIn(BaseModel):
+    """Append one piece of evidence to a profile (e.g. marking a node known)."""
+    node_ids: list[str]
+    correct: bool = True
+    source: Literal["review", "dialog", "exposure"] = "review"

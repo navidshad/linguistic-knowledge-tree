@@ -137,3 +137,15 @@ def test_chat_writes_per_session_trace(tmp_path, monkeypatch):
     assert len(json.loads(f.read_text())["turns"]) == 2
     client.post("/api/chat", json={**body, "session_id": "sess-B"})
     assert (tmp_path / "sess-B.json").exists()
+
+
+def test_chat_returns_edge_adjustments_field(monkeypatch):
+    # KGT is on by default in chat: the field is a (possibly empty) list.
+    turn = "she is reading a book and i have finished my homework"
+    d = client.post("/api/chat", json={"messages": [{"role": "user", "text": turn}]}).json()
+    assert isinstance(d["edge_adjustments"], list)
+
+    # The kill-switch turns the personal graph off entirely.
+    monkeypatch.setenv("KLG_CHAT_KGT", "0")
+    d = client.post("/api/chat", json={"messages": [{"role": "user", "text": turn}]}).json()
+    assert d["edge_adjustments"] is None

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import type { Cefr, LayoutName, Status, SyntaxMap } from "../types";
+import type { Cefr, EdgeAdjustment, LayoutName, Status, SyntaxMap } from "../types";
 import { createGraph, type GraphHandle } from "../composables/useCytoscape";
 
 const props = defineProps<{
@@ -12,6 +12,8 @@ const props = defineProps<{
   enabledLevels: Set<Cefr>;
   overlayOn: boolean;
   subgraphOnly: boolean;
+  // Phase 7: the learner's personal-graph deltas to paint on the edges.
+  edgeAdjustments: EdgeAdjustment[] | null;
 }>();
 
 const emit = defineEmits<{
@@ -37,6 +39,7 @@ onMounted(async () => {
   handle.setConfidence(props.confidenceOn);
   handle.setEnabledLevels(props.enabledLevels);
   handle.setSubgraphOnly(props.subgraphOnly);
+  handle.setEdgeAdjustments(props.edgeAdjustments);
   handle.setLayout(props.layout);
 });
 
@@ -49,6 +52,7 @@ watch(() => props.layout, (l) => handle?.setLayout(l));
 watch(() => props.enabledLevels, (l) => handle?.setEnabledLevels(l));
 watch(() => props.overlayOn, (o) => handle?.setOverlay(o));
 watch(() => props.subgraphOnly, (o) => handle?.setSubgraphOnly(o));
+watch(() => props.edgeAdjustments, (a) => handle?.setEdgeAdjustments(a), { deep: true });
 </script>
 
 <template>

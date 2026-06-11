@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useMapStore } from "./stores/map";
 import { useLearnerStore } from "./stores/learner";
 import { useViewStore } from "./stores/view";
 import { useTimelineStore } from "./stores/timeline";
 import { useChatStore } from "./stores/chat";
+import { useRetrainStore } from "./stores/retrain";
 import ControlsPanel from "./components/ControlsPanel.vue";
 import ChatPanel from "./components/ChatPanel.vue";
 import GraphCanvas from "./components/GraphCanvas.vue";
 import StatusBar from "./components/StatusBar.vue";
 import NodeDetails from "./components/NodeDetails.vue";
 import MetricsDashboard from "./components/MetricsDashboard.vue";
+import ProfilesPage from "./components/ProfilesPage.vue";
 import { STATUS_MASTERY } from "./constants";
 import type { MapNode, Status } from "./types";
 
@@ -20,16 +22,19 @@ const learnerStore = useLearnerStore();
 const viewStore = useViewStore();
 const timelineStore = useTimelineStore();
 const chatStore = useChatStore();
+const retrainStore = useRetrainStore();
 const { map } = storeToRefs(mapStore);
-const { data: learnerData } = storeToRefs(learnerStore);
-const { tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn } = storeToRefs(viewStore);
+const { data: learnerData, edgeAdjustments: learnerAdjustments } = storeToRefs(learnerStore);
+const { screen, tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn, kgtOn } = storeToRefs(viewStore);
 const { currentFrame } = storeToRefs(timelineStore);
+const { currentEpoch } = storeToRefs(retrainStore);
 const {
   statuses: chatStatuses,
   mastery: chatMastery,
   counts: chatCounts,
   evidenceByNode,
   messages: chatMessages,
+  edgeAdjustments: chatAdjustments,
 } = storeToRefs(chatStore);
 
 const selectedId = ref<string | null>(null);
@@ -63,6 +68,41 @@ const displayTotal = computed(() => Object.keys(displayStatuses.value).length);
 // learner talks; the Map tab keeps its user-controlled confidence toggle.
 const confidenceActive = computed(() => (tab.value === "chat" ? true : confidenceOn.value));
 
+// Which personal-graph deltas to paint on the edges (Phase 7): the chat's live
+// adjustments in chat mode; on the Map tab the retrain animation frame when it
+// is playing, else the learner's KGT adjustments when the toggle is on.
+const displayEdgeAdjustments = computed(() => {
+  if (tab.value === "chat") return chatAdjustments.value;
+  if (!kgtOn.value) return null;
+  return currentEpoch.value?.edge_adjustments ?? learnerAdjustments.value;
+});
+
+// The KGT toggle re-fetches the learner state over the personalized graph
+// (and back); the retrain animation belongs to that mode, so drop it on toggle.
+watch(kgtOn, (on) => {
+  retrainStore.reset();
+  learnerStore.load(learnerStore.learnerId, on);
+});
+
+// Switching learner: drop per-learner view state (the previous learner's
+// timeline frames, retrain fit, and node selection), then resume the chat for an
+// editable profile (saved transcript + overlay) or reset to an ephemeral one.
+// Centralised here so it fires however the switch was triggered (open / create).
+watch(
+  () => learnerStore.learnerId,
+  (id) => {
+    timelineStore.reset();
+    retrainStore.reset();
+    selectedId.value = null;
+    learnerStore.isEditable ? chatStore.loadForProfile(id) : chatStore.reset();
+  },
+);
+
+// The active profile's display name (header title in the workspace).
+const activeLabel = computed(
+  () => learnerStore.learners.find((l) => l.id === learnerStore.learnerId)?.label ?? learnerStore.learnerId,
+);
+
 const selectedNode = computed<MapNode | null>(() =>
   map.value && selectedId.value ? map.value.nodes.find((n) => n.id === selectedId.value) ?? null : null,
 );
@@ -71,11 +111,24 @@ const selectedMastery = computed(() => (selectedId.value ? displayMastery.value[
 const selectedEvidence = computed(() =>
   tab.value === "chat" && selectedId.value ? evidenceByNode.value[selectedId.value] : undefined,
 );
+// The selected node's incident edge adjustments (for the details panel).
+const selectedAdjustments = computed(() =>
+  selectedId.value
+    ? (displayEdgeAdjustments.value ?? []).filter(
+        (a) => a.source === selectedId.value || a.target === selectedId.value,
+      )
+    : [],
+);
 const mode = computed(() => learnerData.value?.learner_id ?? learnerStore.learnerId);
 
 function onToggle(id: string) {
   if (tab.value !== "map") return; // chat/validation overlays are not hand-editable
-  learnerStore.toggle(id);
+  if (learnerStore.isEditable) {
+    // Editable profile: persist the mark as review evidence (mastery + KGT).
+    learnerStore.markNode(id, learnerStore.statusOf(id) !== "known", kgtOn.value);
+  } else {
+    learnerStore.toggle(id); // built-in: ephemeral what-if
+  }
 }
 
 onMounted(() => {
@@ -86,9 +139,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app">
+  <ProfilesPage v-if="screen === 'profiles'" />
+  <div v-else class="app" :class="{ 'two-col': tab !== 'metrics' && !selectedNode }">
     <header>
-      <h1>Learner Linguistic Knowledge Graph</h1>
+      <button class="back" title="Back to profiles" @click="viewStore.goToProfiles()">←</button>
+      <h1>{{ activeLabel }}</h1>
       <nav class="tabs">
         <button :class="{ active: tab === 'map' }" @click="viewStore.setTab('map')">Map</button>
         <button :class="{ active: tab === 'chat' }" @click="viewStore.setTab('chat')">Chat</button>
@@ -130,20 +185,23 @@ onMounted(() => {
           :enabled-levels="enabledLevels"
           :overlay-on="overlayOn"
           :subgraph-only="subgraphOnly"
+          :edge-adjustments="displayEdgeAdjustments"
           @select="selectedId = $event"
           @toggle="onToggle"
         />
       </main>
 
       <NodeDetails
-        v-if="map"
+        v-if="map && selectedNode"
         :node="selectedNode"
         :status="selectedStatus"
         :mastery="selectedMastery"
         :map="map"
         :evidence="selectedEvidence"
         :chat-turns="tab === 'chat' ? chatMessages : undefined"
+        :edge-adjustments="selectedAdjustments"
         @toggle="onToggle"
+        @close="selectedId = null"
       />
     </template>
   </div>
@@ -156,6 +214,8 @@ onMounted(() => {
   grid-template-rows: auto 1fr;
   height: 100vh;
 }
+/* No node selected → drop the right-hand details column and reclaim its width. */
+.app.two-col { grid-template-columns: 250px 1fr; }
 header {
   grid-column: 1 / -1;
   display: flex;
@@ -165,6 +225,12 @@ header {
   background: var(--panel);
   border-bottom: 1px solid var(--line);
 }
+.back {
+  align-self: center; font-size: 16px; line-height: 1; padding: 4px 10px;
+  border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink);
+  cursor: pointer; flex: none;
+}
+.back:hover { background: #f5f5f5; }
 header h1 { font-size: 15px; margin: 0; font-weight: 600; }
 header .sub { font-size: 12px; color: var(--muted); }
 header .bar { margin-left: auto; }

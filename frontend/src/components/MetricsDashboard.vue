@@ -20,6 +20,8 @@ const COLOR: Record<string, string> = {
   per_skill_mean: "#f9a825",
   per_user_mean: "#fb8c00",
   global_mean: "#90a4ae",
+  engine_kgt: "#7b1fa2",
+  engine_retrain: "#ad1457",
 };
 
 const models = computed(() => data.value?.models ?? []);
@@ -54,6 +56,52 @@ const rocModels = computed(() =>
 function color(name: string): string {
   return COLOR[name] ?? "#607d8b";
 }
+
+// --- RQ5 (Phase 7): personalization — fit AND compute cost -----------------
+const RQ5_MODELS = ["engine_full", "engine_kgt", "engine_retrain"];
+const hasRq5 = computed(() => !!model("engine_kgt"));
+function msPerLearner(name: string): number | null {
+  const s = model(name)?.cost?.seconds_per_learner;
+  return s === undefined || s === null ? null : s * 1000;
+}
+// The headline RQ5 number: how many times the per-learner retrain costs vs KGT.
+const rq5CostRatio = computed(() => {
+  const kgt = msPerLearner("engine_kgt");
+  const retrain = msPerLearner("engine_retrain");
+  return kgt && retrain && kgt > 0 ? Math.round(retrain / kgt) : null;
+});
+// Cost bars on a log scale (costs span orders of magnitude).
+const costBarWidth = computed(() => {
+  const vals = RQ5_MODELS.map(msPerLearner).filter((v): v is number => !!v && v > 0);
+  const max = Math.max(...vals, 1);
+  return (name: string) => {
+    const v = msPerLearner(name);
+    if (!v || v <= 0) return "0%";
+    const lo = Math.log10(0.01); // 0.01 ms floor
+    return `${Math.max(0.04, (Math.log10(v) - lo) / (Math.log10(max) - lo)) * 100}%`;
+  };
+});
+// Retrain convergence plot (mean train loss per epoch).
+const retrainCurve = computed(() => model("engine_retrain")?.retrain_curve ?? null);
+const CURVE_W = 240;
+const CURVE_H = 90;
+const CURVE_PAD = 8;
+const curvePoints = computed(() => {
+  const c = retrainCurve.value;
+  if (!c || c.length < 2) return "";
+  const losses = c.map((p) => p.loss);
+  const lo = Math.min(...losses);
+  const hi = Math.max(...losses);
+  const span = hi - lo || 1;
+  return c
+    .map((p, i) => {
+      const x = CURVE_PAD + (i / (c.length - 1)) * (CURVE_W - 2 * CURVE_PAD);
+      // SVG y grows downward: highest loss at the top, the fit descends.
+      const y = CURVE_PAD + ((hi - p.loss) / span) * (CURVE_H - 2 * CURVE_PAD);
+      return `${x},${y}`;
+    })
+    .join(" ");
+});
 </script>
 
 <template>
@@ -67,7 +115,7 @@ function color(name: string): string {
 
     <template v-else-if="data">
       <div class="head">
-        <h2>Phase 5 — Validation on open data</h2>
+        <h2>{{ hasRq5 ? "Phases 5 & 7 — Validation on open data" : "Phase 5 — Validation on open data" }}</h2>
         <p class="summary">
           {{ data.dataset.source }} · <b>{{ data.dataset.course }}</b>/{{ data.dataset.split }} ·
           {{ data.dataset.n_learners.toLocaleString() }} learners ·
@@ -161,6 +209,49 @@ function color(name: string): string {
           </p>
         </article>
 
+        <!-- RQ5 (Phase 7) -->
+        <article v-if="hasRq5" class="card">
+          <h3>RQ5 · Personalization: KGT vs retrain</h3>
+          <div v-for="name in RQ5_MODELS" :key="name" class="bar-row">
+            <span class="bar-label">{{ model(name)?.label }}</span>
+            <span class="bar-track">
+              <span
+                class="bar-fill"
+                :style="{ width: barWidth(model(name)?.metrics.auroc), background: color(name) }"
+              />
+            </span>
+            <span class="bar-val">{{ fmt(model(name)?.metrics.auroc) }}</span>
+          </div>
+
+          <div class="cost-head">Compute cost (ms / learner, log scale)</div>
+          <div v-for="name in RQ5_MODELS" :key="name + '-cost'" class="bar-row">
+            <span class="bar-label">{{ model(name)?.label }}</span>
+            <span class="bar-track">
+              <span
+                class="bar-fill"
+                :style="{ width: costBarWidth(name), background: color(name) }"
+              />
+            </span>
+            <span class="bar-val">{{ msPerLearner(name) === null ? "—" : msPerLearner(name)!.toFixed(1) }}</span>
+          </div>
+
+          <template v-if="curvePoints">
+            <div class="cost-head">Retrain convergence (mean train loss / epoch)</div>
+            <svg :viewBox="`0 0 ${CURVE_W} ${CURVE_H}`" class="curve-svg">
+              <polyline :points="curvePoints" fill="none" :stroke="color('engine_retrain')" stroke-width="2" />
+            </svg>
+            <p class="curve-note">KGT needs no epochs — one closed-form pass.</p>
+          </template>
+
+          <p class="cap">
+            Same personalization space (per-edge multipliers), two fitting
+            strategies: the closed-form KGT rule matches per-learner gradient
+            retraining on predictive fit<template v-if="rq5CostRatio">
+            at <b>1/{{ rq5CostRatio }}</b> of the compute</template> — and stays
+            interpretable (every adjustment carries its evidence).
+          </p>
+        </article>
+
         <!-- ROC -->
         <article class="card roc">
           <h3>ROC curves</h3>
@@ -200,6 +291,7 @@ function color(name: string): string {
             <th>F1</th>
             <th>Accuracy</th>
             <th>Log-loss</th>
+            <th v-if="hasRq5">ms/learner</th>
           </tr>
         </thead>
         <tbody>
@@ -212,6 +304,9 @@ function color(name: string): string {
             <td>{{ fmt(m.metrics.F1) }}</td>
             <td>{{ fmt(m.metrics.accuracy) }}</td>
             <td>{{ fmt(m.metrics.avglogloss) }}</td>
+            <td v-if="hasRq5">
+              {{ m.cost ? (m.cost.seconds_per_learner * 1000).toFixed(1) : "—" }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -248,6 +343,10 @@ function color(name: string): string {
 .mini th:first-child { text-align: left; }
 .mini td { padding: 3px 6px; text-align: right; font-variant-numeric: tabular-nums; }
 .mini td:first-child { text-align: left; color: var(--ink); }
+
+.cost-head { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 12px 0 6px; }
+.curve-svg { width: 100%; max-width: 240px; display: block; background: #fafafa; border-radius: 4px; }
+.curve-note { font-size: 10px; color: var(--muted); margin: 4px 0 0; }
 
 .roc { grid-column: span 1; }
 .roc-svg { width: 100%; max-width: 280px; display: block; }

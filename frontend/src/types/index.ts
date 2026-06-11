@@ -31,6 +31,16 @@ export interface SyntaxMap {
   edges: MapEdge[];
 }
 
+// Phase 7 (RQ5): one KGT re-weighting in the learner's personal graph.
+export interface EdgeAdjustment {
+  source: string; // the prerequisite
+  target: string; // the dependent
+  factor_back: number; // multiplier on the backward inference message
+  factor_fwd: number; // multiplier on the forward readiness message
+  kind: "strengthened" | "weakened" | "removed";
+  reason: string; // human-readable, cites the learner's evidence
+}
+
 export interface LearnerStatus {
   learner_id: string;
   counts: Partial<Record<Status, number>>;
@@ -38,6 +48,10 @@ export interface LearnerStatus {
   // Continuous per-node mastery [0, 1] behind the status (confidence overlay).
   // null for the what-if endpoint (an activated set with no evidence to score).
   mastery: Record<string, number> | null;
+  // §3.7 handoff: priority for interior-gap/frontier nodes (null in what-if mode).
+  gap_scores?: Record<string, number> | null;
+  // Personal-graph deltas — only present when requested with kgt=1.
+  edge_adjustments?: EdgeAdjustment[] | null;
 }
 
 // A learner's knowledge state at one point in time — the timeline scrubber frame.
@@ -59,6 +73,25 @@ export interface LearnerProfile {
   id: string;
   label: string;
   description: string;
+  editable?: boolean; // built-ins read-only; file-backed user profiles editable
+}
+
+// Create a persistent profile (optionally seeded to a starting CEFR band).
+export interface ProfileCreate {
+  name: string;
+  seed_level?: Cefr | null;
+}
+
+// One piece of evidence appended to a profile (e.g. marking a node known).
+export interface ProfileEvent {
+  node_ids: string[];
+  correct: boolean;
+  source: "review" | "dialog" | "exposure";
+}
+
+export interface Conversation {
+  profile_id: string;
+  messages: ChatTurn[];
 }
 
 // --- Phase 5: validation metrics (Duolingo SLAM) ---
@@ -84,6 +117,10 @@ export interface ModelResult {
   metrics: MetricSet;
   metrics_cold: MetricSet | null;
   roc: RocPoint[];
+  // Phase 7 (--kgt runs): measured fit+predict compute cost per model.
+  cost?: { fit_predict_seconds: number; seconds_per_learner: number } | null;
+  // Per-epoch mean train loss (the retrain arm only) — the convergence plot.
+  retrain_curve?: { epoch: number; loss: number }[] | null;
 }
 
 export interface ValidationDataset {
@@ -127,4 +164,22 @@ export interface ChatResponse {
   statuses: Record<string, Status>;
   mastery: Record<string, number>;
   evidence: NodeEvidence[];
+  // Phase 7: KGT live on the conversation (wrong usage weakens inference edges).
+  edge_adjustments?: EdgeAdjustment[] | null;
+}
+
+// --- Phase 7: live per-learner retrain (the RQ5 demo) ---
+
+export interface RetrainEpoch {
+  epoch: number;
+  loss: number;
+  edge_adjustments: EdgeAdjustment[];
+}
+
+export interface RetrainResult {
+  learner_id: string;
+  n_items: number;
+  wall_ms: number; // the full gradient fit
+  kgt_wall_ms: number; // closed-form KGT on the same events
+  epochs: RetrainEpoch[];
 }

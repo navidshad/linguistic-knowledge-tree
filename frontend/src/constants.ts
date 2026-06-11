@@ -22,6 +22,13 @@ export const STATUS_LABEL: Record<Status, string> = {
 // zero-evidence node stays faintly visible rather than vanishing.
 export const CONFIDENCE_MIN_OPACITY = 0.15;
 
+// KGT personal-graph edge colors (Phase 7): reinforced vs weakened/cut edges.
+export const KGT_EDGE_COLOR = {
+  strengthened: "#2e7d32",
+  weakened: "#c62828",
+  removed: "#c62828",
+} as const;
+
 // What-if mode has no evidence to score, so approximate confidence from the
 // discrete status, letting the opacity overlay degrade gracefully there.
 export const STATUS_MASTERY: Record<Status, number> = {

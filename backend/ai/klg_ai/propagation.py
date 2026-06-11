@@ -61,11 +61,23 @@ def _get_layer():
     return _LAYER
 
 
-def _build_edges(g: nx.DiGraph, idx: dict[str, int], config: "EngineConfig", torch):
+def _build_edges(
+    g: nx.DiGraph,
+    idx: dict[str, int],
+    config: "EngineConfig",
+    torch,
+    *,
+    edge_factors: dict[tuple[str, str], tuple[float, float]] | None = None,
+):
     """Weighted edge set (self + backward + forward), normalized per target.
 
     Normalizing each target's incoming weights to sum to 1 makes every
     propagation round a convex combination, keeping values bounded in [0, 1].
+    ``edge_factors`` (from ``kgt.tune_edges``) personalizes the graph: per DAG
+    edge a ``(back, fwd)`` multiplier on the raw alphas, applied *before* the
+    normalization so convexity — and with it both propagation guarantees —
+    survives any tuning (self-loops are never scaled, so a target's incoming
+    mass stays >= 1 even with every edge removed).
     """
     src: list[int] = []
     dst: list[int] = []
@@ -74,8 +86,9 @@ def _build_edges(g: nx.DiGraph, idx: dict[str, int], config: "EngineConfig", tor
         src.append(i); dst.append(i); w.append(1.0)
     for u, v in g.edges:              # u is a prerequisite of v
         iu, iv = idx[u], idx[v]
-        src.append(iv); dst.append(iu); w.append(config.prop_alpha_back)  # dependent -> prereq (strong)
-        src.append(iu); dst.append(iv); w.append(config.prop_alpha_fwd)   # prereq -> dependent (weak)
+        m_back, m_fwd = edge_factors.get((u, v), (1.0, 1.0)) if edge_factors else (1.0, 1.0)
+        src.append(iv); dst.append(iu); w.append(config.prop_alpha_back * m_back)  # dependent -> prereq (strong)
+        src.append(iu); dst.append(iv); w.append(config.prop_alpha_fwd * m_fwd)    # prereq -> dependent (weak)
     edge_index = torch.tensor([src, dst], dtype=torch.long)
     edge_weight = torch.tensor(w, dtype=torch.float32)
     deg = torch.zeros(len(idx), dtype=torch.float32).index_add_(0, edge_index[1], edge_weight)
@@ -83,13 +96,20 @@ def _build_edges(g: nx.DiGraph, idx: dict[str, int], config: "EngineConfig", tor
     return edge_index, edge_weight
 
 
-def propagate(g: nx.DiGraph, direct: dict[str, float], config: "EngineConfig") -> dict[str, float]:
+def propagate(
+    g: nx.DiGraph,
+    direct: dict[str, float],
+    config: "EngineConfig",
+    *,
+    edge_factors: dict[tuple[str, str], tuple[float, float]] | None = None,
+) -> dict[str, float]:
     """Per-node mastery in [0, 1] for every node in ``g``.
 
     Diffuses the direct scores over the prerequisite graph (strong backward,
     weak forward), then adds the graph-inferred lift to the direct evidence,
     capped at ``config.inferred_ceiling``. See the module docstring for the two
-    guarantees this enforces.
+    guarantees this enforces. ``edge_factors`` personalizes the edge weights
+    (KGT, thesis RQ5) — see ``_build_edges``.
     """
     import torch
 
@@ -97,7 +117,7 @@ def propagate(g: nx.DiGraph, direct: dict[str, float], config: "EngineConfig") -
     idx = {n: i for i, n in enumerate(nodes)}
     x = torch.tensor([[direct.get(n, 0.0)] for n in nodes], dtype=torch.float32)
 
-    edge_index, edge_weight = _build_edges(g, idx, config, torch)
+    edge_index, edge_weight = _build_edges(g, idx, config, torch, edge_factors=edge_factors)
     layer = _get_layer()
     with torch.no_grad():
         h = x

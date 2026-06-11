@@ -30,15 +30,35 @@ from klg_ai.activation import (
     threshold_activated,
 )
 from klg_ai.events import Event
+from klg_ai.profiles import (
+    RESERVED_IDS,
+    append_events,
+    load_conversation,
+    load_events,
+    save_conversation,
+)
 from klg_ai.semantic.mapper import default_mapper
 from klg_ai.status import compute_status
 
 from .. import trace
 from ..deps import get_graph, get_map
 from ..gemini import gemini_grade, gemini_reply
-from ..schemas import ChatIn, ChatOut, NodeEvidenceOut
+from ..schemas import ChatIn, ChatOut, EdgeAdjustmentOut, NodeEvidenceOut
 
 router = APIRouter(prefix="/api", tags=["chat"])
+
+
+def _chat_config() -> EngineConfig:
+    """Engine config for chat: KGT on unless ``KLG_CHAT_KGT=0``.
+
+    A conversation is short, so the KGT evidence gate is relaxed
+    (``KLG_CHAT_KGT_MASS0``, default 1.0 vs. the engine's 2.0) for the same
+    reason the chat mapper threshold sits below the eval default: a handful of
+    dialog turns should already visibly adapt the personal graph.
+    """
+    if os.environ.get("KLG_CHAT_KGT", "1") == "0":
+        return DEFAULT_CONFIG
+    return EngineConfig(kgt=True, kgt_mass0=float(os.environ.get("KLG_CHAT_KGT_MASS0", "1.0")))
 
 # Grades per (turn text, candidate ids): the stateless client resends the full
 # history every request, so without this only-the-newest-turn caching each turn
@@ -71,19 +91,22 @@ def _mapper():
     return default_mapper(knowledge_injection=True, threshold=threshold, top_k=3, syntax_map=get_map())
 
 
-@router.post("/chat", response_model=ChatOut)
-def chat(body: ChatIn) -> ChatOut:
-    mapper = _mapper()
-    active = set(body.activated)
+def _map_and_grade(messages, active: set[str]):
+    """Map + grade each user turn → per-turn dialog events + the evidence overlay.
 
-    events: list[Event] = []
+    Returns ``(per_user_events, evidence, latest_scores, latest_grades,
+    latest_idx, latest_text)``. ``per_user_events[k]`` is the (≤2) events from
+    the k-th user turn, in order — so a caller can persist just the new tail.
+    """
+    mapper = _mapper()
+    per_user_events: list[list[Event]] = []
     # node_id -> {"confidence": float, "turns": set[int], "wrong": set[int]}
     evidence: dict[str, dict] = {}
     latest_scores: dict[str, float] = {}
     latest_grades: dict[str, bool] = {}
     latest_idx: int | None = None
     latest_text: str | None = None
-    for i, turn in enumerate(body.messages):
+    for i, turn in enumerate(messages):
         if turn.role != "user":
             continue
         latest_idx, latest_text = i, turn.text
@@ -93,12 +116,14 @@ def chat(body: ChatIn) -> ChatOut:
         right = tuple(n for n in used if grades[n].get("correct", True))
         wrong = tuple(n for n in used if not grades[n].get("correct", True))
         # Event.correct is per event, so correct and incorrect usage split in two.
+        turn_events: list[Event] = []
         if right:
-            events.append(Event(learner_id="chat", node_ids=right, correct=True,
-                                ts=float(i), source="dialog"))
+            turn_events.append(Event(learner_id="chat", node_ids=right, correct=True,
+                                     ts=float(i), source="dialog"))
         if wrong:
-            events.append(Event(learner_id="chat", node_ids=wrong, correct=False,
-                                ts=float(i), source="dialog"))
+            turn_events.append(Event(learner_id="chat", node_ids=wrong, correct=False,
+                                     ts=float(i), source="dialog"))
+        per_user_events.append(turn_events)
         latest_scores = {n: match.scores[n] for n in match.node_ids if n in used}
         latest_grades = {n: n in right for n in latest_scores}
         for nid in used:
@@ -107,13 +132,50 @@ def chat(body: ChatIn) -> ChatOut:
             slot["turns"].add(i)
             if nid in wrong:
                 slot["wrong"].add(i)
+    return per_user_events, evidence, latest_scores, latest_grades, latest_idx, latest_text
 
+
+@router.post("/chat", response_model=ChatOut)
+def chat(body: ChatIn) -> ChatOut:
+    active = set(body.activated)
+    pid = body.profile_id
+    # Persist to a profile only if it's a real, editable (non-built-in) one.
+    editable = pid is not None and pid not in RESERVED_IDS and load_events(pid) is not None
+
+    per_user_events, evidence, latest_scores, latest_grades, latest_idx, latest_text = \
+        _map_and_grade(body.messages, active)
     reply = gemini_reply(body.messages)
 
     g = get_graph()
-    mastery = mastery_from_events(g, events, DEFAULT_CONFIG)
-    activated = threshold_activated(mastery)
+    config = _chat_config()
+
+    if editable:
+        # Append only the user turns not already persisted (the client resends
+        # the full history), then read the FULL profile log so the overlay
+        # reflects seed + manual marks + all dialog — not just this conversation.
+        prior = load_conversation(pid) or []
+        prior_user_count = sum(1 for m in prior if m.get("role") == "user")
+        new_events = [e for turn in per_user_events[prior_user_count:] for e in turn]
+        if new_events:
+            append_events(pid, new_events)
+        save_conversation(pid, [
+            *[{"role": m.role, "text": m.text} for m in body.messages],
+            {"role": "tutor", "text": reply},
+        ])
+        events = load_events(pid) or []
+    else:
+        events = [e for turn in per_user_events for e in turn]
+
+    mastery = mastery_from_events(g, events, config)
+    activated = threshold_activated(mastery, config)
     statuses = {n: s.value for n, s in compute_status(g, activated).items()}
+
+    adjustments = None
+    if config.kgt:
+        from klg_ai.kgt import tune_edges
+        adjustments = [
+            EdgeAdjustmentOut(**vars(a)) for a in tune_edges(g, events, config).adjustments
+        ]
 
     if trace.enabled():
         _trace_turn(g, body, events, mastery, statuses,
@@ -133,6 +195,7 @@ def chat(body: ChatIn) -> ChatOut:
                             incorrect_turn_indices=sorted(d["wrong"]))
             for nid, d in sorted(evidence.items())
         ],
+        edge_adjustments=adjustments,
     )
 
 

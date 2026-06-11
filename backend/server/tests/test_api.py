@@ -97,3 +97,63 @@ def test_timeline_frames_are_clamped():
 
 def test_timeline_unknown_learner_404():
     assert client.get("/api/learner/nobody/timeline").status_code == 404
+
+
+# --- Phase 7 (RQ5): personalized graph, gap scores, live retrain ------------
+
+def test_default_status_has_no_edge_adjustments():
+    d = client.get("/api/learner/demo/status").json()
+    assert d["edge_adjustments"] is None
+
+
+def test_gap_scores_cover_actionable_nodes_only():
+    d = client.get("/api/learner/demo/status").json()
+    gaps = d["gap_scores"]
+    assert gaps  # demo has interior gaps + a frontier
+    actionable = {n for n, s in d["statuses"].items() if s in ("interior_gap", "frontier")}
+    assert set(gaps) == actionable
+    assert all(0.0 < v <= 1.0 for v in gaps.values())
+    assert "second_conditional" in gaps  # the famous demo interior gap
+
+
+def test_post_status_has_no_gap_scores():
+    d = client.post("/api/status", json={"activated": ["present_simple"]}).json()
+    assert d["gap_scores"] is None
+    assert d["edge_adjustments"] is None
+
+
+def test_demo_kgt_preserves_contract_with_no_adjustments():
+    d = client.get("/api/learner/demo/status?kgt=1").json()
+    assert d["counts"]["known"] == 48
+    assert d["counts"]["interior_gap"] == 3
+    # Single one-shot reviews never clear the consistency gate.
+    assert d["edge_adjustments"] == []
+
+
+def test_struggling_learner_kgt_reports_weakened_edges():
+    assert "struggling" in {p["id"] for p in client.get("/api/learners").json()}
+    d = client.get("/api/learner/struggling/status?kgt=1").json()
+    adj = d["edge_adjustments"]
+    assert adj
+    weakened = [a for a in adj if a["factor_back"] < 1.0]
+    assert weakened
+    assert all(a["kind"] in ("strengthened", "weakened", "removed") and a["reason"] for a in adj)
+    # KGT cuts the unearned inference into the failed prerequisite.
+    plain = client.get("/api/learner/struggling/status").json()
+    assert d["mastery"]["relative_pronouns"] < plain["mastery"]["relative_pronouns"]
+
+
+def test_retrain_endpoint_runs_and_is_deterministic():
+    a = client.post("/api/learner/struggling/retrain?epochs=3")
+    assert a.status_code == 200
+    d = a.json()
+    assert d["n_items"] > 0
+    assert d["wall_ms"] > 0 and d["kgt_wall_ms"] >= 0
+    assert [e["epoch"] for e in d["epochs"]] == [1, 2, 3]
+    assert all(e["loss"] > 0 for e in d["epochs"])
+    b = client.post("/api/learner/struggling/retrain?epochs=3").json()
+    assert [e["loss"] for e in b["epochs"]] == [e["loss"] for e in d["epochs"]]
+
+
+def test_retrain_unknown_learner_404():
+    assert client.post("/api/learner/nobody/retrain").status_code == 404

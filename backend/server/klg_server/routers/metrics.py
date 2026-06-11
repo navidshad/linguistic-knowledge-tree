@@ -1,10 +1,13 @@
-"""Phase 5 validation metrics endpoint.
+"""Phase 5/7 validation metrics endpoint.
 
 Serves the results JSON produced by ``python -m klg_ai.eval.run`` (the SLAM
 ablation table + ROC curves) for the viewer's validation dashboard. Resolves the
-file from ``$KLG_METRICS_PATH``, then a fresh ``data/eval/results.json``, then the
-committed ``docs/phase5/results.json`` — so the dashboard works straight after a
-checkout, and shows the latest local run when one exists.
+file from ``$KLG_METRICS_PATH``, then fresh local runs (the Phase-7 ``--kgt``
+output first — it is a strict superset of the Phase-5 table, adding the RQ5
+personalization arms + cost), then the committed artifacts
+(``docs/phase7/results.json``, else ``docs/phase5/results.json``) — so the
+dashboard works straight after a checkout, and shows the latest local run when
+one exists.
 """
 from __future__ import annotations
 
@@ -26,7 +29,9 @@ def _candidate_paths() -> list[Path]:
     env = os.environ.get("KLG_METRICS_PATH")
     if env:
         paths.append(Path(env))
+    paths.append(_REPO / "data" / "eval" / "results_kgt.json")
     paths.append(_REPO / "data" / "eval" / "results.json")
+    paths.append(_REPO / "docs" / "phase7" / "results.json")
     paths.append(_REPO / "docs" / "phase5" / "results.json")
     return paths
 
