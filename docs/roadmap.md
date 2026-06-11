@@ -128,7 +128,7 @@ linguistic-knowledge-tree/
 |---|---|
 | RQ1 — graph/hybrid vs sequential | 5 |
 | RQ2 — BERT vs K-BERT | 6 |
-| RQ3 — GNN propagation for gaps | 3, 4, 5 |
+| RQ3 — GNN propagation for gaps | 3, 4, 5; weights trained on open data (`docs/trained-propagation-validation.md`) |
 | RQ4 — forgetting / dynamics | 4, 5 |
 | RQ5 — KGT personalization vs retrain | 7 ✓ |
 

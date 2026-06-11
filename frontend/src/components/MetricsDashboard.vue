@@ -22,6 +22,8 @@ const COLOR: Record<string, string> = {
   global_mean: "#90a4ae",
   engine_kgt: "#7b1fa2",
   engine_retrain: "#ad1457",
+  engine_trained: "#00838f",
+  engine_trained_scalar: "#4dd0e1",
 };
 
 const models = computed(() => data.value?.models ?? []);
@@ -81,27 +83,41 @@ const costBarWidth = computed(() => {
     return `${Math.max(0.04, (Math.log10(v) - lo) / (Math.log10(max) - lo)) * 100}%`;
   };
 });
-// Retrain convergence plot (mean train loss per epoch).
-const retrainCurve = computed(() => model("engine_retrain")?.retrain_curve ?? null);
+// Loss-curve plotting (mean train loss per epoch) — shared by the RQ5 retrain
+// curve and the RQ3 trained-propagation fit.
 const CURVE_W = 240;
 const CURVE_H = 90;
 const CURVE_PAD = 8;
-const curvePoints = computed(() => {
-  const c = retrainCurve.value;
-  if (!c || c.length < 2) return "";
-  const losses = c.map((p) => p.loss);
+function curveLine(curve: { epoch: number; loss: number }[] | null | undefined): string {
+  if (!curve || curve.length < 2) return "";
+  const losses = curve.map((p) => p.loss);
   const lo = Math.min(...losses);
   const hi = Math.max(...losses);
   const span = hi - lo || 1;
-  return c
+  return curve
     .map((p, i) => {
-      const x = CURVE_PAD + (i / (c.length - 1)) * (CURVE_W - 2 * CURVE_PAD);
+      const x = CURVE_PAD + (i / (curve.length - 1)) * (CURVE_W - 2 * CURVE_PAD);
       // SVG y grows downward: highest loss at the top, the fit descends.
       const y = CURVE_PAD + ((hi - p.loss) / span) * (CURVE_H - 2 * CURVE_PAD);
       return `${x},${y}`;
     })
     .join(" ");
+}
+const retrainCurve = computed(() => model("engine_retrain")?.retrain_curve ?? null);
+const retrainCurvePoints = computed(() => curveLine(retrainCurve.value));
+
+// --- RQ3 trained propagation: globally fit edge weights vs fixed/off --------
+const TRAINED_MODELS = ["engine_no_prop", "engine_full", "engine_trained", "engine_trained_scalar"];
+const hasTrainedProp = computed(() => !!model("engine_trained"));
+const trainedCurve = computed(() => model("engine_trained")?.retrain_curve ?? null);
+const trainedCurvePoints = computed(() => curveLine(trainedCurve.value));
+const trainedDelta = computed(() => {
+  const t = model("engine_trained")?.metrics.auroc;
+  const f = model("engine_full")?.metrics.auroc;
+  return t != null && f != null ? t - f : null;
 });
+// Either RQ5 or trained-propagation runs carry a per-model compute cost.
+const hasCost = computed(() => hasRq5.value || hasTrainedProp.value);
 </script>
 
 <template>
@@ -115,7 +131,7 @@ const curvePoints = computed(() => {
 
     <template v-else-if="data">
       <div class="head">
-        <h2>{{ hasRq5 ? "Phases 5 & 7 — Validation on open data" : "Phase 5 — Validation on open data" }}</h2>
+        <h2>{{ hasTrainedProp ? "Validation on open data — engine, personalization & trained weights" : hasRq5 ? "Phases 5 & 7 — Validation on open data" : "Phase 5 — Validation on open data" }}</h2>
         <p class="summary">
           {{ data.dataset.source }} · <b>{{ data.dataset.course }}</b>/{{ data.dataset.split }} ·
           {{ data.dataset.n_learners.toLocaleString() }} learners ·
@@ -183,6 +199,40 @@ const curvePoints = computed(() => {
           </p>
         </article>
 
+        <!-- RQ3 trained propagation -->
+        <article v-if="hasTrainedProp" class="card">
+          <h3>RQ3 · Trained propagation</h3>
+          <table class="mini">
+            <thead>
+              <tr><th></th><th>AUROC</th><th>cold</th></tr>
+            </thead>
+            <tbody>
+              <tr v-for="name in TRAINED_MODELS" :key="name">
+                <td><span class="dot" :style="{ background: color(name) }" />{{ model(name)?.label }}</td>
+                <td>{{ fmt(model(name)?.metrics.auroc) }}</td>
+                <td>{{ fmt(model(name)?.metrics_cold?.auroc) }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <template v-if="trainedCurvePoints">
+            <div class="cost-head">Global fit convergence (pooled train loss / epoch)</div>
+            <svg :viewBox="`0 0 ${CURVE_W} ${CURVE_H}`" class="curve-svg">
+              <polyline :points="trainedCurvePoints" fill="none" :stroke="color('engine_trained')" stroke-width="2" />
+            </svg>
+          </template>
+
+          <p class="cap">
+            Fitting the propagation weights to the data — a multiplier per edge,
+            or just the two global α scalars — vs. the hand-set 0.5/0.15.
+            <template v-if="trainedDelta !== null">
+              Per-edge moves AUROC <b>{{ trainedDelta >= 0 ? "+" : "" }}{{ trainedDelta.toFixed(3) }}</b>
+              over fixed.
+            </template>
+            Trained once offline; the runtime engine stays fixed-weight.
+          </p>
+        </article>
+
         <!-- RQ4 -->
         <article class="card">
           <h3>RQ4 · Forgetting / decay</h3>
@@ -235,10 +285,10 @@ const curvePoints = computed(() => {
             <span class="bar-val">{{ msPerLearner(name) === null ? "—" : msPerLearner(name)!.toFixed(1) }}</span>
           </div>
 
-          <template v-if="curvePoints">
+          <template v-if="retrainCurvePoints">
             <div class="cost-head">Retrain convergence (mean train loss / epoch)</div>
             <svg :viewBox="`0 0 ${CURVE_W} ${CURVE_H}`" class="curve-svg">
-              <polyline :points="curvePoints" fill="none" :stroke="color('engine_retrain')" stroke-width="2" />
+              <polyline :points="retrainCurvePoints" fill="none" :stroke="color('engine_retrain')" stroke-width="2" />
             </svg>
             <p class="curve-note">KGT needs no epochs — one closed-form pass.</p>
           </template>
@@ -291,7 +341,7 @@ const curvePoints = computed(() => {
             <th>F1</th>
             <th>Accuracy</th>
             <th>Log-loss</th>
-            <th v-if="hasRq5">ms/learner</th>
+            <th v-if="hasCost">ms/learner</th>
           </tr>
         </thead>
         <tbody>
@@ -304,7 +354,7 @@ const curvePoints = computed(() => {
             <td>{{ fmt(m.metrics.F1) }}</td>
             <td>{{ fmt(m.metrics.accuracy) }}</td>
             <td>{{ fmt(m.metrics.avglogloss) }}</td>
-            <td v-if="hasRq5">
+            <td v-if="hasCost">
               {{ m.cost ? (m.cost.seconds_per_learner * 1000).toFixed(1) : "—" }}
             </td>
           </tr>
