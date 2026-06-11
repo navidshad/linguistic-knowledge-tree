@@ -13,6 +13,7 @@ import GraphCanvas from "./components/GraphCanvas.vue";
 import StatusBar from "./components/StatusBar.vue";
 import NodeDetails from "./components/NodeDetails.vue";
 import MetricsDashboard from "./components/MetricsDashboard.vue";
+import ProfilesPage from "./components/ProfilesPage.vue";
 import { STATUS_MASTERY } from "./constants";
 import type { MapNode, Status } from "./types";
 
@@ -24,7 +25,7 @@ const chatStore = useChatStore();
 const retrainStore = useRetrainStore();
 const { map } = storeToRefs(mapStore);
 const { data: learnerData, edgeAdjustments: learnerAdjustments } = storeToRefs(learnerStore);
-const { tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn, kgtOn } = storeToRefs(viewStore);
+const { screen, tab, layout, enabledLevels, overlayOn, subgraphOnly, confidenceOn, kgtOn } = storeToRefs(viewStore);
 const { currentFrame } = storeToRefs(timelineStore);
 const { currentEpoch } = storeToRefs(retrainStore);
 const {
@@ -83,12 +84,23 @@ watch(kgtOn, (on) => {
   learnerStore.load(learnerStore.learnerId, on);
 });
 
-// Switching learner: resume the chat for an editable profile (saved transcript +
-// overlay), otherwise reset to an ephemeral conversation. Centralised here so it
-// fires whatever triggered the switch (selector, create, delete).
+// Switching learner: drop per-learner view state (the previous learner's
+// timeline frames, retrain fit, and node selection), then resume the chat for an
+// editable profile (saved transcript + overlay) or reset to an ephemeral one.
+// Centralised here so it fires however the switch was triggered (open / create).
 watch(
   () => learnerStore.learnerId,
-  (id) => (learnerStore.isEditable ? chatStore.loadForProfile(id) : chatStore.reset()),
+  (id) => {
+    timelineStore.reset();
+    retrainStore.reset();
+    selectedId.value = null;
+    learnerStore.isEditable ? chatStore.loadForProfile(id) : chatStore.reset();
+  },
+);
+
+// The active profile's display name (header title in the workspace).
+const activeLabel = computed(
+  () => learnerStore.learners.find((l) => l.id === learnerStore.learnerId)?.label ?? learnerStore.learnerId,
 );
 
 const selectedNode = computed<MapNode | null>(() =>
@@ -127,9 +139,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="app">
+  <ProfilesPage v-if="screen === 'profiles'" />
+  <div v-else class="app" :class="{ 'two-col': tab !== 'metrics' && !selectedNode }">
     <header>
-      <h1>Learner Linguistic Knowledge Graph</h1>
+      <button class="back" title="Back to profiles" @click="viewStore.goToProfiles()">←</button>
+      <h1>{{ activeLabel }}</h1>
       <nav class="tabs">
         <button :class="{ active: tab === 'map' }" @click="viewStore.setTab('map')">Map</button>
         <button :class="{ active: tab === 'chat' }" @click="viewStore.setTab('chat')">Chat</button>
@@ -178,7 +192,7 @@ onMounted(() => {
       </main>
 
       <NodeDetails
-        v-if="map"
+        v-if="map && selectedNode"
         :node="selectedNode"
         :status="selectedStatus"
         :mastery="selectedMastery"
@@ -187,6 +201,7 @@ onMounted(() => {
         :chat-turns="tab === 'chat' ? chatMessages : undefined"
         :edge-adjustments="selectedAdjustments"
         @toggle="onToggle"
+        @close="selectedId = null"
       />
     </template>
   </div>
@@ -199,6 +214,8 @@ onMounted(() => {
   grid-template-rows: auto 1fr;
   height: 100vh;
 }
+/* No node selected → drop the right-hand details column and reclaim its width. */
+.app.two-col { grid-template-columns: 250px 1fr; }
 header {
   grid-column: 1 / -1;
   display: flex;
@@ -208,6 +225,12 @@ header {
   background: var(--panel);
   border-bottom: 1px solid var(--line);
 }
+.back {
+  align-self: center; font-size: 16px; line-height: 1; padding: 4px 10px;
+  border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink);
+  cursor: pointer; flex: none;
+}
+.back:hover { background: #f5f5f5; }
 header h1 { font-size: 15px; margin: 0; font-weight: 600; }
 header .sub { font-size: 12px; color: var(--muted); }
 header .bar { margin-left: auto; }

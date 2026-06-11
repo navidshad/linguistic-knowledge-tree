@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useViewStore } from "../stores/view";
 import { useLearnerStore } from "../stores/learner";
 import { useTimelineStore } from "../stores/timeline";
-import { useRetrainStore } from "../stores/retrain";
 import RetrainPanel from "./RetrainPanel.vue";
 import { CEFR_COLOR, CEFR_ORDER, KGT_EDGE_COLOR, STATUS_COLOR } from "../constants";
-import type { Cefr, LayoutName } from "../types";
+import type { LayoutName } from "../types";
 
 const view = useViewStore();
 const learner = useLearnerStore();
 const timeline = useTimelineStore();
-const retrain = useRetrainStore();
 const { enabled: timelineOn, playing, loading: timelineLoading, frames, index, day } = storeToRefs(timeline);
 
 const LAYOUTS: { value: LayoutName; label: string }[] = [
@@ -33,11 +31,6 @@ function onConfidence(e: Event) {
 function onSubgraph(e: Event) {
   view.subgraphOnly = (e.target as HTMLInputElement).checked;
 }
-function onLearner(e: Event) {
-  timeline.reset(); // drop stale frames; the new learner has its own history
-  retrain.reset(); // the fit belongs to the previous learner
-  learner.load((e.target as HTMLSelectElement).value, view.kgtOn);
-}
 function onKgt(e: Event) {
   view.kgtOn = (e.target as HTMLInputElement).checked; // App reloads the learner state
 }
@@ -49,71 +42,19 @@ function onScrub(e: Event) {
   timeline.pause();
   timeline.setIndex(Number((e.target as HTMLInputElement).value));
 }
+// The active learner's blurb — profile picking/creation lives on the landing page.
 const selectedDescription = computed(
   () => learner.learners.find((l) => l.id === learner.learnerId)?.description ?? "",
 );
-
-// Profile selector is grouped: read-only built-ins vs. editable user profiles.
-const builtinLearners = computed(() => learner.learners.filter((l) => !l.editable));
-const userProfiles = computed(() => learner.learners.filter((l) => l.editable));
-
-const newName = ref("");
-const newSeed = ref<Cefr | "">("");
-const creating = ref(false);
-
-async function onCreate() {
-  const name = newName.value.trim();
-  if (!name || creating.value) return;
-  creating.value = true;
-  try {
-    timeline.reset();
-    retrain.reset();
-    await learner.createProfile(name, newSeed.value || null);
-    newName.value = "";
-    newSeed.value = "";
-  } finally {
-    creating.value = false;
-  }
-}
-
-async function onDelete() {
-  if (!learner.isEditable) return;
-  const p = learner.learners.find((l) => l.id === learner.learnerId);
-  if (confirm(`Delete profile "${p?.label ?? learner.learnerId}"? This can't be undone.`)) {
-    timeline.reset();
-    retrain.reset();
-    await learner.deleteProfile(learner.learnerId);
-  }
-}
 </script>
 
 <template>
   <aside class="panel">
     <h2>Profile</h2>
-    <select class="select" autocomplete="off" :value="learner.learnerId" @change="onLearner">
-      <optgroup label="Pre-defined (read-only)">
-        <option v-for="l in builtinLearners" :key="l.id" :value="l.id">{{ l.label }}</option>
-      </optgroup>
-      <optgroup v-if="userProfiles.length" label="Your profiles">
-        <option v-for="l in userProfiles" :key="l.id" :value="l.id">{{ l.label }}</option>
-      </optgroup>
-    </select>
-    <p class="hint">{{ selectedDescription }}</p>
-    <button v-if="learner.isEditable" class="reset danger" @click="onDelete">Delete this profile</button>
-
-    <form class="create" @submit.prevent="onCreate">
-      <input v-model="newName" class="select" placeholder="New profile name…" autocomplete="off" />
-      <div class="create-row">
-        <select v-model="newSeed" class="select seed" autocomplete="off">
-          <option value="">No seed</option>
-          <option v-for="l in CEFR_ORDER" :key="l" :value="l">Knows up to {{ l }}</option>
-        </select>
-        <button type="submit" class="create-btn" :disabled="!newName.trim() || creating">
-          {{ creating ? "…" : "Create" }}
-        </button>
-      </div>
-    </form>
-    <p class="hint">A profile persists: chat, marked nodes, and the seed are saved to a file.</p>
+    <p class="hint blurb">
+      {{ selectedDescription }}
+      <span v-if="learner.isEditable" class="editable-tag">· editable</span>
+    </p>
 
     <h2>Layout</h2>
     <select class="select" autocomplete="off" :value="view.layout" @change="onLayout">
@@ -217,14 +158,10 @@ h2:first-child { margin-top: 0; }
 .toggle { display: flex; align-items: center; gap: 8px; margin: 6px 0; cursor: pointer; }
 .toggle.disabled { opacity: 0.45; cursor: default; }
 .hint { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 6px 0; }
+.blurb { font-style: italic; }
+.editable-tag { font-style: normal; color: var(--known); font-weight: 600; }
 .reset { margin-top: 8px; padding: 6px 10px; font-size: 12px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; }
 .reset:hover { background: #f5f5f5; }
-.reset.danger { color: var(--gap, #c62828); border-color: #f0b6b6; }
-.create { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-.create-row { display: flex; gap: 6px; }
-.seed { flex: 1; min-width: 0; }
-.create-btn { padding: 6px 12px; font-size: 12px; border: 1px solid var(--ink); background: var(--ink); color: #fff; border-radius: 6px; cursor: pointer; white-space: nowrap; }
-.create-btn:disabled { opacity: 0.45; cursor: default; }
 .tl { margin-top: 4px; }
 .tl-row { display: flex; align-items: center; gap: 8px; }
 .play { width: 30px; height: 28px; flex: none; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; font-size: 11px; }

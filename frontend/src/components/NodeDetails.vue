@@ -24,7 +24,7 @@ const evidenceTurns = computed(() => {
     .filter((t) => t.text);
 });
 
-const emit = defineEmits<{ (e: "toggle", nodeId: string): void }>();
+const emit = defineEmits<{ (e: "toggle", nodeId: string): void; (e: "close"): void }>();
 
 const masteryPct = computed(() =>
   props.mastery === undefined ? null : Math.round(props.mastery * 100),
@@ -56,7 +56,10 @@ function kgtColor(a: EdgeAdjustment): string {
 
 <template>
   <aside class="details">
-    <h2>Node details</h2>
+    <div class="dhead">
+      <h2>Node details</h2>
+      <button class="close" title="Close" @click="emit('close')">×</button>
+    </div>
     <p v-if="!node" class="empty">Click a node to inspect it. Right-click toggles known.</p>
     <template v-else>
       <p class="title">{{ node.label }}</p>
@@ -126,6 +129,10 @@ function kgtColor(a: EdgeAdjustment): string {
 
 <style scoped>
 .details { background: var(--panel); border-left: 1px solid var(--line); padding: 14px; overflow-y: auto; font-size: 13px; }
+.dhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.dhead h2 { margin: 0; }
+.close { font-size: 18px; line-height: 1; border: none; background: none; color: var(--muted); cursor: pointer; padding: 0 4px; }
+.close:hover { color: var(--ink); }
 h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 8px; }
 .empty { color: var(--muted); font-style: italic; line-height: 1.5; }
 .title { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
