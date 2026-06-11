@@ -25,13 +25,13 @@ from typing import TYPE_CHECKING
 import networkx as nx
 
 if TYPE_CHECKING:
-    from .kgt import EdgeAdjustment
+    from klg_ai.tuning.kgt import EdgeAdjustment
 
 # Re-exported so existing imports (`from klg_ai.activation import ...`) keep working.
-from .adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
-from .evidence import direct_scores
-from .events import SOURCE_WEIGHTS, Event
-from .graph import default_graph
+from klg_ai.data.adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
+from klg_ai.core.evidence import direct_scores
+from klg_ai.core.events import SOURCE_WEIGHTS, Event
+from klg_ai.core.graph import default_graph
 
 __all__ = [
     "EngineConfig", "DEFAULT_CONFIG",
@@ -105,9 +105,9 @@ def mastery_from_events(
         return {n: direct.get(n, 0.0) for n in g.nodes}
     edge_factors = None
     if config.kgt:
-        from .kgt import tune_edges
+        from klg_ai.tuning.kgt import tune_edges
         edge_factors = tune_edges(g, events, config, now=now).factors
-    from .propagation import propagate  # lazy: torch only loaded when propagation runs
+    from klg_ai.core.propagation import propagate  # lazy: torch only loaded when propagation runs
     return propagate(g, direct, config, edge_factors=edge_factors)
 
 
@@ -170,7 +170,7 @@ def list_learners() -> list[LearnerProfile]:
     Built-ins are listed first and unchanged; user profiles come from the
     persistent store (``profiles.py``).
     """
-    from .profiles import list_profiles
+    from klg_ai.data.profiles import list_profiles
     stored = [
         LearnerProfile(p.id, p.label, p.description, editable=True)
         for p in list_profiles()
@@ -207,7 +207,7 @@ def _events_for(learner_id: str) -> list[Event] | None:
         return generate_events(known, learner_id="struggling",
                                seed=13, reviews_per_node=4, accuracy=1.0, span_days=14.0,
                                failed=failed)
-    from .profiles import load_events  # lazy: file store only touched on fall-through
+    from klg_ai.data.profiles import load_events  # lazy: file store only touched on fall-through
     return load_events(learner_id)
 
 
@@ -248,7 +248,7 @@ def compute_edge_adjustments(
     ``config`` defaults to the engine defaults *with KGT enabled* — the caller
     asking for adjustments wants them computed regardless of the global toggle.
     """
-    from .kgt import tune_edges
+    from klg_ai.tuning.kgt import tune_edges
     events = _events_for(learner_id)
     if events is None:
         return None

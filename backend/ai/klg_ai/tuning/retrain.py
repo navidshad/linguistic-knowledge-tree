@@ -1,30 +1,23 @@
-"""The "retrain per user" arm of RQ5: gradient-fit per-learner edge weights.
+"""Differentiable per-learner edge-weight fitting (the reusable core of RQ5).
 
-RQ5 asks whether personalization needs per-user *retraining* or whether the
-lightweight closed-form KGT rule (``klg_ai.kgt``) suffices. This module is the
-expensive comparator: per learner, gradient-fit the same quantity KGT computes
-in one pass — a ``(back, fwd)`` multiplier per prerequisite edge, bounded in
-``(0, kgt_factor_max)`` — by minimizing BCE between the engine's mastery
-readout and the learner's own train correctness. Same hypothesis space, same
-propagation, same calibration as every other engine arm; the two RQ5 arms
-differ *only* in fitting strategy, so the comparison isolates exactly what the
-research question asks: predictive fit vs. compute cost.
-
-Multipliers are reparameterized as ``m(θ) = factor_max · sigmoid(θ)`` (with
-``factor_max = 2`` the default, ``θ = 0`` ⇒ ``m = 1`` ≡ the global graph), and
-L2 on ``θ`` anchors the fit at the global weights — "fine-tune from the global
-model", which also regularizes the many-parameters / few-items regime (~220
-params per learner vs. typically a few hundred train tokens).
+``fit_edge_factors`` gradient-fits a ``(back, fwd)`` multiplier per prerequisite
+edge by minimizing BCE between the engine's mastery readout and a learner's own
+train correctness — the same quantity ``klg_ai.tuning.kgt`` computes in one
+closed-form pass. Multipliers are reparameterized as
+``m(θ) = factor_max · sigmoid(θ)`` (θ=0 ⇒ m=1 ≡ the global graph), with L2 on θ
+anchoring the fit at the global weights ("fine-tune from the global model"),
+which also regularizes the many-parameters / few-items regime.
 
 The propagation forward pass is re-implemented here in plain differentiable
-torch (the cached PyG layer in ``propagation.py`` runs under ``no_grad`` and
+torch (the cached PyG layer in ``core.propagation`` runs under ``no_grad`` and
 can't backprop into edge weights). It mirrors ``_build_edges`` + the lift-clamp
 exactly: self-loops, per-target normalization, ``prop_rounds`` rounds, lift
 capped at ``inferred_ceiling``.
 
-``fit_edge_factors`` is reused by the live ``POST /api/learner/{id}/retrain``
-endpoint (with ``record_epochs=True``) to animate the fit converging in the
-viewer, next to KGT's instant result.
+This module holds only the reusable fit; the eval-harness wrapper
+(``PerLearnerRetrainPredictor``) lives in ``klg_ai.eval.retrain_predictor``, and
+the live ``POST /api/learner/{id}/retrain`` endpoint calls ``fit_edge_factors``
+directly (with ``record_epochs=True``) to animate the fit converging.
 """
 from __future__ import annotations
 
@@ -32,14 +25,9 @@ from dataclasses import dataclass
 
 import networkx as nx
 
-from ..activation import EngineConfig
-from ..events import Event
-from ..evidence import direct_scores, reference_now
-from ..graph import default_graph
-from .dataset import LearnerData
-from .predict import _mean_mastery, _sigmoid, fit_platt, global_correct_rate
-
-import numpy as np
+from klg_ai.core.activation import EngineConfig
+from klg_ai.core.events import Event
+from klg_ai.core.evidence import direct_scores, reference_now
 
 
 @dataclass(frozen=True)
@@ -159,75 +147,3 @@ def fit_edge_factors(
         epoch_factors=snapshots,
         n_items=len(sup),
     )
-
-
-class PerLearnerRetrainPredictor:
-    """Engine predictor whose edge weights are gradient-retrained per learner.
-
-    Mirrors ``EnginePredictor`` (same causal snapshots, same global Platt
-    calibration); the only difference is the per-learner Adam fit in between.
-    ``curve_`` (mean train loss per epoch across learners) is populated by
-    ``predict`` for the dashboard's retrain-progress plot.
-    """
-    name = "engine_retrain"
-
-    def __init__(self, config: EngineConfig = EngineConfig(), *, epochs: int = 30,
-                 lr: float = 0.05, l2: float = 1e-2, min_train_mapped: int = 5, seed: int = 0):
-        self.config = config
-        self.epochs = epochs
-        self.lr = lr
-        self.l2 = l2
-        self.min_train_mapped = min_train_mapped
-        self.seed = seed
-        self.curve_: list[dict] | None = None
-
-    def predict(self, learners: list[LearnerData]) -> list[float]:
-        from ..propagation import propagate
-
-        g = default_graph()
-        base = global_correct_rate(learners)
-
-        epoch_losses: list[list[float]] = [[] for _ in range(self.epochs)]
-        mastery_at_eval: dict[str, dict[str, float]] = {}
-        cal_x: list[float] = []
-        cal_y: list[float] = []
-        for ld in learners:
-            events = ld.train_events()
-            items = [(it.node_ids, it.correct) for it in ld.train if it.node_ids]
-            last_day = max((it.day for it in ld.train), default=ld.eval_ref_day)
-
-            factors: dict[tuple[str, str], tuple[float, float]] = {}
-            if len(items) >= self.min_train_mapped:
-                trace = fit_edge_factors(
-                    g, events, self.config, items=items, now=last_day,
-                    epochs=self.epochs, lr=self.lr, l2=self.l2, seed=self.seed,
-                )
-                factors = trace.factors
-                for i, loss in enumerate(trace.losses):
-                    epoch_losses[i].append(loss)
-
-            def mastery_at(now: float) -> dict[str, float]:
-                direct = direct_scores(events, now=now,
-                                       half_life_days=self.config.half_life_days,
-                                       forgetting=self.config.forgetting)
-                return propagate(g, direct, self.config, edge_factors=factors or None)
-
-            mastery_at_eval[ld.user] = mastery_at(ld.eval_ref_day)
-            m_cal = mastery_at(last_day)
-            for it in ld.train:
-                cal_x.append(_mean_mastery(it.node_ids, m_cal, base))
-                cal_y.append(1.0 if it.correct else 0.0)
-
-        self.curve_ = [
-            {"epoch": i + 1, "loss": round(sum(ls) / len(ls), 4)}
-            for i, ls in enumerate(epoch_losses) if ls
-        ]
-
-        a, b = fit_platt(cal_x, cal_y)
-        preds: list[float] = []
-        for ld in learners:
-            m = mastery_at_eval[ld.user]
-            for it in ld.evalset:
-                xv = _mean_mastery(it.node_ids, m, base)
-                preds.append(1.0 - float(_sigmoid(np.array(a * xv + b))))
-        return preds

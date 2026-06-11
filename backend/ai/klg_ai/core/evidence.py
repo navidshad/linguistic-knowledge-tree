@@ -20,8 +20,8 @@ from __future__ import annotations
 import math
 from collections.abc import Iterable
 
-from .events import Event
-from .forgetting import recency_weight
+from klg_ai.core.events import Event
+from klg_ai.core.forgetting import recency_weight
 
 
 def reference_now(events: Iterable[Event]) -> float:

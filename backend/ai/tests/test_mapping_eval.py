@@ -4,9 +4,9 @@ Deterministic via ``HashingEmbedder`` on the in-repo SLAM fixture.
 """
 from pathlib import Path
 
-from klg_ai.adapters.slam import iter_exercises
+from klg_ai.data.adapters.slam import iter_exercises
 from klg_ai.eval.mapping_eval import RuleMapper, compare_mappers
-from klg_ai.loader import load_map
+from klg_ai.core.loader import load_map
 from klg_ai.semantic import HashingEmbedder, SemanticMapper, build_node_vectors
 
 FIX = Path(__file__).parent / "fixtures" / "slam"

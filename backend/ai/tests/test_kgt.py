@@ -9,15 +9,15 @@ import pytest
 
 import networkx as nx
 
-from klg_ai.activation import (
+from klg_ai.core.activation import (
     DEMO_KNOWN,
     EngineConfig,
     compute_edge_adjustments,
     demo_events,
     generate_events,
 )
-from klg_ai.events import Event
-from klg_ai.kgt import tune_edges
+from klg_ai.core.events import Event
+from klg_ai.tuning.kgt import tune_edges
 
 KGT = EngineConfig(kgt=True)
 
@@ -124,9 +124,9 @@ def test_generate_events_without_failed_is_byte_compatible():
 
 torch_tests = pytest.importorskip("torch_geometric", reason="propagation tests need PyG")
 
-from klg_ai.activation import compute_mastery, get_activation  # noqa: E402
-from klg_ai.graph import default_graph  # noqa: E402
-from klg_ai.propagation import propagate  # noqa: E402
+from klg_ai.core.activation import compute_mastery, get_activation  # noqa: E402
+from klg_ai.core.graph import default_graph  # noqa: E402
+from klg_ai.core.propagation import propagate  # noqa: E402
 
 
 def test_demo_contract_survives_kgt():
@@ -148,7 +148,7 @@ def test_kgt_invariants_hold_on_the_tuned_graph():
         learner_id="demo", seed=5, reviews_per_node=4,
     )
     factors = tune_edges(g, events, KGT).factors
-    from klg_ai.evidence import direct_scores
+    from klg_ai.core.evidence import direct_scores
     direct = direct_scores(events)
     mastery = propagate(g, direct, KGT, edge_factors=factors)
     for n, m in mastery.items():

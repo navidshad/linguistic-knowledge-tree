@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING
 import networkx as nx
 
 if TYPE_CHECKING:
-    from .activation import EngineConfig
+    from klg_ai.core.activation import EngineConfig
 
 _LAYER = None  # cached PyG MessagePassing layer (built lazily on first use)
 

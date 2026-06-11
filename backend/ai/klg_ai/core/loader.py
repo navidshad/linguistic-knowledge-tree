@@ -7,8 +7,8 @@ from pathlib import Path
 
 CEFR_LEVELS = ("A1", "A2", "B1", "B2", "C1", "C2")
 
-# repo_root/map/english-syntax-map.v0.json  (loader.py is backend/ai/klg_ai/loader.py)
-DEFAULT_MAP_PATH = Path(__file__).resolve().parents[3] / "map" / "english-syntax-map.v0.json"
+# repo_root/map/english-syntax-map.v0.json  (loader.py is backend/ai/klg_ai/core/loader.py)
+DEFAULT_MAP_PATH = Path(__file__).resolve().parents[4] / "map" / "english-syntax-map.v0.json"
 
 
 @dataclass(frozen=True)

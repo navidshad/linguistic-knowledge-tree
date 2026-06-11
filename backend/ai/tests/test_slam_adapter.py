@@ -6,11 +6,11 @@ dataset. Mapping assertions are traced by hand from the rules.
 """
 from pathlib import Path
 
-from klg_ai.adapters.slam import (
+from klg_ai.data.adapters.slam import (
     SlamToken, iter_exercises, parse_key, slam_events,
 )
-from klg_ai.adapters.slam_mapping import _MODAL_NODE, map_exercise
-from klg_ai.loader import load_map
+from klg_ai.data.adapters.slam_mapping import _MODAL_NODE, map_exercise
+from klg_ai.core.loader import load_map
 
 FIX = Path(__file__).parent / "fixtures" / "slam"
 TRAIN = FIX / "mini.slam.20190204.train"

@@ -13,7 +13,7 @@ from enum import Enum
 
 import networkx as nx
 
-from .gaps import interior_gaps
+from klg_ai.core.gaps import interior_gaps
 
 
 class Status(str, Enum):

@@ -1,10 +1,10 @@
 """Regression test: the demo learner must reproduce the verified status counts."""
 from collections import Counter
 
-from klg_ai.activation import DEMO_KNOWN
-from klg_ai.graph import build_graph
-from klg_ai.loader import DEFAULT_MAP_PATH, load_map
-from klg_ai.status import Status, compute_status
+from klg_ai.core.activation import DEMO_KNOWN
+from klg_ai.core.graph import build_graph
+from klg_ai.core.loader import DEFAULT_MAP_PATH, load_map
+from klg_ai.core.status import Status, compute_status
 
 
 def _status():

@@ -21,8 +21,8 @@ from klg_ai import (
     save_conversation,
     threshold_activated,
 )
-from klg_ai.activation import _cefr_nodes, _events_for, demo_events, list_learners
-from klg_ai.graph import default_graph
+from klg_ai.core.activation import _cefr_nodes, _events_for, demo_events, list_learners
+from klg_ai.core.graph import default_graph
 
 
 @pytest.fixture(autouse=True)

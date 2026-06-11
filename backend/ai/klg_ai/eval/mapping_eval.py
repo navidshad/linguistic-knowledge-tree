@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 
-from ..adapters.slam_mapping import map_exercise
+from klg_ai.data.adapters.slam_mapping import map_exercise
 
 
 class RuleMapper:

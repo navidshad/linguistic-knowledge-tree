@@ -5,7 +5,7 @@ from functools import lru_cache
 
 import networkx as nx
 
-from .loader import SyntaxMap, load_map
+from klg_ai.core.loader import SyntaxMap, load_map
 
 
 def build_graph(m: SyntaxMap) -> nx.DiGraph:

@@ -35,7 +35,7 @@ from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..events import Event
+from klg_ai.core.events import Event
 
 
 @dataclass(frozen=True)
@@ -188,7 +188,7 @@ def slam_events(
     no label are skipped. All SLAM interactions are graded, so ``source`` is
     ``"review"`` (the strongest evidence tier) by default.
     """
-    from .slam_mapping import map_exercise  # local import avoids a cycle
+    from klg_ai.data.adapters.slam_mapping import map_exercise  # local import avoids a cycle
 
     events: list[Event] = []
     for ex in exercises:

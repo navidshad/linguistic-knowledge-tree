@@ -16,9 +16,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..activation import EngineConfig, mastery_from_events
-from ..graph import default_graph
-from .dataset import LearnerData
+from klg_ai.core.activation import EngineConfig, mastery_from_events
+from klg_ai.core.graph import default_graph
+from klg_ai.data.dataset import LearnerData
 
 
 def _sigmoid(z: np.ndarray) -> np.ndarray:

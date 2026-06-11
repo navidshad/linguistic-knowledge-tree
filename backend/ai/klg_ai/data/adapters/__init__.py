@@ -5,6 +5,6 @@ parametric test/validation learners). Real adapters land here later: a Duolingo
 SLAM / EdNet adapter for thesis validation (Phase 5), then a Subturtle adapter
 (`leitner_review_log` + phrase/chunk/dialog evidence) for productization.
 """
-from .synthetic import DEMO_KNOWN, demo_events, generate_events
+from klg_ai.data.adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
 
 __all__ = ["DEMO_KNOWN", "demo_events", "generate_events"]

@@ -23,14 +23,14 @@ from functools import lru_cache
 
 from fastapi import APIRouter
 
-from klg_ai.activation import (
+from klg_ai.core.activation import (
     DEFAULT_CONFIG,
     EngineConfig,
     mastery_from_events,
     threshold_activated,
 )
-from klg_ai.events import Event
-from klg_ai.profiles import (
+from klg_ai.core.events import Event
+from klg_ai.data.profiles import (
     RESERVED_IDS,
     append_events,
     load_conversation,
@@ -38,7 +38,7 @@ from klg_ai.profiles import (
     save_conversation,
 )
 from klg_ai.semantic.mapper import default_mapper
-from klg_ai.status import compute_status
+from klg_ai.core.status import compute_status
 
 from .. import trace
 from ..deps import get_graph, get_map
@@ -172,7 +172,7 @@ def chat(body: ChatIn) -> ChatOut:
 
     adjustments = None
     if config.kgt:
-        from klg_ai.kgt import tune_edges
+        from klg_ai.tuning.kgt import tune_edges
         adjustments = [
             EdgeAdjustmentOut(**vars(a)) for a in tune_edges(g, events, config).adjustments
         ]

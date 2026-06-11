@@ -19,9 +19,9 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..events import Event
-from ..adapters.slam import iter_exercises, parse_key
-from ..adapters.slam_mapping import map_exercise
+from klg_ai.core.events import Event
+from klg_ai.data.adapters.slam import iter_exercises, parse_key
+from klg_ai.data.adapters.slam_mapping import map_exercise
 
 _STAMP = "slam.20190204"
 
@@ -84,7 +84,7 @@ def _resolve_mapper(mapper: str):
         raise ValueError(f"unknown mapper {mapper!r} (expected rule|bert|kbert)")
     import os
 
-    from ..semantic.mapper import default_mapper
+    from klg_ai.semantic.mapper import default_mapper
 
     threshold = float(os.environ.get("KLG_SEMANTIC_THRESHOLD", "0.30"))
     sm = default_mapper(knowledge_injection=(mapper == "kbert"), threshold=threshold, top_k=3)

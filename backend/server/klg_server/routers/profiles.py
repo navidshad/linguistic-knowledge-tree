@@ -10,10 +10,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from klg_ai.activation import _cefr_nodes
-from klg_ai.events import Event
-from klg_ai.loader import CEFR_LEVELS
-from klg_ai.profiles import (
+from klg_ai.core.activation import _cefr_nodes
+from klg_ai.core.events import Event
+from klg_ai.core.loader import CEFR_LEVELS
+from klg_ai.data.profiles import (
     RESERVED_IDS,
     append_events,
     create_profile,

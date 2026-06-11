@@ -13,7 +13,7 @@ from collections import Counter
 
 from fastapi import APIRouter, HTTPException
 
-from klg_ai.activation import (
+from klg_ai.core.activation import (
     DEFAULT_CONFIG,
     EngineConfig,
     compute_edge_adjustments,
@@ -23,8 +23,8 @@ from klg_ai.activation import (
     mastery_timeline,
     threshold_activated,
 )
-from klg_ai.gaps import gap_scores
-from klg_ai.status import compute_status
+from klg_ai.core.gaps import gap_scores
+from klg_ai.core.status import compute_status
 
 from ..deps import get_graph
 from ..schemas import (
@@ -105,8 +105,8 @@ def learner_retrain(learner_id: str, epochs: int = 30) -> RetrainOut:
     wall time of the closed-form KGT rule on the same events. Stateless and
     deterministic; nothing is stored.
     """
-    from klg_ai.eval.retrain import fit_edge_factors
-    from klg_ai.kgt import tune_edges
+    from klg_ai.tuning.retrain import fit_edge_factors
+    from klg_ai.tuning.kgt import tune_edges
 
     events = learner_events(learner_id)
     if events is None:

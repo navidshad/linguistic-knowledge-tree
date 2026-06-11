@@ -9,7 +9,7 @@ from collections import Counter
 
 from fastapi import APIRouter
 
-from klg_ai.status import compute_status
+from klg_ai.core.status import compute_status
 
 from ..deps import get_graph
 from ..schemas import ActivationIn, LearnerStatusOut

@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import klg_server.routers.chat as chat_mod
-from klg_ai.loader import load_map
+from klg_ai.core.loader import load_map
 from klg_ai.semantic import HashingEmbedder, SemanticMapper, build_node_vectors
 from klg_server.main import app
 
