@@ -22,8 +22,8 @@ from pathlib import Path
 
 import numpy as np
 
-from ..loader import Node, SyntaxMap, load_map
-from .embedder import Embedder, _l2_normalize
+from klg_ai.core.loader import Node, SyntaxMap, load_map
+from klg_ai.semantic.embedder import Embedder, _l2_normalize
 
 # repo_root/docs/phase6/node_vectors.npz
 # (this file: backend/ai/klg_ai/semantic/node_vectors.py -> parents[4] == repo root)

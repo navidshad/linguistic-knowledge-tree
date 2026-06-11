@@ -9,8 +9,8 @@ pytest.importorskip("torch_geometric")
 
 import networkx as nx
 
-from klg_ai.activation import DEFAULT_CONFIG
-from klg_ai.propagation import propagate
+from klg_ai.core.activation import DEFAULT_CONFIG
+from klg_ai.core.propagation import propagate
 
 
 def _chain() -> nx.DiGraph:

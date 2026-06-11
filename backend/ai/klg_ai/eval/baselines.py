@@ -18,7 +18,7 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-from .dataset import LearnerData
+from klg_ai.data.dataset import LearnerData
 
 _UNK = "<unk>"
 

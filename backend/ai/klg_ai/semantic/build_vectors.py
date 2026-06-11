@@ -14,9 +14,9 @@ import argparse
 import hashlib
 from pathlib import Path
 
-from ..loader import DEFAULT_MAP_PATH, load_map
-from .embedder import HashingEmbedder, SentenceTransformerEmbedder, default_embedder
-from .node_vectors import DEFAULT_VECTORS_PATH, build_node_vectors, save_node_vectors
+from klg_ai.core.loader import DEFAULT_MAP_PATH, load_map
+from klg_ai.semantic.embedder import HashingEmbedder, SentenceTransformerEmbedder, default_embedder
+from klg_ai.semantic.node_vectors import DEFAULT_VECTORS_PATH, build_node_vectors, save_node_vectors
 
 
 def _map_hash(path: Path) -> str:

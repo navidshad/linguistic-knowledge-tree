@@ -7,7 +7,7 @@ propagation), and compute status and gaps.
 `propagation` (PyTorch Geometric) is imported lazily by the engine, so importing
 this package — and running the parts that don't propagate — needs only networkx.
 """
-from .activation import (
+from klg_ai.core.activation import (
     DEFAULT_CONFIG,
     EngineConfig,
     LearnerProfile,
@@ -21,14 +21,14 @@ from .activation import (
     mastery_timeline,
     threshold_activated,
 )
-from .adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
-from .events import SOURCE_WEIGHTS, Event
-from .evidence import direct_scores
-from .forgetting import recency_weight
-from .gaps import connecting_subgraph, gap_scores, interior_gaps
-from .graph import build_graph, default_graph
-from .loader import DEFAULT_MAP_PATH, Edge, Node, SyntaxMap, load_map
-from .profiles import (
+from klg_ai.data.adapters.synthetic import DEMO_KNOWN, demo_events, generate_events
+from klg_ai.core.events import SOURCE_WEIGHTS, Event
+from klg_ai.core.evidence import direct_scores
+from klg_ai.core.forgetting import recency_weight
+from klg_ai.core.gaps import connecting_subgraph, gap_scores, interior_gaps
+from klg_ai.core.graph import build_graph, default_graph
+from klg_ai.core.loader import DEFAULT_MAP_PATH, Edge, Node, SyntaxMap, load_map
+from klg_ai.data.profiles import (
     RESERVED_IDS,
     ProfileMeta,
     append_events,
@@ -40,7 +40,7 @@ from .profiles import (
     load_profile,
     save_conversation,
 )
-from .status import Status, compute_status
+from klg_ai.core.status import Status, compute_status
 
 __all__ = [
     # map + graph

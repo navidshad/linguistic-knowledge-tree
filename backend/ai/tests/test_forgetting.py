@@ -1,5 +1,5 @@
 """Forgetting: exponential recency decay (thesis RQ4 building block)."""
-from klg_ai.forgetting import recency_weight
+from klg_ai.core.forgetting import recency_weight
 
 
 def test_no_age_is_full_weight():

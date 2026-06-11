@@ -15,7 +15,7 @@ from __future__ import annotations
 import random
 from collections.abc import Iterable
 
-from ..events import Event
+from klg_ai.core.events import Event
 
 # The demo learner's known set: deliberate interior gaps — knows the first and
 # third conditional but not the second; reported questions but not indirect

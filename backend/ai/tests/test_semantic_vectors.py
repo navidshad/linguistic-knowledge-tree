@@ -9,7 +9,7 @@ import os
 import numpy as np
 import pytest
 
-from klg_ai.loader import load_map
+from klg_ai.core.loader import load_map
 from klg_ai.semantic import (
     HashingEmbedder,
     NodeVectors,

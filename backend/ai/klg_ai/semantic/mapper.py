@@ -23,9 +23,9 @@ from functools import lru_cache
 
 import numpy as np
 
-from ..loader import SyntaxMap, load_map
-from .embedder import Embedder, default_embedder
-from .node_vectors import NodeVectors, build_node_vectors, load_node_vectors
+from klg_ai.core.loader import SyntaxMap, load_map
+from klg_ai.semantic.embedder import Embedder, default_embedder
+from klg_ai.semantic.node_vectors import NodeVectors, build_node_vectors, load_node_vectors
 
 
 @dataclass(frozen=True)

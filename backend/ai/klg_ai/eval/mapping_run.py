@@ -15,10 +15,10 @@ import random
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ..adapters.slam import iter_exercises
-from ..semantic.mapper import default_mapper
-from .dataset import _STAMP, _eval_users
-from .mapping_eval import RuleMapper, compare_mappers
+from klg_ai.data.adapters.slam import iter_exercises
+from klg_ai.semantic.mapper import default_mapper
+from klg_ai.data.dataset import _STAMP, _eval_users
+from klg_ai.eval.mapping_eval import RuleMapper, compare_mappers
 
 _REPO = Path(__file__).resolve().parents[4]
 

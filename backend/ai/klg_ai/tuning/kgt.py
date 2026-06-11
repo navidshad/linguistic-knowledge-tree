@@ -45,12 +45,12 @@ from typing import TYPE_CHECKING
 
 import networkx as nx
 
-from .events import Event
-from .evidence import reference_now
-from .forgetting import recency_weight
+from klg_ai.core.events import Event
+from klg_ai.core.evidence import reference_now
+from klg_ai.core.forgetting import recency_weight
 
 if TYPE_CHECKING:
-    from .activation import EngineConfig
+    from klg_ai.core.activation import EngineConfig
 
 __all__ = ["NodeFeedback", "EdgeAdjustment", "KgtResult", "node_feedback", "tune_edges"]
 

@@ -7,8 +7,8 @@ from pathlib import Path
 
 import numpy as np
 
-from klg_ai.adapters.slam import iter_exercises
-from klg_ai.loader import load_map
+from klg_ai.data.adapters.slam import iter_exercises
+from klg_ai.core.loader import load_map
 from klg_ai.semantic import HashingEmbedder, SemanticMapper, build_node_vectors, node_text
 from klg_ai.semantic.node_vectors import _category_labels
 

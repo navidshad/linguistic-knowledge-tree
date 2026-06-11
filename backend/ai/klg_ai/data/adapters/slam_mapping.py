@@ -34,7 +34,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from .slam import SlamExercise, SlamToken
+from klg_ai.data.adapters.slam import SlamExercise, SlamToken
 
 # ---------------------------------------------------------------------------
 # Lexical vocabularies (lower-cased surface forms)
@@ -109,7 +109,7 @@ _NEGATORS = {"not", "n't", "never"}
 @lru_cache(maxsize=1)
 def _valid_nodes() -> frozenset[str]:
     """Concept ids present in the live map (mapping output is filtered to these)."""
-    from ..loader import load_map
+    from klg_ai.core.loader import load_map
     return frozenset(load_map().node_ids)
 
 

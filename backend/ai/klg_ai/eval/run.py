@@ -15,8 +15,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .ablations import run_ablations
-from .dataset import load_track
+from klg_ai.eval.ablations import run_ablations
+from klg_ai.data.dataset import load_track
 
 _REPO = Path(__file__).resolve().parents[4]
 

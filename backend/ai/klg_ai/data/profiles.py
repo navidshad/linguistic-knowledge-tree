@@ -37,9 +37,9 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .adapters.synthetic import generate_events
-from .events import Event
-from .loader import DEFAULT_MAP_PATH
+from klg_ai.data.adapters.synthetic import generate_events
+from klg_ai.core.events import Event
+from klg_ai.core.loader import DEFAULT_MAP_PATH
 
 # Built-in synthetic learner ids + the ephemeral ids used by the chat/what-if
 # endpoints: a user profile may not be created with (or shadow) any of these.

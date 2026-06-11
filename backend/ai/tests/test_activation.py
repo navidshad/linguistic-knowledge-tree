@@ -9,8 +9,8 @@ import pytest
 pytest.importorskip("torch_geometric")
 
 import klg_ai as k
-from klg_ai.activation import EngineConfig, activated_from_events
-from klg_ai.adapters.synthetic import generate_events
+from klg_ai.core.activation import EngineConfig, activated_from_events
+from klg_ai.data.adapters.synthetic import generate_events
 
 
 def test_demo_activation_matches_known_set():

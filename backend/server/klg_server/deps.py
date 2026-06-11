@@ -5,8 +5,8 @@ from functools import lru_cache
 
 import networkx as nx
 
-from klg_ai.graph import build_graph
-from klg_ai.loader import DEFAULT_MAP_PATH, SyntaxMap, load_map
+from klg_ai.core.graph import build_graph
+from klg_ai.core.loader import DEFAULT_MAP_PATH, SyntaxMap, load_map
 
 
 @lru_cache(maxsize=1)

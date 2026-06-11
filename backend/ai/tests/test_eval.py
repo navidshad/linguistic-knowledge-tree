@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from klg_ai.eval import metrics as M
-from klg_ai.eval.dataset import all_eval_instances, cold_eval_mask, load_track
+from klg_ai.data.dataset import all_eval_instances, cold_eval_mask, load_track
 
 FIX = Path(__file__).parent / "fixtures" / "slam"
 
@@ -77,7 +77,7 @@ def test_cold_mask_aligned_and_flags_unpracticed_nodes():
 
 def test_predictors_emit_aligned_probabilities():
     pytest.importorskip("torch_geometric")
-    from klg_ai.activation import EngineConfig
+    from klg_ai.core.activation import EngineConfig
     from klg_ai.eval.baselines import DKTPredictor
     from klg_ai.eval.predict import (
         EnginePredictor, GlobalMeanPredictor, PerSkillMeanPredictor,
@@ -101,7 +101,7 @@ def test_predictors_emit_aligned_probabilities():
 
 def test_engine_propagation_changes_cold_predictions():
     pytest.importorskip("torch_geometric")
-    from klg_ai.activation import EngineConfig
+    from klg_ai.core.activation import EngineConfig
     from klg_ai.eval.predict import EnginePredictor
 
     learners = _learners()
@@ -162,7 +162,7 @@ def test_run_ablations_kgt_adds_rq5_arms_and_cost():
 
 def test_retrain_predictor_is_aligned_bounded_and_seeded():
     pytest.importorskip("torch_geometric")
-    from klg_ai.eval.retrain import PerLearnerRetrainPredictor
+    from klg_ai.eval.retrain_predictor import PerLearnerRetrainPredictor
 
     learners = _learners()
     n = len(all_eval_instances(learners))
@@ -176,9 +176,9 @@ def test_retrain_predictor_is_aligned_bounded_and_seeded():
 
 def test_fit_edge_factors_records_epochs_and_descends():
     pytest.importorskip("torch_geometric")
-    from klg_ai.eval.retrain import fit_edge_factors
-    from klg_ai.activation import EngineConfig, generate_events
-    from klg_ai.graph import default_graph
+    from klg_ai.tuning.retrain import fit_edge_factors
+    from klg_ai.core.activation import EngineConfig, generate_events
+    from klg_ai.core.graph import default_graph
 
     events = generate_events(
         ["relative_clauses_defining"], failed=["relative_pronouns"],

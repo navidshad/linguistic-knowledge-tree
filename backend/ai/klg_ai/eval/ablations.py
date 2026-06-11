@@ -20,11 +20,11 @@ from __future__ import annotations
 
 import time
 
-from ..activation import EngineConfig
-from .baselines import DKTPredictor
-from .dataset import LearnerData, all_eval_instances, cold_eval_mask
-from .metrics import evaluate, roc_curve
-from .predict import (
+from klg_ai.core.activation import EngineConfig
+from klg_ai.eval.baselines import DKTPredictor
+from klg_ai.data.dataset import LearnerData, all_eval_instances, cold_eval_mask
+from klg_ai.eval.metrics import evaluate, roc_curve
+from klg_ai.eval.predict import (
     EnginePredictor,
     GlobalMeanPredictor,
     PerSkillMeanPredictor,
@@ -50,7 +50,7 @@ def _models(dkt_epochs: int, seed: int, *, kgt: bool = False, retrain_epochs: in
         (GlobalMeanPredictor(), "baseline", "Global mean"),
     ]
     if kgt:
-        from .retrain import PerLearnerRetrainPredictor
+        from klg_ai.eval.retrain_predictor import PerLearnerRetrainPredictor
         models += [
             (EnginePredictor(EngineConfig(kgt=True), "engine_kgt"),
              "RQ5", "Engine + KGT (personal edges)"),
@@ -93,8 +93,8 @@ def run_ablations(
     if kgt:
         # Warm up the lazy torch/PyG import + layer build before timing, so the
         # first engine arm's cost isn't inflated by one-time setup.
-        from ..graph import default_graph
-        from ..propagation import propagate
+        from klg_ai.core.graph import default_graph
+        from klg_ai.core.propagation import propagate
         propagate(default_graph(), {}, EngineConfig())
 
     models: list[dict] = []

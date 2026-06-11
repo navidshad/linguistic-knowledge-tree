@@ -1,6 +1,6 @@
 """Events -> direct mastery scores: source weighting, accuracy, forgetting."""
-from klg_ai.events import Event
-from klg_ai.evidence import direct_scores
+from klg_ai.core.events import Event
+from klg_ai.core.evidence import direct_scores
 
 
 def _ev(node, correct, ts=0.0, source="review"):

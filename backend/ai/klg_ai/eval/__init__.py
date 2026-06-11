@@ -13,8 +13,8 @@ Submodules: ``metrics`` (SLAM-comparable AUROC/F1/acc/logloss), ``dataset``
 calibration), ``baselines`` (DKT + difficulty/ability baselines), ``ablations``
 (the RQ runs), ``run`` (CLI).
 """
-from .dataset import EvalInstance, Interaction, LearnerData, load_track
-from .metrics import evaluate, roc_curve
+from klg_ai.data.dataset import EvalInstance, Interaction, LearnerData, load_track
+from klg_ai.eval.metrics import evaluate, roc_curve
 
 __all__ = [
     "Interaction", "EvalInstance", "LearnerData", "load_track",
