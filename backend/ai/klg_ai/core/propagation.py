@@ -19,9 +19,12 @@ guarantees hold by construction:
      inference never fabricates mastery where there is no evidence at all
      (this is what keeps interior gaps from filling themselves in).
 
-v1 uses fixed (untrained) weights: the architecture is here so Phase 5 can train
-it on Duolingo/EdNet against KT baselines (thesis RQ3). Torch is imported lazily
-so the rest of the engine — and the API — run without it.
+The runtime uses fixed weights (``prop_alpha_back`` / ``prop_alpha_fwd``). They
+can instead be **fit globally to open data** — see ``tuning.train_prop`` (RQ3),
+which gradient-fits a ``(back, fwd)`` multiplier per edge (or two global scalars)
+and feeds them back as ``edge_factors``; the trainer is backend-only, so this
+forward stays a parameter-free convex diffusion. Torch is imported lazily so the
+rest of the engine — and the API — run without it.
 """
 from __future__ import annotations
 

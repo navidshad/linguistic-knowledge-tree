@@ -32,7 +32,8 @@ from klg_ai.eval.predict import (
 )
 
 
-def _models(dkt_epochs: int, seed: int, *, kgt: bool = False, retrain_epochs: int = 30):
+def _models(dkt_epochs: int, seed: int, *, kgt: bool = False, retrain_epochs: int = 30,
+            train_prop: bool = False, prop_epochs: int = 40):
     """(predictor, rq_group, display_label) for every model in the comparison."""
     models = [
         (EnginePredictor(EngineConfig(), "engine_full"),
@@ -57,6 +58,14 @@ def _models(dkt_epochs: int, seed: int, *, kgt: bool = False, retrain_epochs: in
             (PerLearnerRetrainPredictor(epochs=retrain_epochs, seed=seed),
              "RQ5", "Engine + per-learner retrain"),
         ]
+    if train_prop:
+        from klg_ai.eval.train_prop_predictor import TrainedEnginePredictor
+        models += [
+            (TrainedEnginePredictor(EngineConfig(), granularity="edge", epochs=prop_epochs, seed=seed),
+             "RQ3", "Engine + trained propagation (per-edge)"),
+            (TrainedEnginePredictor(EngineConfig(), granularity="scalar", epochs=prop_epochs, seed=seed),
+             "RQ3", "Engine + trained propagation (2-scalar)"),
+        ]
     return models
 
 
@@ -78,19 +87,24 @@ def run_ablations(
     mapper: str = "rule",
     kgt: bool = False,
     retrain_epochs: int = 30,
+    train_prop: bool = False,
+    prop_epochs: int = 40,
 ) -> dict:
     """Run every model and return the full results dict.
 
-    ``kgt=True`` (the Phase-7 RQ5 run) adds the two personalization arms and a
-    measured per-model compute ``cost``; the default output is unchanged.
+    ``kgt=True`` (the Phase-7 RQ5 run) adds the two personalization arms;
+    ``train_prop=True`` (the RQ3 trained-propagation run) adds the globally
+    trained-weight arms. Either adds a measured per-model compute ``cost``; the
+    default output (both off) is key-for-key identical to Phase 5.
     """
+    measure_cost = kgt or train_prop
     instances = all_eval_instances(learners)
     actual = [float(it.label) for it in instances]  # 1 = mistake
     cold = cold_eval_mask(learners)
     cold_idx = [i for i, c in enumerate(cold) if c]
     cold_actual = [actual[i] for i in cold_idx]
 
-    if kgt:
+    if measure_cost:
         # Warm up the lazy torch/PyG import + layer build before timing, so the
         # first engine arm's cost isn't inflated by one-time setup.
         from klg_ai.core.graph import default_graph
@@ -98,7 +112,8 @@ def run_ablations(
         propagate(default_graph(), {}, EngineConfig())
 
     models: list[dict] = []
-    for predictor, group, label in _models(dkt_epochs, seed, kgt=kgt, retrain_epochs=retrain_epochs):
+    for predictor, group, label in _models(dkt_epochs, seed, kgt=kgt, retrain_epochs=retrain_epochs,
+                                           train_prop=train_prop, prop_epochs=prop_epochs):
         t0 = time.perf_counter()
         predicted = predictor.predict(learners)
         dt = time.perf_counter() - t0
@@ -115,9 +130,10 @@ def run_ablations(
             "metrics_cold": cold_metrics,
             "roc": roc_curve(actual, predicted),
         }
-        if kgt:
-            # RQ5 is a cost question: fit+predict wall-clock, same machine/process
-            # for every arm so the ratio is meaningful.
+        if measure_cost:
+            # Cost is a research variable here (RQ5 KGT-vs-retrain; trained-vs-fixed
+            # one-time fit): fit+predict wall-clock, same machine/process for every
+            # arm so the ratio is meaningful.
             entry["cost"] = {
                 "fit_predict_seconds": round(dt, 3),
                 "seconds_per_learner": round(dt / max(1, len(learners)), 5),
@@ -136,6 +152,9 @@ def run_ablations(
     }
     if kgt:
         rqs["RQ5_personalization"] = ["engine_full", "engine_kgt", "engine_retrain"]
+    if train_prop:
+        rqs["RQ3_trained_propagation"] = ["engine_full", "engine_no_prop", "engine_trained"]
+        rqs["RQ3_trained_propagation_cold"] = ["engine_full", "engine_no_prop", "engine_trained"]
     return {
         "dataset": {
             "source": "Duolingo SLAM 2018",
