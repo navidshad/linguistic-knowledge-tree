@@ -9,6 +9,10 @@ import type { ChatTurn, EdgeAdjustment, NodeEvidence, Status } from "../types";
 export const useChatStore = defineStore("chat", () => {
   const sessionId = ref<string>(crypto.randomUUID()); // keys the server-side per-session trace
   const profileId = ref<string | null>(null); // when set, the conversation persists
+  // Evidence→node mapper: "semantic" (default, the validated K-BERT mapper + Gemini
+  // grading) or "gemini" (Gemini tags concepts directly — higher recall, lights the
+  // map up far more reliably). A live demo preference, not the validated default.
+  const tagger = ref<"semantic" | "gemini">("semantic");
   const messages = ref<ChatTurn[]>([]);
   const statuses = ref<Record<string, Status>>({});
   const mastery = ref<Record<string, number>>({});
@@ -36,6 +40,7 @@ export const useChatStore = defineStore("chat", () => {
     try {
       const res = await api.postChat(
         messages.value, activated.value, sessionId.value, profileId.value ?? undefined,
+        tagger.value === "gemini" ? "gemini" : undefined,
       );
       messages.value = [...messages.value, { role: "tutor", text: res.reply }];
       statuses.value = res.statuses;
@@ -93,7 +98,7 @@ export const useChatStore = defineStore("chat", () => {
   }
 
   return {
-    sessionId, profileId, messages, statuses, mastery, counts, evidenceByNode,
+    sessionId, profileId, tagger, messages, statuses, mastery, counts, evidenceByNode,
     lastMapped, lastGrades, edgeAdjustments, sending, error, activated,
     send, reset, loadForProfile,
   };

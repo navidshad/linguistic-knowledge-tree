@@ -13,7 +13,12 @@ frontend/dist/
 
 # Datasets (large, license-gated — never commit; Phase 5 validation data).
 # Root-anchored so it does NOT match the backend/ai/klg_ai/data/ source package.
-/data/
+# Ignore everything under /data/ EXCEPT the small, self-collected IELTS mock-test
+# transcripts (raw, committed for reproducibility); their processed outputs stay
+# regenerable/ignored (pinned aggregate lives in docs/ielts-case-study/).
+/data/*
+!/data/ielts/
+/data/ielts/processed/
 
 # Secrets / local env (e.g. GEMINI_API_KEY for the Phase 6 chat tutor) — never commit
 .env

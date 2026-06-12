@@ -1,0 +1,1102 @@
+{
+  "n_tests": 11,
+  "threshold": 0.22,
+  "mapper": "kbert (semantic, ungraded)",
+  "band_range": [
+    3.5,
+    9.0
+  ],
+  "pearson_band_vs_system_cefr": 0.52,
+  "tests": [
+    {
+      "id": "test_03",
+      "band": 3.5,
+      "band_cefr": "A2",
+      "url": "https://youtu.be/Zhw_o6sne2w?si=PYLWZETmko7Nb2PK",
+      "n_utterances": 20,
+      "proposals": {
+        "adverbs_time_place": 3,
+        "collocation": 2,
+        "comparative_adverbs": 1,
+        "future_continuous": 1,
+        "going_to_future": 2,
+        "indefinite_pronouns": 1,
+        "indirect_questions": 1,
+        "infinitive_of_purpose": 1,
+        "nominalization": 1,
+        "noun_clauses": 1,
+        "participle_clauses": 1,
+        "past_continuous": 2,
+        "past_perfect_simple": 2,
+        "perfect_infinitive": 1,
+        "personal_pronouns": 3,
+        "phrasal_verbs_basic": 1,
+        "possessive_pronouns": 2,
+        "present_perfect_continuous": 2,
+        "question_words_advanced": 2,
+        "reason_result_clauses": 1,
+        "reported_questions": 1,
+        "short_answers": 3,
+        "should_advice": 1,
+        "time_clauses": 1,
+        "will_future": 1,
+        "yes_no_questions": 1
+      },
+      "cefr_profile": {
+        "A2": 9,
+        "C1": 1,
+        "B2": 2,
+        "A1": 13,
+        "C2": 1,
+        "B1": 13
+      },
+      "system_cefr_index": 1.282,
+      "ceiling_cefr": "B2",
+      "known": [
+        "personal_pronouns",
+        "possessive_pronouns",
+        "adverbs_time_place",
+        "yes_no_questions",
+        "short_answers",
+        "going_to_future",
+        "past_continuous",
+        "should_advice",
+        "infinitive_of_purpose",
+        "question_words_advanced",
+        "phrasal_verbs_basic",
+        "present_perfect_continuous",
+        "past_perfect_simple",
+        "indefinite_pronouns",
+        "comparative_adverbs",
+        "time_clauses",
+        "collocation",
+        "noun_clauses"
+      ],
+      "known_cefr": {
+        "A1": 5,
+        "A2": 6,
+        "B1": 6,
+        "B2": 1
+      }
+    },
+    {
+      "id": "test_05",
+      "band": 3.5,
+      "band_cefr": "A2",
+      "url": "https://www.youtube.com/watch?v=VCcuRSc59FM",
+      "n_utterances": 18,
+      "proposals": {
+        "adverbs_time_place": 1,
+        "future_perfect": 1,
+        "indefinite_pronouns": 2,
+        "indirect_questions": 1,
+        "infinitive_of_purpose": 1,
+        "personal_pronouns": 6,
+        "possessive_pronouns": 4,
+        "possessive_s": 1,
+        "prepositions_time": 1,
+        "reason_result_clauses": 1,
+        "reflexive_pronouns": 4,
+        "reported_questions": 1,
+        "short_answers": 2,
+        "subject_object_questions": 1,
+        "would_past_habits": 1,
+        "yes_no_questions": 1
+      },
+      "cefr_profile": {
+        "A1": 16,
+        "A2": 5,
+        "B1": 6,
+        "B2": 2
+      },
+      "system_cefr_index": 0.793,
+      "ceiling_cefr": "B2",
+      "known": [
+        "possessive_s",
+        "personal_pronouns",
+        "possessive_pronouns",
+        "yes_no_questions",
+        "short_answers",
+        "reflexive_pronouns",
+        "infinitive_of_purpose",
+        "would_past_habits",
+        "indefinite_pronouns",
+        "reason_result_clauses",
+        "indirect_questions",
+        "reported_questions",
+        "subject_object_questions"
+      ],
+      "known_cefr": {
+        "A1": 5,
+        "A2": 2,
+        "B1": 5,
+        "B2": 1
+      }
+    },
+    {
+      "id": "test_01",
+      "band": 4.5,
+      "band_cefr": "A2/B1",
+      "url": "https://www.youtube.com/watch?v=4UQTBp0ZWZM",
+      "n_utterances": 16,
+      "proposals": {
+        "adjective_basic": 1,
+        "adverb_position": 1,
+        "adverbs_frequency": 1,
+        "adverbs_time_place": 1,
+        "dependent_prepositions": 1,
+        "indefinite_pronouns": 1,
+        "indirect_questions": 1,
+        "participial_adjectives": 2,
+        "personal_pronouns": 3,
+        "plural_nouns": 1,
+        "possessive_pronouns": 2,
+        "possessive_s": 1,
+        "prepositions_place": 1,
+        "quantifiers_advanced": 1,
+        "question_tags": 1,
+        "reflexive_pronouns": 3,
+        "short_answers": 2,
+        "yes_no_questions": 1
+      },
+      "cefr_profile": {
+        "A2": 3,
+        "A1": 14,
+        "B2": 3,
+        "B1": 5
+      },
+      "system_cefr_index": 0.88,
+      "ceiling_cefr": "B2",
+      "known": [
+        "plural_nouns",
+        "possessive_s",
+        "personal_pronouns",
+        "possessive_pronouns",
+        "adjective_basic",
+        "yes_no_questions",
+        "short_answers",
+        "reflexive_pronouns",
+        "indefinite_pronouns",
+        "participial_adjectives",
+        "question_tags",
+        "indirect_questions",
+        "quantifiers_advanced"
+      ],
+      "known_cefr": {
+        "A1": 7,
+        "A2": 1,
+        "B1": 4,
+        "B2": 1
+      }
+    },
+    {
+      "id": "test_07",
+      "band": 5.5,
+      "band_cefr": "B1",
+      "url": "https://www.youtube.com/watch?v=eMPthIIkV08",
+      "n_utterances": 13,
+      "proposals": {
+        "adjective_order": 1,
+        "articles_the": 1,
+        "collocation": 1,
+        "future_continuous": 1,
+        "gradable_nongradable": 1,
+        "idioms": 2,
+        "indefinite_pronouns": 1,
+        "indirect_questions": 1,
+        "participial_adjectives": 2,
+        "passive_modals": 1,
+        "passive_reporting": 1,
+        "personal_pronouns": 2,
+        "phrasal_verbs_basic": 1,
+        "possessive_pronouns": 2,
+        "prepositional_phrases_advanced": 1,
+        "prepositions_place": 1,
+        "present_simple": 1,
+        "quantifiers_advanced": 1,
+        "question_tags": 1,
+        "reason_result_clauses": 1,
+        "short_answers": 2,
+        "superlatives": 3,
+        "used_to": 1,
+        "will_future": 1,
+        "would_past_habits": 1,
+        "yes_no_questions": 1
+      },
+      "cefr_profile": {
+        "A1": 10,
+        "A2": 6,
+        "B2": 3,
+        "C1": 4,
+        "B1": 10
+      },
+      "system_cefr_index": 1.545,
+      "ceiling_cefr": "C1",
+      "known": [
+        "present_simple",
+        "will_future",
+        "personal_pronouns",
+        "possessive_pronouns",
+        "yes_no_questions",
+        "short_answers",
+        "used_to",
+        "articles_the",
+        "superlatives",
+        "phrasal_verbs_basic",
+        "future_continuous",
+        "would_past_habits",
+        "indefinite_pronouns",
+        "adjective_order",
+        "participial_adjectives",
+        "reason_result_clauses",
+        "question_tags",
+        "indirect_questions",
+        "collocation",
+        "quantifiers_advanced",
+        "gradable_nongradable",
+        "passive_modals",
+        "passive_reporting",
+        "prepositional_phrases_advanced",
+        "idioms"
+      ],
+      "known_cefr": {
+        "A1": 6,
+        "A2": 4,
+        "B1": 9,
+        "B2": 3,
+        "C1": 3
+      }
+    },
+    {
+      "id": "test_09",
+      "band": 5.5,
+      "band_cefr": "B1",
+      "url": "https://www.youtube.com/watch?v=4fbTTQa8I6s",
+      "n_utterances": 25,
+      "proposals": {
+        "adverbs_frequency": 2,
+        "articles_a_an": 1,
+        "articles_the": 1,
+        "dependent_prepositions": 1,
+        "future_continuous": 1,
+        "personal_pronouns": 1,
+        "possessive_pronouns": 1,
+        "reflexive_pronouns": 1,
+        "reporting_verbs": 1,
+        "short_answers": 1,
+        "time_clauses": 1,
+        "will_future": 1,
+        "would_past_habits": 1,
+        "zero_article": 1
+      },
+      "cefr_profile": {
+        "A2": 2,
+        "A1": 7,
+        "B1": 4,
+        "B2": 2
+      },
+      "system_cefr_index": 1.067,
+      "ceiling_cefr": "B2",
+      "known": [
+        "will_future",
+        "articles_a_an",
+        "adverbs_frequency",
+        "articles_the",
+        "future_continuous",
+        "would_past_habits",
+        "zero_article",
+        "reporting_verbs",
+        "dependent_prepositions"
+      ],
+      "known_cefr": {
+        "A1": 3,
+        "A2": 1,
+        "B1": 3,
+        "B2": 2
+      }
+    },
+    {
+      "id": "test_04",
+      "band": 6.5,
+      "band_cefr": "B2",
+      "url": "https://youtu.be/ECUmZ_NQZpM?si=yc1dG3fbITyFm36N",
+      "n_utterances": 19,
+      "proposals": {
+        "can_ability": 4,
+        "could_past_ability": 4,
+        "indirect_questions": 1,
+        "might_may_possibility": 1,
+        "modals_speculation": 1,
+        "participial_adjectives": 1,
+        "possessive_pronouns": 2,
+        "reflexive_pronouns": 1,
+        "short_answers": 1,
+        "zero_conditional": 1
+      },
+      "cefr_profile": {
+        "B1": 3,
+        "A1": 7,
+        "A2": 6,
+        "C1": 1
+      },
+      "system_cefr_index": 0.941,
+      "ceiling_cefr": "B1",
+      "known": [
+        "possessive_pronouns",
+        "can_ability",
+        "reflexive_pronouns",
+        "could_past_ability",
+        "zero_conditional",
+        "might_may_possibility",
+        "indirect_questions",
+        "modals_speculation"
+      ],
+      "known_cefr": {
+        "A1": 2,
+        "A2": 3,
+        "B1": 2,
+        "C1": 1
+      }
+    },
+    {
+      "id": "test_11",
+      "band": 6.5,
+      "band_cefr": "B2",
+      "url": "https://www.youtube.com/watch?v=5DREf8Sq5nY",
+      "n_utterances": 20,
+      "proposals": {
+        "addition_sequence_linkers": 1,
+        "fronting": 2,
+        "past_continuous": 1,
+        "past_perfect_simple": 1,
+        "personal_pronouns": 1,
+        "possessive_pronouns": 1,
+        "present_simple": 3,
+        "short_answers": 1,
+        "superlatives": 1,
+        "used_to": 2
+      },
+      "cefr_profile": {
+        "A1": 6,
+        "B1": 2,
+        "C1": 2,
+        "A2": 4
+      },
+      "system_cefr_index": 1.143,
+      "ceiling_cefr": "C1",
+      "known": [
+        "present_simple",
+        "short_answers",
+        "past_continuous",
+        "used_to",
+        "superlatives",
+        "past_perfect_simple",
+        "addition_sequence_linkers",
+        "fronting"
+      ],
+      "known_cefr": {
+        "A1": 2,
+        "A2": 3,
+        "B1": 2,
+        "C1": 1
+      }
+    },
+    {
+      "id": "test_02",
+      "band": 7.0,
+      "band_cefr": "B2/C1",
+      "url": "https://www.youtube.com/watch?v=xnaOzlC2RXg",
+      "n_utterances": 17,
+      "proposals": {
+        "backshift_advanced": 1,
+        "future_perfect": 1,
+        "infinitive_of_purpose": 1,
+        "modals_speculation": 1,
+        "participial_adjectives": 1,
+        "past_perfect_simple": 1,
+        "past_simple": 1,
+        "personal_pronouns": 1,
+        "possessive_pronouns": 1,
+        "present_simple": 2,
+        "reported_questions": 1,
+        "short_answers": 3,
+        "superlatives": 1,
+        "used_to": 2,
+        "verb_patterns": 1,
+        "will_future": 1,
+        "yes_no_questions": 1
+      },
+      "cefr_profile": {
+        "A1": 10,
+        "B1": 4,
+        "A2": 4,
+        "B2": 2,
+        "C1": 1
+      },
+      "system_cefr_index": 1.048,
+      "ceiling_cefr": "B2",
+      "known": [
+        "present_simple",
+        "past_simple",
+        "will_future",
+        "yes_no_questions",
+        "short_answers",
+        "used_to",
+        "superlatives",
+        "infinitive_of_purpose",
+        "past_perfect_simple",
+        "reported_questions",
+        "future_perfect",
+        "backshift_advanced",
+        "modals_speculation"
+      ],
+      "known_cefr": {
+        "A1": 5,
+        "A2": 3,
+        "B1": 2,
+        "B2": 2,
+        "C1": 1
+      }
+    },
+    {
+      "id": "test_08",
+      "band": 8.0,
+      "band_cefr": "C1/C2",
+      "url": "https://www.youtube.com/watch?v=mJhBTa4NX9Y",
+      "n_utterances": 17,
+      "proposals": {
+        "adverbs_frequency": 1,
+        "might_may_possibility": 1,
+        "mixed_conditionals": 1,
+        "participial_adjectives": 1,
+        "past_simple": 1,
+        "personal_pronouns": 1,
+        "possessive_pronouns": 1,
+        "reflexive_pronouns": 1,
+        "reported_questions": 1,
+        "sentence_adverbs": 1,
+        "short_answers": 2,
+        "subject_object_questions": 1,
+        "used_to": 2,
+        "wh_questions": 1,
+        "would_past_habits": 2,
+        "yes_no_questions": 2
+      },
+      "cefr_profile": {
+        "B1": 5,
+        "A1": 9,
+        "B2": 2,
+        "A2": 3,
+        "C1": 1
+      },
+      "system_cefr_index": 1.15,
+      "ceiling_cefr": "B2",
+      "known": [
+        "past_simple",
+        "personal_pronouns",
+        "possessive_pronouns",
+        "adverbs_frequency",
+        "yes_no_questions",
+        "wh_questions",
+        "short_answers",
+        "used_to",
+        "reflexive_pronouns",
+        "would_past_habits",
+        "participial_adjectives",
+        "might_may_possibility",
+        "subject_object_questions",
+        "mixed_conditionals"
+      ],
+      "known_cefr": {
+        "A1": 7,
+        "A2": 2,
+        "B1": 3,
+        "B2": 1,
+        "C1": 1
+      }
+    },
+    {
+      "id": "test_06",
+      "band": 9.0,
+      "band_cefr": "C1/C2",
+      "url": "https://youtu.be/Nj9xEQZbtYs?si=XHtgNXnXFUMQs0QN",
+      "n_utterances": 25,
+      "proposals": {
+        "dependent_prepositions": 1,
+        "future_perfect": 1,
+        "going_to_future": 2,
+        "infinitive_of_purpose": 1,
+        "mixed_tenses_advanced": 1,
+        "participial_adjectives": 6,
+        "personal_pronouns": 1,
+        "present_continuous": 1,
+        "question_tags": 1,
+        "question_words_advanced": 4,
+        "short_answers": 6,
+        "subject_object_questions": 4,
+        "yes_no_questions": 1
+      },
+      "cefr_profile": {
+        "A1": 9,
+        "B1": 7,
+        "C1": 1,
+        "A2": 7,
+        "B2": 6
+      },
+      "system_cefr_index": 1.433,
+      "ceiling_cefr": "B2",
+      "known": [
+        "yes_no_questions",
+        "short_answers",
+        "going_to_future",
+        "infinitive_of_purpose",
+        "question_words_advanced",
+        "participial_adjectives",
+        "question_tags",
+        "subject_object_questions"
+      ],
+      "known_cefr": {
+        "A1": 2,
+        "A2": 3,
+        "B1": 2,
+        "B2": 1
+      }
+    },
+    {
+      "id": "test_10",
+      "band": 9.0,
+      "band_cefr": "C1/C2",
+      "url": "https://www.youtube.com/watch?v=k4715CJ0Ii8",
+      "n_utterances": 15,
+      "proposals": {
+        "dependent_prepositions": 1,
+        "going_to_future": 1,
+        "participial_adjectives": 2,
+        "short_answers": 1,
+        "should_advice": 1,
+        "verb_patterns": 1
+      },
+      "cefr_profile": {
+        "B2": 1,
+        "B1": 3,
+        "A2": 2,
+        "A1": 1
+      },
+      "system_cefr_index": 1.571,
+      "ceiling_cefr": "B1",
+      "known": [
+        "short_answers",
+        "going_to_future",
+        "should_advice",
+        "participial_adjectives",
+        "verb_patterns",
+        "dependent_prepositions"
+      ],
+      "known_cefr": {
+        "A1": 1,
+        "A2": 2,
+        "B1": 2,
+        "B2": 1
+      }
+    }
+  ],
+  "graded": {
+    "mapper": "kbert + gemini grading (no tagging)",
+    "metrics": {
+      "pearson_band_vs_cefr_com": 0.675,
+      "pearson_band_vs_adv_mass": 0.663,
+      "pearson_band_vs_ceiling": 0.575
+    },
+    "tests": [
+      {
+        "id": "test_03",
+        "band": 3.5,
+        "band_cefr": "A2",
+        "url": "https://youtu.be/Zhw_o6sne2w?si=PYLWZETmko7Nb2PK",
+        "n_utterances": 20,
+        "cefr_com": 0.75,
+        "ceiling_cefr": "B1",
+        "adv_mass": 0.027,
+        "n_known": 7,
+        "known_cefr": {
+          "A1": 4,
+          "A2": 1,
+          "B1": 2
+        },
+        "counts": {
+          "frontier": 14,
+          "further": 92,
+          "known": 7
+        }
+      },
+      {
+        "id": "test_05",
+        "band": 3.5,
+        "band_cefr": "A2",
+        "url": "https://www.youtube.com/watch?v=VCcuRSc59FM",
+        "n_utterances": 18,
+        "cefr_com": 0.142,
+        "ceiling_cefr": "A1",
+        "adv_mass": 0.002,
+        "n_known": 3,
+        "known_cefr": {
+          "A1": 3
+        },
+        "counts": {
+          "frontier": 18,
+          "further": 92,
+          "known": 3
+        }
+      },
+      {
+        "id": "test_01",
+        "band": 4.5,
+        "band_cefr": "A2/B1",
+        "url": "https://www.youtube.com/watch?v=4UQTBp0ZWZM",
+        "n_utterances": 16,
+        "cefr_com": 0.308,
+        "ceiling_cefr": "B1",
+        "adv_mass": 0.0,
+        "n_known": 4,
+        "known_cefr": {
+          "A1": 3,
+          "B1": 1
+        },
+        "counts": {
+          "frontier": 15,
+          "further": 94,
+          "known": 4
+        }
+      },
+      {
+        "id": "test_07",
+        "band": 5.5,
+        "band_cefr": "B1",
+        "url": "https://www.youtube.com/watch?v=eMPthIIkV08",
+        "n_utterances": 13,
+        "cefr_com": 0.886,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.116,
+        "n_known": 4,
+        "known_cefr": {
+          "A1": 2,
+          "A2": 2
+        },
+        "counts": {
+          "frontier": 18,
+          "further": 91,
+          "known": 4
+        }
+      },
+      {
+        "id": "test_09",
+        "band": 5.5,
+        "band_cefr": "B1",
+        "url": "https://www.youtube.com/watch?v=4fbTTQa8I6s",
+        "n_utterances": 25,
+        "cefr_com": 1.299,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.223,
+        "n_known": 3,
+        "known_cefr": {
+          "A2": 1,
+          "B1": 1,
+          "B2": 1
+        },
+        "counts": {
+          "frontier": 13,
+          "further": 97,
+          "known": 3
+        }
+      },
+      {
+        "id": "test_04",
+        "band": 6.5,
+        "band_cefr": "B2",
+        "url": "https://youtu.be/ECUmZ_NQZpM?si=yc1dG3fbITyFm36N",
+        "n_utterances": 19,
+        "cefr_com": 0.354,
+        "ceiling_cefr": "A2",
+        "adv_mass": 0.0,
+        "n_known": 3,
+        "known_cefr": {
+          "A1": 2,
+          "A2": 1
+        },
+        "counts": {
+          "frontier": 14,
+          "further": 96,
+          "known": 3
+        }
+      },
+      {
+        "id": "test_11",
+        "band": 6.5,
+        "band_cefr": "B2",
+        "url": "https://www.youtube.com/watch?v=5DREf8Sq5nY",
+        "n_utterances": 20,
+        "cefr_com": 0.586,
+        "ceiling_cefr": "B1",
+        "adv_mass": 0.004,
+        "n_known": 3,
+        "known_cefr": {
+          "A1": 2,
+          "B1": 1
+        },
+        "counts": {
+          "known": 3,
+          "frontier": 20,
+          "further": 90
+        }
+      },
+      {
+        "id": "test_02",
+        "band": 7.0,
+        "band_cefr": "B2/C1",
+        "url": "https://www.youtube.com/watch?v=xnaOzlC2RXg",
+        "n_utterances": 17,
+        "cefr_com": 1.003,
+        "ceiling_cefr": "C1",
+        "adv_mass": 0.149,
+        "n_known": 7,
+        "known_cefr": {
+          "A1": 4,
+          "A2": 2,
+          "C1": 1
+        },
+        "counts": {
+          "known": 7,
+          "frontier": 24,
+          "further": 82
+        }
+      },
+      {
+        "id": "test_08",
+        "band": 8.0,
+        "band_cefr": "C1/C2",
+        "url": "https://www.youtube.com/watch?v=mJhBTa4NX9Y",
+        "n_utterances": 17,
+        "cefr_com": 1.021,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.134,
+        "n_known": 4,
+        "known_cefr": {
+          "A1": 2,
+          "A2": 1,
+          "B1": 1
+        },
+        "counts": {
+          "frontier": 23,
+          "further": 86,
+          "known": 4
+        }
+      },
+      {
+        "id": "test_06",
+        "band": 9.0,
+        "band_cefr": "C1/C2",
+        "url": "https://youtu.be/Nj9xEQZbtYs?si=XHtgNXnXFUMQs0QN",
+        "n_utterances": 25,
+        "cefr_com": 1.17,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.19,
+        "n_known": 2,
+        "known_cefr": {
+          "A1": 1,
+          "B1": 1
+        },
+        "counts": {
+          "frontier": 14,
+          "further": 97,
+          "known": 2
+        }
+      },
+      {
+        "id": "test_10",
+        "band": 9.0,
+        "band_cefr": "C1/C2",
+        "url": "https://www.youtube.com/watch?v=k4715CJ0Ii8",
+        "n_utterances": 15,
+        "cefr_com": 1.573,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.257,
+        "n_known": 4,
+        "known_cefr": {
+          "A1": 1,
+          "B1": 2,
+          "B2": 1
+        },
+        "counts": {
+          "frontier": 16,
+          "further": 93,
+          "known": 4
+        }
+      }
+    ]
+  },
+  "tagged": {
+    "mapper": "gemini tagging (proposes)",
+    "metrics": {
+      "pearson_band_vs_cefr_com": 0.897,
+      "pearson_band_vs_adv_mass": 0.886,
+      "pearson_band_vs_ceiling": 0.637
+    },
+    "tests": [
+      {
+        "id": "test_03",
+        "band": 3.5,
+        "band_cefr": "A2",
+        "url": "https://youtu.be/Zhw_o6sne2w?si=PYLWZETmko7Nb2PK",
+        "n_utterances": 20,
+        "cefr_com": 0.906,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.075,
+        "n_known": 18,
+        "known_cefr": {
+          "A1": 8,
+          "A2": 6,
+          "B1": 3,
+          "B2": 1
+        },
+        "counts": {
+          "known": 18,
+          "frontier": 34,
+          "further": 61
+        }
+      },
+      {
+        "id": "test_05",
+        "band": 3.5,
+        "band_cefr": "A2",
+        "url": "https://www.youtube.com/watch?v=VCcuRSc59FM",
+        "n_utterances": 18,
+        "cefr_com": 0.766,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.072,
+        "n_known": 20,
+        "known_cefr": {
+          "A1": 14,
+          "A2": 3,
+          "B1": 2,
+          "B2": 1
+        },
+        "counts": {
+          "known": 20,
+          "frontier": 31,
+          "interior_gap": 4,
+          "further": 58
+        }
+      },
+      {
+        "id": "test_01",
+        "band": 4.5,
+        "band_cefr": "A2/B1",
+        "url": "https://www.youtube.com/watch?v=4UQTBp0ZWZM",
+        "n_utterances": 16,
+        "cefr_com": 0.846,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.066,
+        "n_known": 17,
+        "known_cefr": {
+          "A1": 8,
+          "A2": 4,
+          "B1": 4,
+          "B2": 1
+        },
+        "counts": {
+          "frontier": 28,
+          "further": 67,
+          "known": 17,
+          "interior_gap": 1
+        }
+      },
+      {
+        "id": "test_07",
+        "band": 5.5,
+        "band_cefr": "B1",
+        "url": "https://www.youtube.com/watch?v=eMPthIIkV08",
+        "n_utterances": 13,
+        "cefr_com": 1.015,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.077,
+        "n_known": 31,
+        "known_cefr": {
+          "A1": 13,
+          "A2": 9,
+          "B1": 8,
+          "B2": 1
+        },
+        "counts": {
+          "known": 31,
+          "frontier": 34,
+          "further": 45,
+          "interior_gap": 3
+        }
+      },
+      {
+        "id": "test_09",
+        "band": 5.5,
+        "band_cefr": "B1",
+        "url": "https://www.youtube.com/watch?v=4fbTTQa8I6s",
+        "n_utterances": 25,
+        "cefr_com": 1.095,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.115,
+        "n_known": 41,
+        "known_cefr": {
+          "A1": 16,
+          "A2": 10,
+          "B1": 11,
+          "B2": 4
+        },
+        "counts": {
+          "known": 41,
+          "interior_gap": 2,
+          "frontier": 25,
+          "further": 45
+        }
+      },
+      {
+        "id": "test_04",
+        "band": 6.5,
+        "band_cefr": "B2",
+        "url": "https://youtu.be/ECUmZ_NQZpM?si=yc1dG3fbITyFm36N",
+        "n_utterances": 19,
+        "cefr_com": 1.235,
+        "ceiling_cefr": "C1",
+        "adv_mass": 0.124,
+        "n_known": 48,
+        "known_cefr": {
+          "A1": 19,
+          "A2": 11,
+          "B1": 14,
+          "B2": 3,
+          "C1": 1
+        },
+        "counts": {
+          "known": 48,
+          "frontier": 29,
+          "further": 32,
+          "interior_gap": 4
+        }
+      },
+      {
+        "id": "test_11",
+        "band": 6.5,
+        "band_cefr": "B2",
+        "url": "https://www.youtube.com/watch?v=5DREf8Sq5nY",
+        "n_utterances": 20,
+        "cefr_com": 1.285,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.167,
+        "n_known": 46,
+        "known_cefr": {
+          "A1": 18,
+          "A2": 10,
+          "B1": 11,
+          "B2": 7
+        },
+        "counts": {
+          "known": 46,
+          "frontier": 31,
+          "further": 32,
+          "interior_gap": 4
+        }
+      },
+      {
+        "id": "test_02",
+        "band": 7.0,
+        "band_cefr": "B2/C1",
+        "url": "https://www.youtube.com/watch?v=xnaOzlC2RXg",
+        "n_utterances": 17,
+        "cefr_com": 1.223,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.123,
+        "n_known": 50,
+        "known_cefr": {
+          "A1": 16,
+          "A2": 14,
+          "B1": 16,
+          "B2": 4
+        },
+        "counts": {
+          "known": 50,
+          "frontier": 28,
+          "further": 32,
+          "interior_gap": 3
+        }
+      },
+      {
+        "id": "test_08",
+        "band": 8.0,
+        "band_cefr": "C1/C2",
+        "url": "https://www.youtube.com/watch?v=mJhBTa4NX9Y",
+        "n_utterances": 17,
+        "cefr_com": 1.131,
+        "ceiling_cefr": "B2",
+        "adv_mass": 0.146,
+        "n_known": 44,
+        "known_cefr": {
+          "A1": 19,
+          "A2": 11,
+          "B1": 8,
+          "B2": 6
+        },
+        "counts": {
+          "known": 44,
+          "frontier": 26,
+          "interior_gap": 6,
+          "further": 37
+        }
+      },
+      {
+        "id": "test_06",
+        "band": 9.0,
+        "band_cefr": "C1/C2",
+        "url": "https://youtu.be/Nj9xEQZbtYs?si=XHtgNXnXFUMQs0QN",
+        "n_utterances": 25,
+        "cefr_com": 1.323,
+        "ceiling_cefr": "C1",
+        "adv_mass": 0.157,
+        "n_known": 62,
+        "known_cefr": {
+          "A1": 21,
+          "A2": 15,
+          "B1": 18,
+          "B2": 7,
+          "C1": 1
+        },
+        "counts": {
+          "known": 62,
+          "frontier": 24,
+          "further": 24,
+          "interior_gap": 3
+        }
+      },
+      {
+        "id": "test_10",
+        "band": 9.0,
+        "band_cefr": "C1/C2",
+        "url": "https://www.youtube.com/watch?v=k4715CJ0Ii8",
+        "n_utterances": 15,
+        "cefr_com": 1.383,
+        "ceiling_cefr": "C1",
+        "adv_mass": 0.194,
+        "n_known": 58,
+        "known_cefr": {
+          "A1": 18,
+          "A2": 18,
+          "B1": 13,
+          "B2": 5,
+          "C1": 4
+        },
+        "counts": {
+          "known": 58,
+          "frontier": 21,
+          "further": 28,
+          "interior_gap": 6
+        }
+      }
+    ]
+  }
+}
