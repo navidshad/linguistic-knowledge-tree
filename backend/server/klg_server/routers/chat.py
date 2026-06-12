@@ -42,7 +42,7 @@ from klg_ai.core.status import compute_status
 
 from .. import trace
 from ..deps import get_graph, get_map
-from ..gemini import gemini_grade, gemini_reply
+from ..gemini import gemini_grade, gemini_reply, gemini_tag
 from ..schemas import ChatIn, ChatOut, EdgeAdjustmentOut, NodeEvidenceOut
 
 router = APIRouter(prefix="/api", tags=["chat"])
@@ -89,6 +89,63 @@ def _mapper():
     """
     threshold = float(os.environ.get("KLG_CHAT_THRESHOLD", "0.22"))
     return default_mapper(knowledge_injection=True, threshold=threshold, top_k=3, syntax_map=get_map())
+
+
+# Gemini-tagging arm (RQ2 / IELTS case study): Gemini proposes concepts directly
+# from the full map catalog instead of vetoing the semantic mapper's proposals.
+_TAG_CACHE: dict[str, list[tuple[str, bool]]] = {}
+
+
+@lru_cache(maxsize=1)
+def _catalog() -> tuple[tuple[str, str, str], ...]:
+    """The full node catalog ``(id, label, cefr)`` Gemini tags against, built once."""
+    m = get_map()
+    return tuple((n.id, n.label, n.cefr) for n in m.nodes)
+
+
+def _tagged(text: str) -> list[tuple[str, bool]]:
+    """Gemini-tag one turn (cached); ``KLG_CHAT_GRADE=0`` keeps the offline fail-open."""
+    if text not in _TAG_CACHE:
+        _TAG_CACHE[text] = gemini_tag(text, list(_catalog()))
+    return _TAG_CACHE[text]
+
+
+def _tag_turns(messages):
+    """Gemini-tagging counterpart to ``_map_and_grade`` — same return shape.
+
+    Each user turn is tagged directly (``gemini_tag``); correct/incorrect usage
+    splits into two events as in the mapper path. Confidence is fixed at 1.0 (tagging
+    has no cosine score), so the per-node evidence overlay still populates.
+    """
+    per_user_events: list[list[Event]] = []
+    evidence: dict[str, dict] = {}
+    latest_scores: dict[str, float] = {}
+    latest_grades: dict[str, bool] = {}
+    latest_idx: int | None = None
+    latest_text: str | None = None
+    for i, turn in enumerate(messages):
+        if turn.role != "user":
+            continue
+        latest_idx, latest_text = i, turn.text
+        tags = _tagged(turn.text)
+        right = tuple(n for n, ok in tags if ok)
+        wrong = tuple(n for n, ok in tags if not ok)
+        turn_events: list[Event] = []
+        if right:
+            turn_events.append(Event(learner_id="chat", node_ids=right, correct=True,
+                                     ts=float(i), source="dialog"))
+        if wrong:
+            turn_events.append(Event(learner_id="chat", node_ids=wrong, correct=False,
+                                     ts=float(i), source="dialog"))
+        per_user_events.append(turn_events)
+        latest_scores = {n: 1.0 for n, _ in tags}
+        latest_grades = {n: ok for n, ok in tags}
+        for n, ok in tags:
+            slot = evidence.setdefault(n, {"confidence": 1.0, "turns": set(), "wrong": set()})
+            slot["turns"].add(i)
+            if not ok:
+                slot["wrong"].add(i)
+    return per_user_events, evidence, latest_scores, latest_grades, latest_idx, latest_text
 
 
 def _map_and_grade(messages, active: set[str]):
@@ -142,8 +199,12 @@ def chat(body: ChatIn) -> ChatOut:
     # Persist to a profile only if it's a real, editable (non-built-in) one.
     editable = pid is not None and pid not in RESERVED_IDS and load_events(pid) is not None
 
-    per_user_events, evidence, latest_scores, latest_grades, latest_idx, latest_text = \
-        _map_and_grade(body.messages, active)
+    if body.tagger == "gemini":
+        per_user_events, evidence, latest_scores, latest_grades, latest_idx, latest_text = \
+            _tag_turns(body.messages)
+    else:
+        per_user_events, evidence, latest_scores, latest_grades, latest_idx, latest_text = \
+            _map_and_grade(body.messages, active)
     reply = gemini_reply(body.messages)
 
     g = get_graph()

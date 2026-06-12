@@ -134,3 +134,63 @@ def gemini_grade(text: str, candidates: list[tuple[str, str]], *,
         return out
     except Exception:
         return _grade_all_correct(candidates)
+
+
+def gemini_tag(text: str, catalog: list[tuple[str, str, str]], *,
+               timeout: float = 20.0) -> list[tuple[str, bool]]:
+    """Tag a learner turn directly against the *full* concept catalog.
+
+    The contrast with :func:`gemini_grade`: grading lets Gemini only *veto* the weak
+    semantic mapper's proposals (so recall is capped by the mapper), whereas tagging
+    lets Gemini *propose* — it reads the text and names the concepts actually used,
+    fixing the recall ceiling. ``catalog`` is ``[(node_id, label, cefr), ...]`` (the
+    whole map). Returns ``[(node_id, correct), ...]`` for concepts the text
+    demonstrably uses; ``correct=False`` is negative evidence. Falls back to ``[]``
+    (no fabricated knowledge) when mocked, keyless, or on any API/parse error.
+    """
+    if not text.strip():
+        return []
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key or os.environ.get("KLG_GEMINI_MOCK") == "1":
+        return []
+    try:
+        import json
+
+        import httpx
+
+        catalog_lines = "\n".join(f"- {nid} ({cefr}): {label}" for nid, label, cefr in catalog)
+        prompt = (
+            "You are an expert CEFR English-grammar examiner. A learner produced this speech:\n"
+            f'"{text}"\n\n'
+            "From the catalog below, list ONLY the grammar concepts the learner "
+            "DEMONSTRABLY USES here (the construction actually appears in the text) — not "
+            "concepts that merely could have been used. For each, judge whether it is used "
+            "CORRECTLY (well-formed) or with errors.\n\n"
+            f"Concepts (id (CEFR): name):\n{catalog_lines}\n\n"
+            'Reply with ONLY a JSON array: [{"id": "<exact catalog id>", "correct": true|false}]. '
+            "Empty array if none apply."
+        )
+        payload = {
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "maxOutputTokens": 1024,
+                "temperature": 0.0,
+                "responseMimeType": "application/json",
+                "thinkingConfig": {"thinkingBudget": 0},
+            },
+        }
+        resp = httpx.post(
+            _ENDPOINT.format(model=_MODEL), params={"key": key}, json=payload, timeout=timeout
+        )
+        resp.raise_for_status()
+        parts = resp.json()["candidates"][0]["content"]["parts"]
+        raw = json.loads("".join(p.get("text", "") for p in parts))
+        valid = {nid for nid, _, _ in catalog}
+        out: list[tuple[str, bool]] = []
+        for item in raw if isinstance(raw, list) else []:
+            nid = item.get("id") if isinstance(item, dict) else None
+            if nid in valid and nid not in {n for n, _ in out}:
+                out.append((nid, bool(item.get("correct", True))))
+        return out
+    except Exception:
+        return []

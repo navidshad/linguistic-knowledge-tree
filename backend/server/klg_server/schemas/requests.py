@@ -30,6 +30,10 @@ class ChatIn(BaseModel):
     activated: list[str] = []
     session_id: str | None = None
     profile_id: str | None = None
+    # Evidence→node mapper for the learner turns. "semantic" (default) = the
+    # validated K-BERT mapper + Gemini grading (Gemini only vetoes); "gemini" =
+    # Gemini tags concepts directly (proposes), lifting the recall ceiling.
+    tagger: Literal["semantic", "gemini"] | None = None
 
 
 Cefr = Literal["A1", "A2", "B1", "B2", "C1", "C2"]

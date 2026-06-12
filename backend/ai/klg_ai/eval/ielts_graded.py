@@ -28,23 +28,26 @@ from klg_ai.eval.ielts import (
 BASE_URL = "http://localhost:8000"
 
 
-def _post(messages: list[dict]) -> dict:
-    body = json.dumps({"messages": messages, "activated": [],
-                       "session_id": "ielts-graded", "profile_id": None}).encode()
-    req = urllib.request.Request(BASE_URL + "/api/chat", data=body,
+def _post(messages: list[dict], tagger: str | None = None) -> dict:
+    payload = {"messages": messages, "activated": [],
+               "session_id": "ielts-graded", "profile_id": None}
+    if tagger:
+        payload["tagger"] = tagger
+    req = urllib.request.Request(BASE_URL + "/api/chat", data=json.dumps(payload).encode(),
                                  headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=300) as r:
         return json.load(r)
 
 
-def run_graded() -> dict:
+def run_graded(arm: str = "graded", tagger: str | None = None,
+               mapper_label: str = "kbert + gemini grading (no tagging)") -> dict:
     smap = load_map()
     cefr_of = {n.id: n.cefr for n in smap.nodes}
     tests = [parse_test(p) for p in sorted(RAW_DIR.glob("test_*.md"))]
 
     rows = []
     for t in tests:
-        resp = _post([{"role": "user", "text": u} for u in t.candidate])
+        resp = _post([{"role": "user", "text": u} for u in t.candidate], tagger=tagger)
         mastery = {n: m for n, m in (resp.get("mastery") or {}).items() if m > 0}
         statuses = resp.get("statuses") or {}
         total = sum(mastery.values())
@@ -78,12 +81,12 @@ def run_graded() -> dict:
         "pearson_band_vs_ceiling": round(_pearson(
             bands, [CEFR_INDEX.get(r["ceiling_cefr"], 0) for r in rows]), 3),
     }
-    graded = {"mapper": "kbert + gemini grading (no tagging)", "metrics": metrics, "tests": rows}
+    result = {"mapper": mapper_label, "metrics": metrics, "tests": rows}
 
     agg = json.loads(PINNED.read_text()) if PINNED.exists() else {}
-    agg["graded"] = graded
+    agg[arm] = result
     PINNED.write_text(json.dumps(agg, indent=2))
-    return graded
+    return result
 
 
 def _print_summary(g: dict) -> None:
