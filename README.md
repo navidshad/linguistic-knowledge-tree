@@ -25,8 +25,8 @@ The map is the source of truth (same for every learner); the `ai` engine compute
 ```bash
 python3 -m venv backend/.venv && source backend/.venv/bin/activate
 pip install -e backend/ai -e "backend/server[dev]"
-pytest backend/ai backend/server -q                       # run tests
-uvicorn klg_server.main:app --reload --port 8000          # run API  (docs at /docs)
+pytest backend/ai backend/server -q                               # run tests
+uvicorn klg_server.main:app --reload --port 8000 --env-file .env  # run API  (docs at /docs)
 ```
 
 **Frontend** (Node 18+), in a second terminal:
