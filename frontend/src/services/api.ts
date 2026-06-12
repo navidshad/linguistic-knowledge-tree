@@ -65,8 +65,8 @@ export const api = {
   // Phase 6 chat: a tutor turn + the knowledge state the learner's turns imply.
   // sessionId keys the server-side per-session pipeline trace; profileId (Phase 8)
   // persists the conversation + dialog evidence to that profile.
-  postChat: (messages: ChatTurn[], activated: string[], sessionId?: string, profileId?: string) =>
+  postChat: (messages: ChatTurn[], activated: string[], sessionId?: string, profileId?: string, tagger?: string) =>
     post<ChatResponse>("/api/chat", {
-      messages, activated, session_id: sessionId, profile_id: profileId,
+      messages, activated, session_id: sessionId, profile_id: profileId, tagger,
     }),
 };

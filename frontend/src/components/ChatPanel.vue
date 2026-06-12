@@ -4,7 +4,7 @@ import { storeToRefs } from "pinia";
 import { useChatStore } from "../stores/chat";
 
 const chat = useChatStore();
-const { messages, sending, error, lastMapped, lastGrades, edgeAdjustments } = storeToRefs(chat);
+const { messages, sending, error, lastMapped, lastGrades, edgeAdjustments, tagger } = storeToRefs(chat);
 const draft = ref("");
 const listEl = ref<HTMLElement | null>(null);
 
@@ -29,6 +29,15 @@ watch(
       <h2>Chat tutor</h2>
       <button class="reset" title="Clear the conversation" @click="chat.reset()">Reset</button>
     </div>
+    <label class="tagger" title="Gemini reads each turn and names the grammar used (higher recall) instead of the embedding mapper proposing and Gemini only vetoing">
+      <input
+        type="checkbox"
+        :checked="tagger === 'gemini'"
+        :disabled="sending"
+        @change="tagger = ($event.target as HTMLInputElement).checked ? 'gemini' : 'semantic'"
+      />
+      Gemini tagging <span class="hint-badge">higher recall</span>
+    </label>
     <p v-if="!messages.length" class="hint">
       Chat in English with the AI tutor. Each turn you write is mapped to grammar
       concepts and lights up the map&nbsp;→
@@ -63,6 +72,9 @@ watch(
 .head { display: flex; justify-content: space-between; align-items: center; }
 h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 8px; }
 .reset { font-size: 10px; border: 1px solid var(--line); background: #fff; border-radius: 5px; padding: 2px 7px; cursor: pointer; color: var(--muted); }
+.tagger { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); margin: 0 0 8px; cursor: pointer; }
+.tagger input { margin: 0; cursor: pointer; }
+.hint-badge { font-size: 9px; background: #ede7f6; color: #6a1b9a; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.02em; }
 .hint { color: var(--muted); font-style: italic; line-height: 1.5; margin: 0 0 8px; }
 .msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
 .msg .who { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
